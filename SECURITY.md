@@ -16,4 +16,4 @@ Security fixes go into the latest release. Update with the steps in [deploy/READ
 - Turn on two-step sign-in for every admin (Admin > Your profile > Two-step sign-in).
 - Keep the server's port private behind a proxy or tunnel, and set `TRUST_PROXY=1` only then.
 - Set `SITE_URL` to your https address.
-- Back up `data/` and keep `secret.key` safe and separate (README.md, "Backups").
+- Back up `data/` and keep `secret.key` safe and separate ([docs/deployment.md](docs/deployment.md), "Backups").

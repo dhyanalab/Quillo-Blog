@@ -4,6 +4,12 @@ All notable changes to Quillo are listed here. Versions follow [Semantic Version
 
 ## [Unreleased]
 
+### Project
+
+- A `VERSION` file is now the single place the version is kept. `npm run set-version -- x.y.z` updates package.json, the lockfile and the README badge to match, and a test checks they agree.
+- The README is now a product page, with a logo, badges, screenshots and quick start. The detailed guides moved to `docs/`: admin guide, configuration, deployment and development.
+- `.gitignore` now also covers keys and certificates, packaged copies of a blog (which can hold its database and key), editor and tool folders, and test output.
+
 Planned for 1.0.0:
 
 - Designs chosen in the admin: a new Admin > Design page with live preview. It covers 6 colour themes, 5 font pairs, light and dark, and 3 headers, 3 home pages and 3 article pages. Share buttons, source code, downloads, tables and comments each get their own styles. Saved combinations become named templates.

@@ -143,10 +143,10 @@ export function clientIp(c, ctx) {
   }
   // Behind a proxy without TRUST_PROXY, every visitor would share the proxy's address (one rate-limit bucket): say so once.
   if (!config.trustProxy && c.req.header("x-forwarded-for")) {
-    note(ctx, "Requests carry an X-Forwarded-For header but TRUST_PROXY is not set, so every visitor shares one rate limit and sign-in limits can lock everyone out. If a reverse proxy sits in front of this site, set TRUST_PROXY=1 (see the README).");
+    note(ctx, "Requests carry an X-Forwarded-For header but TRUST_PROXY is not set, so every visitor shares one rate limit and sign-in limits can lock everyone out. If a reverse proxy sits in front of this site, set TRUST_PROXY=1 (see the Reverse proxy section of docs/deployment.md).");
     if (!warnedProxy) {
       warnedProxy = true;
-      console.warn("Warning: requests carry X-Forwarded-For but TRUST_PROXY is not set, so all visitors share one rate limit. Set TRUST_PROXY=1 if a reverse proxy sits in front of this app (see the README).");
+      console.warn("Warning: requests carry X-Forwarded-For but TRUST_PROXY is not set, so all visitors share one rate limit. Set TRUST_PROXY=1 if a reverse proxy sits in front of this app (see the Reverse proxy section of docs/deployment.md).");
     }
   }
   try {

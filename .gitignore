@@ -1,18 +1,26 @@
-node_modules/
+# ---------------------------------------------------------------------------
+# Never commit: a blog's live data, keys and secrets
+# ---------------------------------------------------------------------------
 data/
-test/output/
+backups/
+secret.key
+key-check.txt
+suppression-list.txt
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.csr
+id_rsa*
+id_ed25519*
 
-# Settings and secrets
+# Settings files with secrets (the documented template, .env.example, is kept)
 .env
 .env.*
 !.env.example
-*.pem
-*.key
-*.p12
-*.pfx
-secret.key
 
-# Database files, backups and their SQLite side files, wherever DATA_DIR points
+# Database files, wherever DATA_DIR points
 *.db
 *.db-wal
 *.db-shm
@@ -22,12 +30,40 @@ secret.key
 *.sqlite-wal
 *.sqlite-shm
 *.bak
-backups/
 
-# Logs and editor leftovers
+# Packaged copies of a blog (they can hold the database and secret.key)
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+!test/fixtures/**/*.zip
+
+# ---------------------------------------------------------------------------
+# Generated, installed or temporary
+# ---------------------------------------------------------------------------
+node_modules/
+test/output/
+test-results/
+playwright-report/
+coverage/
+.nyc_output/
+tmp/
+*.tmp
+_site/
+
+# Logs (the blog's audit.log and command-line.log live in data/)
 *.log
+logs/
+npm-debug.log*
+
+# ---------------------------------------------------------------------------
+# Editors, tools and operating systems
+# ---------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*~
+.claude/
 .DS_Store
 Thumbs.db
-
-# Leftover build folder from an earlier version
-_site/
+desktop.ini

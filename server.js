@@ -83,7 +83,7 @@ server = serve({ fetch: app.fetch, port, hostname: host, serverOptions: { maxHea
   if (production) {
     for (const w of ctx.warnings) console.log(`Notice: ${w}`);
     if (!ctx.config.trustProxy && ctx.config.siteUrl.startsWith("https:") && /^(127\.|localhost|::1)/.test(host)) {
-      console.log("Notice: the site is https but TRUST_PROXY is not set. If a reverse proxy sits in front of this app, set TRUST_PROXY=1 so every visitor gets their own rate limit (see the README).");
+      console.log("Notice: the site is https but TRUST_PROXY is not set. If a reverse proxy sits in front of this app, set TRUST_PROXY=1 so every visitor gets their own rate limit (see the Reverse proxy section of docs/deployment.md).");
     }
   }
 });
@@ -97,7 +97,7 @@ server.keepAliveTimeout = 65_000;
 server.maxConnections = 1024;
 
 // One address may not hold every connection slot. Behind a proxy all connections come from the proxy, so the proxy must limit
-// them instead (see the README); loopback is never limited.
+// them instead (see the Reverse proxy section of docs/deployment.md); loopback is never limited.
 const open = new Map();
 server.on("connection", (socket) => {
   const ip = socket.remoteAddress || "";

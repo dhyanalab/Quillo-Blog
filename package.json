@@ -18,7 +18,8 @@
     "verify": "node scripts/verify-pages.js",
     "flow": "node scripts/editor-flow.js",
     "build:editor": "node scripts/build-editor.js",
-    "build:icons": "node scripts/build-icons.js"
+    "build:icons": "node scripts/build-icons.js",
+    "set-version": "node scripts/set-version.js"
   },
   "dependencies": {
     "@fontsource/inter": "5.3.0",
