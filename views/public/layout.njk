@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="{{ site.lang }}" data-base="{{ site.base }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ meta.title }}</title>
+{% if meta.description %}<meta name="description" content="{{ meta.description }}">
+{% endif %}
+{% if meta.canonical %}<link rel="canonical" href="{{ meta.canonical }}">
+{% endif %}
+<meta name="robots" content="{{ meta.robots }}">
+{% for v in site.verify %}<meta name="{{ v[0] }}" content="{{ v[1] }}">
+{% endfor %}
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#191C1F" media="(prefers-color-scheme: dark)">
+<script>{{ themeScript | safe }}</script>
+{% for href in preload %}<link rel="preload" href="{{ href }}" as="font" type="font/woff2" crossorigin>
+{% endfor %}
+<link rel="stylesheet" href="{{ cssUrl }}">
+{% if previewCssUrl %}<link rel="stylesheet" href="{{ previewCssUrl }}">
+{% endif %}
+{% if site.logo %}<link rel="icon" href="{{ site.url.media(site.logo.path) }}">
+{% else %}<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23C2410C'/%3E%3Crect x='10' y='10' width='12' height='12' rx='2' fill='none' stroke='white' stroke-width='2.2'/%3E%3Cpath d='M13 6v4M19 6v4M13 22v4M19 22v4M6 13h4M6 19h4M22 13h4M22 19h4' stroke='white' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
+{% endif %}
+{% if meta.og %}
+<meta property="og:site_name" content="{{ site.name }}">
+<meta property="og:locale" content="en_IN">
+<meta property="og:type" content="{{ meta.og.type }}">
+<meta property="og:title" content="{{ meta.og.title }}">
+<meta property="og:description" content="{{ meta.og.description }}">
+<meta property="og:url" content="{{ meta.canonical }}">
+<meta property="og:image" content="{{ meta.og.image.url }}">
+<meta property="og:image:width" content="{{ meta.og.image.width }}">
+<meta property="og:image:height" content="{{ meta.og.image.height }}">
+<meta property="og:image:alt" content="{{ meta.og.image.alt }}">
+{% if meta.og.type == "article" %}
+<meta property="article:published_time" content="{{ meta.og.published }}">
+<meta property="article:modified_time" content="{{ meta.og.modified }}">
+{% if meta.og.author %}<meta property="article:author" content="{{ meta.og.author }}">
+{% endif %}
+{% if meta.og.section %}<meta property="article:section" content="{{ meta.og.section }}">
+{% endif %}
+{% for t in meta.og.tags %}<meta property="article:tag" content="{{ t }}">
+{% endfor %}
+{% endif %}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ meta.og.title }}">
+<meta name="twitter:description" content="{{ meta.og.description }}">
+<meta name="twitter:image" content="{{ meta.og.image.url }}">
+{% endif %}
+<link rel="alternate" type="application/rss+xml" title="{{ site.title }}" href="{{ site.url.rss }}">
+{% if feedUrl %}<link rel="alternate" type="application/rss+xml" title="{{ heading.title }} | {{ site.title }}" href="{{ feedUrl }}">
+{% endif %}
+{% if pagination and pagination.prev %}<link rel="prev" href="{{ pagination.prev }}">
+{% endif %}
+{% if pagination and pagination.next %}<link rel="next" href="{{ pagination.next }}">
+{% endif %}
+{% if meta.schema %}<script type="application/ld+json">{{ meta.schema | jsonld }}</script>
+{% endif %}
+{% if site.analytics and not preview and not noAnalytics %}{{ site.analytics.html | safe }}
+{% endif %}
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+{% if preview %}<div class="preview-bar" role="status"><strong>Preview.</strong> This page isn’t public yet. Close this tab to go back to the editor.</div>{% endif %}
+{% include "public/partials/header.njk" %}
+{% if slots.top %}<div class="wrap kx-row kx-row-top">{{ slots.top | safe }}</div>{% endif %}
+<main id="main" tabindex="-1">
+{% block main %}{% endblock %}
+</main>
+{% if slots.footer %}<div class="wrap kx-row kx-row-foot">{{ slots.footer | safe }}</div>{% endif %}
+{% include "public/partials/footer.njk" %}
+<p class="sr-only" aria-live="polite" id="live"></p>
+<script>{{ siteJs | safe }}</script>
+</body>
+</html>

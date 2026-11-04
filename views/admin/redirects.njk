@@ -1,0 +1,52 @@
+{% extends "admin/layout.njk" %}
+{% set title = "Redirects" %}
+{% block content %}
+<div class="adm-head"><h1>Redirects</h1></div>
+<p class="meta">Changing a live post’s URL adds a 301 here automatically, and deleting a live post adds a 410 (gone). Add your own for old URLs from another platform.</p>
+<div class="adm-cols adm-cols-2">
+  <section class="card">
+    <h2 class="box-title">Add a redirect</h2>
+    {% if errors %}<ul class="form-error" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+    <form method="post" action="{{ A }}/redirects" class="form">
+      <input type="hidden" name="_csrf" value="{{ csrf }}">
+      <label class="field"><span>From path</span><input name="from_path" value="{{ draft.from_path }}" required placeholder="{{ site.base }}/old-post/"></label>
+      <label class="field"><span>To path or URL</span><input name="to_path" value="{{ draft.to_path }}" placeholder="{{ site.base }}/new-post/"></label>
+      <label class="field"><span>Type</span><select name="status_code"><option value="301">301 Moved permanently</option><option value="302">302 Temporary</option><option value="410">410 Gone (removed)</option></select></label>
+      <div class="form-actions"><button class="btn btn-primary" type="submit">Add</button></div>
+    </form>
+  </section>
+  <section class="card">
+    <h2 class="box-title">All redirects <small class="meta">{{ total }}</small></h2>
+    <form class="filters" method="get" action="{{ A }}/redirects">
+      <label class="sr-only" for="rq">Search redirects</label>
+      <input id="rq" type="search" name="q" value="{{ q }}" placeholder="Search addresses">
+      <label class="sr-only" for="rs">Made by</label>
+      <select id="rs" name="source" data-autosubmit><option value="">Everyone</option><option value="admin"{% if source == "admin" %} selected{% endif %}>Added by hand</option><option value="auto"{% if source == "auto" %} selected{% endif %}>Automatic</option></select>
+    </form>
+    {% if items.length %}
+    <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">From</th><th scope="col">To</th><th scope="col" class="num">Hits</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+      <tbody>
+      {% for r in items %}
+      <tr>
+        <td class="mono">{{ r.from_path }}</td>
+        <td class="mono">{% if r.status_code == 410 %}<span class="badge badge-draft">410 Gone</span>{% else %}{{ r.to_path }} <span class="meta">{{ r.status_code }}</span>{% endif %}{% if r.source == "auto" %} <span class="meta">(automatic)</span>{% endif %}</td>
+        <td class="num">{{ r.hits }}</td>
+        <td><form method="post" action="{{ A }}/redirects/{{ r.id }}/delete" data-confirm="{{ 'Allow this web address to be used again?' if r.status_code == 410 else 'Delete this redirect?' }}"><input type="hidden" name="_csrf" value="{{ csrf }}"><button class="btn btn-small btn-danger" type="submit">{{ "Allow address again" if r.status_code == 410 else "Delete" }}</button></form></td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% if pages > 1 %}
+    <nav class="pager" aria-label="Pages">
+      {% if pageNo > 1 %}<a class="btn" href="{{ prevUrl }}">Previous</a>{% endif %}
+      <span class="meta">Page {{ pageNo }} of {{ pages }}</span>
+      {% if pageNo < pages %}<a class="btn" href="{{ nextUrl }}">Next</a>{% endif %}
+    </nav>
+    {% endif %}
+    {% else %}<p class="meta">{% if q or source %}No redirects match.{% else %}No redirects yet.{% endif %}</p>{% endif %}
+  </section>
+</div>
+{% endblock %}

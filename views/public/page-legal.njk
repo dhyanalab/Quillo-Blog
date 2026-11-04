@@ -1,0 +1,44 @@
+{% extends "public/layout.njk" %}
+{% from "public/partials/landing.njk" import pageHero %}
+{# Legal pages (privacy, terms, cookies...): the policy on a white sheet with numbered sections, a contents list,
+   the other legal pages, and who to ask. The text is the page's own, edited in Admin > Pages. #}
+{% block main %}
+{% set p = post %}
+{% set b = site.business %}
+<article class="lp lg" aria-labelledby="page-title">
+  {{ pageHero(p, "Legal", art, [], true) }}
+
+  <div class="wrap lg-grid">
+    <aside class="lg-side" aria-label="About this page">
+      {% if p.toc.length > 1 %}
+      <nav class="lg-box lg-toc" aria-labelledby="toc-h">
+        <h2 id="toc-h">On this page</h2>
+        <ol>{% for t in p.toc %}<li><a href="#{{ t.id }}">{{ t.text }}</a></li>{% endfor %}</ol>
+      </nav>
+      {% endif %}
+      {% if legalOthers.length %}
+      <nav class="lg-box" aria-labelledby="other-h">
+        <h2 id="other-h">Other policies</h2>
+        <ul class="lg-links">{% for l in legalOthers %}<li><a href="{{ l.url }}">{{ icon("file", 16) }}{{ l.label }}</a></li>{% endfor %}</ul>
+      </nav>
+      {% endif %}
+      <div class="lg-box lg-ask">
+        <h2>Questions?</h2>
+        {% if b.emails.length %}<p>Write to us at {% for e in b.emails %}{% if not loop.first %} or {% endif %}<a href="mailto:{{ e }}">{{ e }}</a>{% endfor %}{% if site.pageUrls.contact %}, or see all the ways to <a href="{{ site.pageUrls.contact }}">contact us</a>{% endif %}.</p>
+        {% elif site.pageUrls.contact %}<p><a href="{{ site.pageUrls.contact }}">Contact us</a> and we’ll help.</p>{% endif %}
+        <button class="btn lg-print" type="button" data-print>{{ icon("dl", 16) }} Print or save as PDF</button>
+      </div>
+    </aside>
+
+    <div class="lg-doc">
+      {% if p.toc.length > 1 %}
+      <details class="lg-toc-m">
+        <summary>{{ icon("list", 16) }} On this page</summary>
+        <ol>{% for t in p.toc %}<li><a href="#{{ t.id }}">{{ t.text }}</a></li>{% endfor %}</ol>
+      </details>
+      {% endif %}
+      <div class="prose">{{ p.html | safe }}</div>
+    </div>
+  </div>
+</article>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "admin/layout.njk" %}
+{% block content %}
+<div class="adm-head">
+  <h1>Ads</h1>
+  <div class="adm-head-actions"><a class="btn btn-primary" href="{{ A }}/ads/new">{{ icon("plus", 16) }} New banner</a></div>
+  <p>Sponsor banners you sell and place yourself, like the DigiKey and Mouser banners on CircuitDigest. They’re served from your own site and labelled “Sponsored”.</p>
+</div>
+<form class="card master{% if not s.ads_enabled %} is-off{% endif %}" method="post" action="{{ A }}/ads/switch">
+  <input type="hidden" name="_csrf" value="{{ csrf }}">
+  <input type="hidden" name="ads_enabled" value="{{ '0' if s.ads_enabled else '1' }}">
+  <div>
+    <h2>Ads on your blog</h2>
+    <p class="meta">{% if s.ads_enabled %}On. Banners, and “Your brand here” boxes if you chose to show them, appear in the places switched on below.{% else %}Off. No banners or empty boxes show anywhere on the blog. Your banners and settings are kept for when you switch back on.{% endif %}</p>
+  </div>
+  <button class="switch" type="submit" role="switch" aria-checked="{{ 'true' if s.ads_enabled else 'false' }}" aria-label="Ads on your blog"><span class="switch-track"><span class="switch-knob"></span></span><span class="switch-text">{{ "On" if s.ads_enabled else "Off" }}</span></button>
+</form>
+{% if contactError %}<p class="form-error" role="alert">The “Advertise with us” link must be a web address, a page on your blog (starting with /) or mailto:you@example.com.</p>{% endif %}
+
+<details class="card ads-guide"{% if not ads.length %} open{% endif %}>
+  <summary><h2 class="box-title">{{ icon("info", 17) }} How ads work on your blog</h2></summary>
+  <ol class="steps">
+    <li><b>Agree a deal with a sponsor.</b> Electronics shops, board makers and tool brands are the usual sponsors. Most blogs charge a fixed price per month for each place, for example one price for the top of every page and a lower one for the sidebar.</li>
+    <li><b>Ask the sponsor for their banner pictures and link.</b> Give them the sizes listed under “Places on your blog” below. Ask for JPG, PNG or GIF files under 150 KB, plus a smaller picture for phones if they have one.</li>
+    <li><b>Add the banner here.</b> Click <b>New banner</b>, upload the picture, paste their link, tick the places and set start and end dates. It goes live at once, or on the start date, and comes down by itself after the end date.</li>
+    <li><b>Send the sponsor a report.</b> Each banner counts how many times it was seen and clicked. Open it to see the numbers per day for the last 30 days.</li>
+  </ol>
+  <ul class="notes">
+    <li><b>Ad blockers:</b> these banners come from your own site, use plain file names and load no outside scripts, so the usual ad-blocker lists leave them alone. No method is guaranteed against every blocker, and readers who block everything will still miss them.</li>
+    <li><b>Honesty:</b> every banner carries a small “Sponsored” label, and its link is marked “nofollow” for Google. Both are required for paid placements, and they protect your search ranking.</li>
+    <li><b>Several banners in one place:</b> they take turns. Each visit shows one of them at random.</li>
+    <li><b>Switches:</b> “Ads on your blog” turns everything off at once. Each place and each banner also has its own switch. Nothing is deleted when you switch something off.</li>
+    <li><b>Google AdSense</b> is a different option: Google fills the places automatically and pays per view or click. It needs a Google script, which ad blockers do hide, and earns much less per reader on a niche blog. Selling directly, as here, usually pays more.</li>
+  </ul>
+</details>
+
+<section aria-labelledby="ads-h"{% if not s.ads_enabled %} class="is-off"{% endif %}>
+  <h2 class="box-title" id="ads-h">Your banners</h2>
+  {% if ads.length %}
+  <ul class="ad-list">
+    {% for a in ads %}
+    <li class="card ad-row">
+      <a class="ad-thumb" href="{{ A }}/ads/{{ a.id }}">{% if a.image %}<img src="{{ a.image.url }}" alt="">{% else %}<span class="meta">No picture</span>{% endif %}</a>
+      <div class="ad-info">
+        <p><a class="row-title" href="{{ A }}/ads/{{ a.id }}">{{ a.name }}</a>
+          {% if a.status == "running" and not s.ads_enabled %}<span class="badge badge-draft">Hidden: ads are off</span>
+          {% elif a.status == "running" and not a.placesOn %}<span class="badge badge-draft">Hidden: its places are off</span>
+          {% else %}<span class="badge badge-{{ {'running': 'published', 'scheduled': 'scheduled', 'ended': 'hidden', 'paused': 'draft'}[a.status] }}">{{ {'running': 'Showing', 'scheduled': 'Starts ' + a.startsOn, 'ended': 'Ended', 'paused': 'Off'}[a.status] }}</span>{% endif %}</p>
+        <p class="meta">{{ a.placeNames | join(", ") }}</p>
+        <p class="meta">{% if a.startsOn or a.endsOn %}{{ a.startsOn or "Now" }} to {{ a.endsOn or "no end date" }}{% else %}No end date{% endif %}</p>
+      </div>
+      <div class="ad-stats" aria-label="Last 30 days">
+        <span><b>{{ a.views }}</b> views</span><span><b>{{ a.clicks }}</b> clicks</span><span><b>{{ a.ctr }}</b> clicked</span>
+      </div>
+      <div class="acts">
+        <form method="post" action="{{ A }}/ads/{{ a.id }}/{{ 'pause' if a.active else 'resume' }}"><input type="hidden" name="_csrf" value="{{ csrf }}"><button class="switch" type="submit" role="switch" aria-checked="{{ 'true' if a.active else 'false' }}" aria-label="Show the {{ a.name }} banner"><span class="switch-track"><span class="switch-knob"></span></span><span class="switch-text">{{ "On" if a.active else "Off" }}</span></button></form>
+        <a class="btn btn-small" href="{{ A }}/ads/{{ a.id }}">Edit</a>
+        <form method="post" action="{{ A }}/ads/{{ a.id }}/delete" data-confirm="Delete the {{ a.name }} banner and its numbers?"><input type="hidden" name="_csrf" value="{{ csrf }}"><button class="btn btn-small btn-danger" type="submit">Delete</button></form>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  <p class="meta">Views and clicks are for the last 30 days.</p>
+  {% else %}
+  <div class="card empty"><p>No banners yet.</p><p style="margin-top:12px"><a class="btn btn-primary" href="{{ A }}/ads/new">Add your first banner</a></p></div>
+  {% endif %}
+</section>
+
+<section class="card{% if not s.ads_enabled %} is-off{% endif %}" aria-labelledby="places-h">
+  <h2 class="box-title" id="places-h">Places on your blog</h2>
+  <p class="meta" style="margin-bottom:16px">The numbers match the maps. Give sponsors the size for each place they buy. Switch a place off to keep it empty, even when banners are set to show there.</p>
+  <div class="maps" aria-hidden="true">
+    <figure class="map">
+      <div class="m-bar">Menu bar</div><div class="m-slot{% if 'top' in off %} off{% endif %}">1</div>
+      <div class="m-split"><div><div class="m-block tall">Big story</div><div class="m-block">Latest posts</div></div><div><div class="m-block">News</div><div class="m-slot sq{% if 'sidebar' in off %} off{% endif %}">3</div></div></div>
+      <div class="m-slot{% if 'home_mid' in off %} off{% endif %}">2</div><div class="m-block">Category rows</div><div class="m-slot{% if 'footer' in off %} off{% endif %}">9</div>
+      <figcaption>Home page</figcaption>
+    </figure>
+    <figure class="map">
+      <div class="m-bar">Menu bar</div><div class="m-slot{% if 'top' in off %} off{% endif %}">1</div>
+      <div class="m-block tall">Picture and title</div>
+      <div class="m-split rev"><div><div class="m-block">Contents and share</div><div class="m-slot sq{% if 'article_side' in off %} off{% endif %}">7</div></div><div><div class="m-block">Quick answer</div><div class="m-slot{% if 'article_top' in off %} off{% endif %}">5</div><div class="m-block">Article text</div><div class="m-slot{% if 'article_mid' in off %} off{% endif %}">6</div><div class="m-block">Code and downloads</div><div class="m-slot{% if 'article_end' in off %} off{% endif %}">8</div><div class="m-block">Comments</div></div></div>
+      <div class="m-slot{% if 'footer' in off %} off{% endif %}">9</div>
+      <figcaption>Article page</figcaption>
+    </figure>
+    <figure class="map">
+      <div class="m-bar">Menu bar</div><div class="m-slot{% if 'top' in off %} off{% endif %}">1</div>
+      <div class="m-block">Category title</div>
+      <div class="m-split"><div><div class="m-slot{% if 'list_top' in off %} off{% endif %}">4</div><div class="m-block tall">List of posts</div></div><div><div class="m-block">News</div><div class="m-slot sq{% if 'sidebar' in off %} off{% endif %}">3</div></div></div>
+      <div class="m-slot{% if 'footer' in off %} off{% endif %}">9</div>
+      <figcaption>Category page</figcaption>
+    </figure>
+  </div>
+  <div class="table-wrap" style="margin-top:18px">
+    <table class="table">
+      <thead><tr><th scope="col">#</th><th scope="col">Place</th><th scope="col">Picture size</th><th scope="col">Phones</th><th scope="col" class="num">Banners</th><th scope="col">On or off</th></tr></thead>
+      <tbody>
+        {% for pl in places %}
+        <tr{% if not pl.on %} class="row-off"{% endif %}><td><span class="place-n">{{ pl.n }}</span></td><td><b>{{ pl.name }}</b><br><span class="meta">{{ pl.where }}</span></td><td>{{ pl.size }}</td><td>{{ pl.phone }}</td><td class="num">{{ pl.running }}</td>
+          <td><form method="post" action="{{ A }}/ads/places/{{ pl.key }}/{{ 'off' if pl.on else 'on' }}"><input type="hidden" name="_csrf" value="{{ csrf }}"><button class="switch" type="submit" role="switch" aria-checked="{{ 'true' if pl.on else 'false' }}" aria-label="{{ pl.name }}"><span class="switch-track"><span class="switch-knob"></span></span><span class="switch-text">{{ "On" if pl.on else "Off" }}</span></button></form></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="meta" style="margin-top:10px">Sizes are in pixels (width × height). The sizes are standard, so sponsors usually have them ready.</p>
+</section>
+
+<form class="card form" method="post" action="{{ A }}/ads/settings" aria-labelledby="empty-h">
+  <input type="hidden" name="_csrf" value="{{ csrf }}">
+  <h2 class="box-title" id="empty-h">Places without a banner</h2>
+  <label class="check"><input type="radio" name="ads_empty" value="hide"{% if s.ads_empty != "show" %} checked{% endif %}><span>Hide them<br><small class="meta">Readers see nothing there.</small></span></label>
+  <label class="check"><input type="radio" name="ads_empty" value="show"{% if s.ads_empty == "show" %} checked{% endif %}><span>Show a “Your brand here” box<br><small class="meta">Shows sponsors where they could appear and links to your “Advertise with us” page. Useful while you look for sponsors, or to see every place on the site.</small></span></label>
+  <label class="field"><span>“Advertise with us” link <small>optional</small></span><input name="ads_contact_url" value="{{ s.ads_contact_url }}" placeholder="/advertise/ or mailto:ads@yourdomain.com"><small>A page on your blog (create an “Advertise” page under Pages), a web address, or an email address as mailto:you@example.com.</small></label>
+  <div class="form-actions"><button class="btn btn-primary" type="submit">Save</button></div>
+</form>
+{% endblock %}

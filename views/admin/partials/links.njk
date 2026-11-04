@@ -1,0 +1,23 @@
+{# Social links editor: one row per link with the network's logo, a network list and a box for a
+   username or full link. "Add link" adds a row; pasting a link picks the network by itself. #}
+{% macro linkRow(r) %}
+<li class="lk-row">
+  <span class="lk-logo" aria-hidden="true">{{ netIcon(r.network, 18) }}</span>
+  <select name="link_network" aria-label="Network">{% for n in networks %}<option value="{{ n.id }}" data-hosts="{{ n.hosts | join(' ') }}" data-placeholder="{{ n.placeholder }}"{% if n.id == r.network %} selected{% endif %}>{{ n.name }}</option>{% endfor %}</select>
+  <input name="link_url" value="{{ r.url }}" placeholder="{% for n in networks %}{% if n.id == r.network %}{{ n.placeholder }}{% endif %}{% endfor %}" aria-label="Username or full link" autocomplete="off" spellcheck="false" maxlength="500">
+  <button type="button" class="btn btn-small btn-ghost lk-del" data-remove-link title="Remove this link">{{ icon("trash", 15) }}<span class="sr-only">Remove this link</span></button>
+</li>
+{% endmacro %}
+
+{% macro linksEditor(rows, hint) %}
+<div class="lk" data-links>
+  <ul class="lk-list">
+    {% for r in rows %}{{ linkRow(r) }}{% endfor %}
+    {% if not rows.length %}{{ linkRow({ network: "website", url: "" }) }}{% endif %}
+  </ul>
+  <button type="button" class="btn btn-small" data-add-link>{{ icon("plus", 15) }} Add link</button>
+  {% if hint %}<small class="lk-hint">{{ hint }}</small>{% endif %}
+  <template>{{ linkRow({ network: "website", url: "" }) }}</template>
+  <div class="lk-icons" hidden>{% for n in networks %}<span data-n="{{ n.id }}">{{ netIcon(n.id, 18) }}</span>{% endfor %}</div>
+</div>
+{% endmacro %}

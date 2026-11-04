@@ -1,0 +1,188 @@
+{% extends "admin/layout.njk" %}
+{% set fullscreen = true %}
+{% set noun = "page" if post.type == "page" else "post" %}
+{% set title = (post.title or "New " + noun) %}
+{% block head %}<link rel="stylesheet" href="{{ A }}/static/toastui-editor.css?v={{ files['toastui-editor.css'].hash }}">{% endblock %}
+{% block full %}
+<div class="ed" id="editor" data-id="{{ post.id }}" data-type="{{ post.type }}" data-state="{{ post.state }}" data-live="{{ liveUrl }}" data-can-publish="{{ 'true' if canPublish else 'false' }}">
+  <header class="ed-top">
+    <a class="ed-back" href="{{ A }}/{{ 'pages' if post.type == 'page' else 'posts' }}">{{ icon("left", 18) }}<span>{{ "Pages" if post.type == "page" else "Posts" }}</span></a>
+    <span class="ed-state" id="ed-state" data-state="{{ post.state }}">{{ post.state | capitalize }}</span>
+    <span class="ed-status" id="ed-status" role="status" aria-live="polite">{% if post.id %}Saved{% else %}New {{ noun }}{% endif %}</span>
+    <div class="ed-switch" role="group" aria-label="Editor mode">
+      <button type="button" data-mode="wysiwyg" aria-pressed="true">Visual</button>
+      <button type="button" data-mode="markdown" aria-pressed="false">Markdown</button>
+    </div>
+    <div class="ed-actions">
+      <a class="btn btn-small btn-ghost" id="btn-view" href="{{ liveUrl }}" target="_blank" rel="noopener noreferrer"{% if not liveUrl %} hidden{% endif %}>{{ icon("ext", 15) }} View</a>
+      <button type="button" class="btn btn-small btn-ghost" id="btn-preview">{{ icon("eye", 15) }} Preview</button>
+      <button type="button" class="btn btn-small" id="btn-save" data-action="save">{{ "Update" if post.state != "draft" else "Save draft" }}</button>
+      {% if canPublish %}
+      <button type="button" class="btn btn-small btn-primary" id="btn-publish" data-action="publish"{% if post.state != "draft" %} hidden{% endif %}>Publish</button>
+      {% endif %}
+      <button type="button" class="icon-btn" id="btn-settings" aria-controls="ed-drawer" aria-expanded="true" title="Post settings">{{ icon("panel", 19) }}<span class="sr-only">Post settings</span></button>
+    </div>
+  </header>
+
+  <section class="ed-checks" id="ed-checks" aria-live="polite" hidden></section>
+
+  <div class="ed-body">
+    <main class="ed-canvas" id="ed-canvas">
+      <div class="ed-col">
+        <div class="ed-feature" id="ed-feature">
+          <input type="hidden" name="feature_image_id" value="{{ media.feature.id if media.feature else '' }}">
+          <button type="button" class="ed-add-feature" data-feature-pick{% if media.feature %} hidden{% endif %}>{{ icon("image", 17) }} Add feature image</button>
+          <figure class="ed-feature-fig"{% if not media.feature %} hidden{% endif %}>
+            <img src="{{ media.feature.url if media.feature else '' }}" alt="">
+            <div class="ed-feature-tools"><button type="button" class="btn btn-small" data-feature-pick>Change</button><button type="button" class="btn btn-small" data-feature-clear>Remove</button></div>
+            <div class="ed-feature-fields">
+              <label class="field"><span>Alt text <small>describe the picture for screen readers and search</small></span><input name="feature_image_alt" value="{{ post.feature_image_alt }}" maxlength="300"></label>
+              <label class="field"><span>Caption <small>optional</small></span><input name="feature_image_caption" value="{{ post.feature_image_caption }}" maxlength="300"></label>
+            </div>
+          </figure>
+        </div>
+
+        <label class="sr-only" for="f-title">{{ noun | capitalize }} title</label>
+        <textarea class="ed-title" id="f-title" name="title" rows="1" maxlength="300" placeholder="{{ noun | capitalize }} title">{{ post.title }}</textarea>
+
+        <div class="ed-insert" role="toolbar" aria-label="Insert">
+          <button type="button" class="btn btn-small btn-ghost" data-insert="image">{{ icon("image", 15) }} Image</button>
+          <button type="button" class="btn btn-small btn-ghost" data-insert="table">{{ icon("table", 15) }} Table</button>
+          <button type="button" class="btn btn-small btn-ghost" data-insert="code">{{ icon("code", 15) }} Snippet</button>
+          <button type="button" class="btn btn-small btn-ghost" data-insert="callout">{{ icon("info", 15) }} Callout</button>
+          <button type="button" class="btn btn-small btn-ghost" data-insert="faq">{{ icon("list", 15) }} FAQ</button>
+          {% if post.type == "post" %}<button type="button" class="btn btn-small btn-ghost" data-jump="ed-source">{{ icon("file", 15) }} Source code</button>
+          <button type="button" class="btn btn-small btn-ghost" data-jump="ed-downloads">{{ icon("dl", 15) }} Downloads</button>{% endif %}
+        </div>
+        <div id="ed-editor" class="ed-md"></div>
+        <textarea id="f-body" name="body_md" hidden>{{ post.body_md }}</textarea>
+        <p class="ed-count meta" id="ed-count"></p>
+
+        {% if post.type == "post" %}
+        <section class="ed-section" id="ed-source" aria-labelledby="ed-source-h">
+          <div class="ed-section-h"><h2 id="ed-source-h">{{ icon("file", 18) }} Source code</h2><button type="button" class="btn btn-small" data-add-file>{{ icon("plus", 15) }} Add file</button></div>
+          <p class="meta">The full sketch goes here, not in the article. Readers get a box after the FAQ with copy and download buttons, plus a ZIP when there’s more than one file. Use placeholders for Wi-Fi names and passwords; real ones block publishing.</p>
+          <div class="src-list" id="src-list"></div>
+          <template id="src-tpl">
+            <div class="src-item">
+              <div class="src-row">
+                <input class="input mono" data-k="name" placeholder="main.ino" maxlength="80" aria-label="File name">
+                <select class="input" data-k="lang" aria-label="Language">{% for k, v in langs %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select>
+                <button type="button" class="btn btn-small btn-ghost" data-up>Move up</button>
+                <button type="button" class="btn btn-small btn-ghost" data-remove title="Remove file">{{ icon("trash", 15) }}<span class="sr-only">Remove file</span></button>
+              </div>
+              <textarea class="input mono src-code" data-k="code" rows="12" spellcheck="false" placeholder="Paste the code" aria-label="Code"></textarea>
+            </div>
+          </template>
+        </section>
+
+        <section class="ed-section" id="ed-downloads" aria-labelledby="ed-downloads-h">
+          <div class="ed-section-h"><h2 id="ed-downloads-h">{{ icon("dl", 18) }} Downloads</h2><button type="button" class="btn btn-small" data-add-download>{{ icon("plus", 15) }} Add PDF, STL or ZIP</button></div>
+          <label class="field"><span>GitHub repository</span><input type="url" name="download_github" value="{{ post.downloads.github }}" placeholder="https://github.com/…"></label>
+          <div class="dl-list" id="dl-list"></div>
+        </section>
+        {% endif %}
+      </div>
+    </main>
+
+    <aside class="ed-drawer" id="ed-drawer" aria-label="{{ noun | capitalize }} settings">
+      <div class="ed-drawer-h"><h2>{{ noun | capitalize }} settings</h2><button type="button" class="icon-btn" data-close-drawer title="Close">{{ icon("x", 18) }}<span class="sr-only">Close settings</span></button></div>
+
+      <div class="ed-group">
+        <label class="field"><span>{{ noun | capitalize }} URL</span><input id="f-slug" name="slug" value="{{ post.slug }}" maxlength="80" spellcheck="false"><small class="ed-url">{{ urlPrefix }}<b id="slug-echo">{{ post.slug or "…" }}</b>/</small></label>
+        <label class="field"><span>Publish date</span><input type="datetime-local" name="published_at" value="{{ form.published_at }}"><small>A future date schedules the {{ noun }}.{% if not can.allPosts() %} Dates in the past are for editors.{% endif %} Time zone: {{ tz }}.</small></label>
+        {% if post.type == "post" %}
+        <label class="field"><span>Category</span><select name="category_id"><option value="">No category</option>{% for k in categories %}<option value="{{ k.id }}"{% if post.category_id == k.id %} selected{% endif %}>{% if k.parent_id %}— {% endif %}{{ k.name }}</option>{% endfor %}</select></label>
+        <label class="field"><span>Tags <small>comma-separated</small></span><input name="tags" value="{{ form.tags }}" placeholder="ESP32, Sensors"></label>
+        {% endif %}
+        {% if authors.length %}
+        <label class="field"><span>Author</span><select name="author_id">{% for a in authors %}<option value="{{ a.id }}"{% if post.author_id == a.id %} selected{% endif %}>{{ a.name }}</option>{% endfor %}</select></label>
+        {% endif %}
+        {% if post.type == "post" and can.allPosts() %}<label class="check"><input type="checkbox" name="featured" value="1"{% if post.featured %} checked{% endif %}><span>Editor’s Choice<br><small class="meta">Shown at the top of the home page</small></span></label>{% endif %}
+        <label class="field"><span>Meta description <small class="count" data-for="f-excerpt" data-max="155"></small></span><textarea id="f-excerpt" name="excerpt" rows="3" maxlength="400">{{ post.excerpt }}</textarea><small>The search snippet and the summary on cards. Up to 155 characters.</small></label>
+        <div class="serp" aria-label="Search result preview"><span class="serp-url" id="serp-url">{{ urlPrefix }}{{ post.slug }}/</span><span class="serp-title" id="serp-title">{{ post.seo_title or post.title or "Title" }}</span><span class="serp-desc" id="serp-desc">{{ post.excerpt or "Your meta description appears here." }}</span></div>
+      </div>
+
+      {% if post.type == "post" %}
+      <details class="ed-group" open>
+        <summary>Answer box</summary>
+        <label class="field"><span>Quick answer <small class="count" data-for="f-qa" data-max="400"></small></span><textarea id="f-qa" name="quick_answer" rows="4" maxlength="1500">{{ post.quick_answer }}</textarea><small>Two or three sentences that answer the main question. Shown first, and quoted by answer engines.</small></label>
+        <div class="field"><span class="label">At a glance</span>
+          <div class="kv" id="glance"></div>
+          <button type="button" class="btn btn-small" data-add-glance>{{ icon("plus", 14) }} Add row</button>
+        </div>
+        <label class="field"><span>Tested with <small>one per line</small></span><textarea name="tested_with" rows="2">{{ form.tested_with }}</textarea></label>
+        <label class="field"><span>Difficulty</span><select name="level"><option value="">Not set</option>{% for k, v in levels %}<option value="{{ k }}"{% if post.level == k | int %} selected{% endif %}>{{ v }}</option>{% endfor %}</select></label>
+      </details>
+
+      <details class="ed-group">
+        <summary>Video</summary>
+        <label class="field"><span>YouTube link or id</span><input name="video_youtube" value="{{ post.video.youtube_id }}" placeholder="https://www.youtube.com/watch?v=…"></label>
+        <label class="field"><span>Video title</span><input name="video_title" value="{{ post.video.title }}" maxlength="200"></label>
+        <label class="field"><span>Video description</span><textarea name="video_description" rows="2" maxlength="1000">{{ post.video.description }}</textarea></label>
+        <div class="field-row">
+          <label class="field"><span>Uploaded</span><input type="datetime-local" name="video_upload" value="{{ form.video_upload }}"></label>
+          <label class="field"><span>Length</span><input name="video_duration" value="{{ form.video_duration }}" placeholder="8:04"></label>
+        </div>
+        <label class="field"><span>Chapters <small>“0:00 Intro” per line</small></span><textarea name="chapters" rows="4" class="mono">{{ form.chapters }}</textarea></label>
+      </details>
+      {% endif %}
+
+      <details class="ed-group">
+        <summary>Search and social</summary>
+        <label class="field"><span>SEO title <small class="count" data-for="f-seo" data-max="60"></small></span><input id="f-seo" name="seo_title" value="{{ post.seo_title }}" maxlength="200" placeholder="Defaults to the title"></label>
+        <label class="field"><span>Short title <small>breadcrumbs and social images</small></span><input name="short_title" value="{{ post.short_title }}" maxlength="100"></label>
+        {% if can.allPosts() %}
+        <label class="field"><span>Canonical URL <small>only for posts first published elsewhere</small></span><input type="url" name="canonical_url" value="{{ post.canonical_url }}"></label>
+        <label class="check"><input type="checkbox" name="noindex" value="1"{% if post.noindex %} checked{% endif %}> Hide from search engines (noindex)</label>
+        {% endif %}
+        <label class="field"><span>Social title</span><input name="og_title" value="{{ post.og_title }}" maxlength="200" placeholder="Defaults to the title"></label>
+        <label class="field"><span>Social description</span><textarea name="og_description" rows="2" maxlength="400" placeholder="Defaults to the meta description">{{ post.og_description }}</textarea></label>
+        <div class="field"><span class="label">Social image <small>1200×630; empty = generated automatically</small></span>
+          <div class="picker" data-picker>
+            <input type="hidden" name="og_image_id" value="{{ media.og.id if media.og else '' }}">
+            <img class="picker-img" src="{{ media.og.url if media.og else '' }}" alt=""{% if not media.og %} hidden{% endif %}>
+            <div class="picker-btns"><button type="button" class="btn btn-small" data-pick>Choose</button><button type="button" class="btn btn-small" data-clear{% if not media.og %} hidden{% endif %}>Remove</button></div>
+          </div>
+        </div>
+      </details>
+
+      {% if post.type == "post" %}
+      <details class="ed-group">
+        <summary>Comments</summary>
+        {% if can.allPosts() %}<label class="check"><input type="checkbox" name="comments_enabled" value="1"{% if post.comments_enabled != false %} checked{% endif %}> Allow comments on this post</label>{% else %}<p class="meta">Comments are {{ "on" if post.comments_enabled != false else "off" }} for this post. Only an editor can change that.</p>{% endif %}
+        {% if post.id %}<p class="meta"><a href="{{ A }}/comments?post={{ post.id }}">See this post’s comments</a></p>{% endif %}
+      </details>
+      {% endif %}
+
+      {% if can.allPosts() and post.state != "draft" %}
+      <details class="ed-group">
+        <summary>“Updated” date</summary>
+        <label class="field"><span>Updated</span><input type="datetime-local" name="updated_at" value="{{ form.updated_at }}"><small>Moves forward by itself when the content changes.</small></label>
+        <label class="check"><input type="checkbox" name="keep_updated_date" value="1"> Small fix: don’t change the “Updated” date on this save</label>
+      </details>
+      {% endif %}
+
+      {% if post.id %}
+      <details class="ed-group" id="ed-history">
+        <summary>History</summary>
+        <ul class="revisions" id="revisions"><li class="meta">Open to load…</li></ul>
+        {% if can.allPosts() %}<p class="meta">Pasted a password or key by mistake? Remove it from the text first, save, then delete the older versions that still hold it.</p><button type="button" class="btn btn-small btn-danger" id="btn-purge-revisions">Delete all older versions</button>{% endif %}
+      </details>
+      {% endif %}
+
+      <div class="ed-group ed-danger" id="ed-danger"{% if not post.id %} hidden{% endif %}>
+        {% if canPublish %}<button type="button" class="btn btn-small" id="btn-unpublish" data-action="unpublish"{% if post.state == "draft" %} hidden{% endif %}>Unpublish (back to draft)</button>{% endif %}
+        {% if canDelete %}<button type="button" class="btn btn-small btn-danger" data-action="delete">{{ icon("trash", 15) }} Delete {{ noun }}</button>{% endif %}
+      </div>
+    </aside>
+  </div>
+
+  <form id="preview-form" method="post" action="{{ A }}/preview" target="_blank" rel="noopener noreferrer" hidden><input type="hidden" name="_csrf" value="{{ csrf }}"><input type="hidden" name="payload"></form>
+  <script type="application/json" id="ed-data">{{ edData | jsonld }}</script>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ A }}/static/toastui-editor.js?v={{ files['toastui-editor.js'].hash }}" defer></script>
+<script src="{{ A }}/static/editor.js?v={{ files['editor.js'].hash }}" defer></script>
+{% endblock %}

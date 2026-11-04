@@ -1,0 +1,70 @@
+{% extends "admin/layout.njk" %}
+{% set title = "Newsletter" %}
+{% set tab = "overview" %}
+{% block head %}{% if refresh %}<meta http-equiv="refresh" content="4">{% endif %}{% endblock %}
+{% block content %}
+<div class="adm-head">
+  <h1>Newsletter</h1>
+  <div class="adm-head-actions"><a class="btn btn-primary" href="{{ A }}/newsletter/new">{{ icon("pen", 16) }} Write a newsletter</a></div>
+  <p>Write an email, pick the posts to feature, and send it to everyone who subscribed. Each email has a one-click unsubscribe link.</p>
+</div>
+{% include "admin/partials/nl-tabs.njk" %}
+
+{% if problems.length %}
+<div class="card setup-needed">
+  <h2 class="box-title">{{ icon("alert", 17) }} One step before you can send</h2>
+  <p>Connect the email service that will deliver your newsletters. It takes about five minutes.</p>
+  <p><a class="btn btn-primary" href="{{ A }}/newsletter/settings">Set up email sending</a></p>
+</div>
+{% endif %}
+
+<ul class="stats" role="list">
+  <li class="card stat"><span class="stat-n">{{ counts.active }}</span><a href="{{ A }}/newsletter/subscribers?status=active">Subscribers</a></li>
+  <li class="card stat"><span class="stat-n">{{ counts.recent }}</span><span>New in the last 30 days</span></li>
+  <li class="card stat"><span class="stat-n">{{ counts.pending or 0 }}</span><a href="{{ A }}/newsletter/subscribers?status=pending">Waiting to confirm</a></li>
+  <li class="card stat"><span class="stat-n">{{ counts.unsubscribed }}</span><a href="{{ A }}/newsletter/subscribers?status=unsubscribed">Unsubscribed</a></li>
+  <li class="card stat"><span class="stat-n">{{ totals.sent }}</span><span>Newsletters sent</span></li>
+</ul>
+
+<section aria-labelledby="nl-h">
+  <h2 class="box-title" id="nl-h">Your newsletters</h2>
+  {% if items.length %}
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th scope="col">Subject</th><th scope="col">Status</th><th scope="col" class="num">Delivered</th><th scope="col">Date</th></tr></thead>
+    <tbody>
+    {% for n in items %}
+    <tr>
+      <td><a class="row-title" href="{{ A }}/newsletter/{{ n.id }}">{{ n.subject or "(No subject)" }}</a>{% if n.postIds.length %}<br><span class="meta">{{ n.postIds.length }} {{ n.postIds.length | plural("post") }} featured</span>{% endif %}</td>
+      <td>
+        {% if n.status == "draft" %}<span class="badge badge-draft">Draft</span>
+        {% elif n.status == "sending" %}<span class="badge badge-scheduled">Sending… {{ n.sent_n }} of {{ n.recipients }}</span>
+        {% elif n.status == "sent" %}<span class="badge badge-published">Sent</span>
+        {% else %}<span class="badge badge-hidden">Stopped</span>{% endif %}
+      </td>
+      <td class="num">{% if n.status != "draft" %}{{ n.sent_n }}{% if n.failed_n %} <span class="meta">({{ n.failed_n }} failed)</span>{% endif %}{% else %}<span class="meta">-</span>{% endif %}</td>
+      <td class="meta">{{ (n.sent_at or n.updated_at) | datetime(site.tz) }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <div class="card empty"><p>No newsletters yet.</p><p style="margin-top:12px"><a class="btn btn-primary" href="{{ A }}/newsletter/new">Write your first newsletter</a></p></div>
+  {% endif %}
+</section>
+
+<details class="card ads-guide"{% if not items.length %} open{% endif %}>
+  <summary><h2 class="box-title">{{ icon("info", 17) }} How the newsletter works</h2></summary>
+  <ol class="steps">
+    <li><b>Readers subscribe</b> with the box at the bottom of every page, or when they create an account. You can also add people yourself under Subscribers.</li>
+    <li><b>Connect an email service once</b>, under Email settings. The mailbox you already use (Zoho, Gmail) is fine for a small list. For a growing list, a free Brevo account sends 300 emails a day.</li>
+    <li><b>Write a newsletter</b>: a subject, a short message, and the posts to feature. Send yourself a test to see how it looks in a real inbox.</li>
+    <li><b>Send it.</b> Emails go out a few at a time in the background. Keep the blog running until it says “Sent”; if it stops, it carries on when the blog starts again.</li>
+  </ol>
+  <ul class="notes">
+    <li><b>Unsubscribing:</b> every email has an unsubscribe link, and Gmail and Outlook show their own “Unsubscribe” button too. Both work in one click, as the law and the big inbox providers require.</li>
+    <li><b>Landing in inboxes, not spam:</b> send from an address on your own domain, and add the DNS records your email service gives you (SPF and DKIM). Your service’s setup guide walks through it.</li>
+  </ul>
+</details>
+{% endblock %}

@@ -1,0 +1,42 @@
+/* Copper & Slate. Light by default; dark follows the device unless the reader picks one with the header switch. */
+:root{
+  --bg:#F4F5F7; --sf:#FFFFFF; --sf2:#ECEEF1; --sf3:#E2E5E9;
+  --ink:#1A1D21; --ink-2:#535A63; --ink-3:#626A74; --line:#DEE1E5; --line-2:#CDD2D8;
+  --ac:#C2410C; --ac-hover:#A9380A; --ac-ink:#FFFFFF; --ac-text:#AE3A0A; --ac-soft:#FCEBDF;
+  --hi:#0E7490; --hi-text:#0E6A83; --hi-soft:#DFF1F5;
+  --ok:#15803D; --ok-soft:#DCFCE7; --warn:#B45309; --warn-soft:#FEF3C7; --err:#B91C1C; --err-soft:#FEE2E2;
+  --code-bg:#F1F3F5; --code-ink:#1F2328; --code-line:#E1E4E8;
+  --sx-k:#CF222E; --sx-s:#0A3069; --sx-n:#0550AE; --sx-c:#5E6873; --sx-f:#8250DF; --sx-t:#953800; --sx-a:#116329;
+  --hero-ink:#FFFFFF; --hero-shade:rgba(10,12,14,.88);
+  --shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);
+  --shadow-lg:0 18px 48px rgba(16,24,40,.16),0 2px 6px rgba(16,24,40,.06);
+  --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+  --r:12px; --r-sm:8px; --r-lg:18px;
+  --wrap:1200px; --gut:20px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111315; --sf:#191C1F; --sf2:#212529; --sf3:#2A2F34;
+    --ink:#ECEDEE; --ink-2:#A7ADB4; --ink-3:#8A9199; --line:#2B3036; --line-2:#3A4047;
+    --ac:#C2410C; --ac-hover:#D4500F; --ac-ink:#FFFFFF; --ac-text:#FF9A62; --ac-soft:#3A2216;
+    --hi:#22D3EE; --hi-text:#67E8F9; --hi-soft:#0F2E35;
+    --ok:#4ADE80; --ok-soft:#12301E; --warn:#FBBF24; --warn-soft:#33270B; --err:#F87171; --err-soft:#3A1717;
+    --code-bg:#0E1012; --code-ink:#E6E3DE; --code-line:#262A2F;
+    --sx-k:#FF7B72; --sx-s:#A5D6FF; --sx-n:#79C0FF; --sx-c:#8B949E; --sx-f:#D2A8FF; --sx-t:#FFA657; --sx-a:#7EE787;
+    --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-lg:0 18px 48px rgba(0,0,0,.55),0 0 0 1px var(--line);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111315; --sf:#191C1F; --sf2:#212529; --sf3:#2A2F34;
+  --ink:#ECEDEE; --ink-2:#A7ADB4; --ink-3:#8A9199; --line:#2B3036; --line-2:#3A4047;
+  --ac:#C2410C; --ac-hover:#D4500F; --ac-ink:#FFFFFF; --ac-text:#FF9A62; --ac-soft:#3A2216;
+  --hi:#22D3EE; --hi-text:#67E8F9; --hi-soft:#0F2E35;
+  --ok:#4ADE80; --ok-soft:#12301E; --warn:#FBBF24; --warn-soft:#33270B; --err:#F87171; --err-soft:#3A1717;
+  --code-bg:#0E1012; --code-ink:#E6E3DE; --code-line:#262A2F;
+  --sx-k:#FF7B72; --sx-s:#A5D6FF; --sx-n:#79C0FF; --sx-c:#8B949E; --sx-f:#D2A8FF; --sx-t:#FFA657; --sx-a:#7EE787;
+  --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-lg:0 18px 48px rgba(0,0,0,.55),0 0 0 1px var(--line);
+  color-scheme:dark;
+}

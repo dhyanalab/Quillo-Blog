@@ -1,0 +1,16 @@
+{% extends "public/layout.njk" %}
+{% set hideNewsletter = true %}
+{% block main %}
+<div class="wrap auth">
+  <section class="auth-card">
+    {% if ok %}
+    <h1>Check your inbox to confirm</h1>
+    <p class="sub">If that address can get newsletters, we’ve sent it a message with a button to confirm. Nothing is sent to you until you press it.</p>
+    {% else %}
+    <h1>That didn’t work</h1>
+    <p class="sub">{{ message }}</p>
+    {% endif %}
+    <a class="btn" href="{{ site.url.home }}">Back to the blog</a>
+  </section>
+</div>
+{% endblock %}

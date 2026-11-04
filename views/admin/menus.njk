@@ -1,0 +1,74 @@
+{% extends "admin/layout.njk" %}
+{% block content %}
+<div class="adm-head">
+  <h1>Menus</h1>
+  <p>Choose what appears in the menu bar at the top of your blog and in the footer at the bottom.</p>
+</div>
+{% if errors %}<ul class="form-error" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+
+<form class="form settings" method="post" action="{{ A }}/menus" id="menus-form">
+  <input type="hidden" name="_csrf" value="{{ csrf }}">
+  <input type="hidden" name="nav_json" id="nav-json">
+  <input type="hidden" name="footer_json" id="footer-json">
+
+  <section class="card" aria-labelledby="nav-h">
+    <h2 class="box-title" id="nav-h">{{ icon("menu", 17) }} Menu bar</h2>
+    <label class="check"><input type="radio" name="nav_mode" value="auto"{% if navMode == "auto" %} checked{% endif %}><span>Show my categories automatically<br><small class="meta">Every main category with posts, with its sub-categories in a drop-down, plus “Latest”. New categories appear by themselves.</small></span></label>
+    <label class="check"><input type="radio" name="nav_mode" value="custom"{% if navMode == "custom" %} checked{% endif %}><span>Choose the items myself<br><small class="meta">Pick the links, their order and which ones open a drop-down list.</small></span></label>
+    <div class="mb" id="nav-builder" data-kind="nav" hidden>
+      <ol class="mb-list" id="nav-list"></ol>
+      <div class="mb-tools">
+        <button type="button" class="btn btn-small" data-add-item>{{ icon("plus", 15) }} Add a menu item</button>
+        <button type="button" class="btn btn-small btn-ghost" data-reset-nav>Start again from my categories</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="foot-h">
+    <h2 class="box-title" id="foot-h">{{ icon("list", 17) }} Footer</h2>
+    <label class="check"><input type="radio" name="footer_mode" value="auto"{% if footerMode == "auto" %} checked{% endif %}><span>Fill it automatically<br><small class="meta">Your categories, your pages and Latest posts. Privacy, terms and cookie pages go in the bottom line, next to RSS and Sitemap. Contact details come from Settings.</small></span></label>
+    <label class="check"><input type="radio" name="footer_mode" value="custom"{% if footerMode == "custom" %} checked{% endif %}><span>Choose the columns myself<br><small class="meta">Name each column and pick its links.</small></span></label>
+    <div class="mb" id="footer-builder" data-kind="footer" hidden>
+      <div class="mb-cols" id="footer-cols"></div>
+      <div class="mb-tools">
+        <button type="button" class="btn btn-small" data-add-col>{{ icon("plus", 15) }} Add a column</button>
+        <button type="button" class="btn btn-small btn-ghost" data-reset-footer>Start again from the automatic footer</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="form-actions sticky-actions"><button class="btn btn-primary" type="submit">Save menus</button><a class="btn" href="{{ site.url.home }}" target="_blank" rel="noopener noreferrer">View site</a></div>
+</form>
+
+<template id="mb-row">
+  <li class="mb-item">
+    <div class="mb-row">
+      <label class="mb-f"><span>Label</span><input class="input" data-k="label" maxlength="40" placeholder="Projects"></label>
+      <label class="mb-f"><span>Goes to</span><select class="input" data-k="target"></select></label>
+      <label class="mb-f mb-url" hidden><span>Web address</span><input class="input" data-k="url" placeholder="https://… or /about/"></label>
+      <div class="mb-btns">
+        <button type="button" class="btn btn-small btn-ghost" data-up title="Move up">Up</button>
+        <button type="button" class="btn btn-small btn-ghost" data-down title="Move down">Down</button>
+        <button type="button" class="btn btn-small btn-ghost" data-sub>Add drop-down item</button>
+        <button type="button" class="btn btn-small btn-ghost mb-del" data-del title="Remove">{{ icon("trash", 15) }}<span class="sr-only">Remove</span></button>
+      </div>
+    </div>
+    <ol class="mb-children"></ol>
+  </li>
+</template>
+<template id="mb-col">
+  <div class="mb-col">
+    <div class="mb-col-h">
+      <label class="mb-f"><span>Column title</span><input class="input" data-k="title" maxlength="40" placeholder="Company"></label>
+      <div class="mb-btns">
+        <button type="button" class="btn btn-small btn-ghost" data-left>Move left</button>
+        <button type="button" class="btn btn-small btn-ghost mb-del" data-del-col title="Remove column">{{ icon("trash", 15) }}<span class="sr-only">Remove column</span></button>
+      </div>
+    </div>
+    <ol class="mb-list mb-links"></ol>
+    <button type="button" class="btn btn-small" data-add-link>{{ icon("plus", 15) }} Add a link</button>
+  </div>
+</template>
+<script type="application/json" id="menu-data">{{ menuData | jsonld }}</script>
+{% endblock %}
+{% block scripts %}<script src="{{ A }}/static/menus.js?v={{ files['menus.js'].hash }}" defer></script>{% endblock %}

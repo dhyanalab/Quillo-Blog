@@ -1,0 +1,22 @@
+{% extends "public/layout.njk" %}
+{% set hideNewsletter = true %}
+{% block main %}
+<div class="wrap auth">
+  <section class="auth-card" aria-labelledby="auth-h">
+    <h1 id="auth-h">Choose a new password</h1>
+    <p class="sub">You’ll be signed out everywhere, then you can sign in with the new password.</p>
+    {% if error %}<p class="notice notice-err" role="alert">{{ error }}</p>{% endif %}
+    {% if expired %}
+    <p class="alt"><a href="{{ site.url.home }}forgot/">Get a new link</a></p>
+    {% else %}
+    <form method="post" action="{{ action }}">
+      <input type="hidden" name="_csrf" value="{{ formCsrf }}">
+      <div class="field"><label for="rs-pass">New password</label><input id="rs-pass" type="password" name="password" required minlength="10" autocomplete="new-password" maxlength="256" autofocus><span class="hint">At least 10 characters. A few words in a row works well.</span></div>
+      <div class="field"><label for="rs-conf">Type it again</label><input id="rs-conf" type="password" name="confirm" required minlength="10" autocomplete="new-password" maxlength="256"></div>
+      <button class="btn btn-primary" type="submit">Save new password</button>
+    </form>
+    {% endif %}
+    <p class="alt">Remembered it? <a href="{{ site.url.signin }}">Sign in</a></p>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "public/layout.njk" %}
+{% from "public/partials/macros.njk" import crumbs %}
+{% block main %}
+{% set p = post %}
+<article aria-labelledby="page-title">
+  <header class="post-hero{% if not p.heroHtml %} plain{% endif %}">
+    {{ p.heroHtml | safe }}
+    <div class="wrap">
+      {{ crumbs(p.crumbs) }}
+      <h1 id="page-title">{{ p.title }}</h1>
+      <p class="byline"><span class="when">Updated <time datetime="{{ p.updatedIso }}">{{ p.updatedDisplay }}</time></span></p>
+    </div>
+  </header>
+  <div class="wrap page-body">
+    <div class="prose prose-760">
+{{ p.html | safe }}
+    </div>
+  </div>
+</article>
+{% endblock %}

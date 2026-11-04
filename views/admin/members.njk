@@ -1,0 +1,65 @@
+{% extends "admin/layout.njk" %}
+{% set title = "Members" %}
+{% block content %}
+<div class="adm-head">
+  <h1>Members</h1>
+  <div class="adm-head-actions">
+    <form class="filters" method="get" action="{{ A }}/members">
+      <label class="sr-only" for="mq">Search members</label>
+      <input id="mq" type="search" name="q" value="{{ q }}" placeholder="Search name or email">
+      <label class="sr-only" for="ms">Status</label>
+      <select id="ms" name="status" data-autosubmit><option value="">Everyone</option><option value="active"{% if status == "active" %} selected{% endif %}>Active</option><option value="banned"{% if status == "banned" %} selected{% endif %}>Blocked</option></select>
+    </form>
+    <form method="post" action="{{ A }}/members.csv"><input type="hidden" name="_csrf" value="{{ csrf }}"><button class="btn" type="submit">{{ icon("dl", 16) }} Export CSV</button></form>
+  </div>
+  <p>Readers who created an account to comment. {{ all }} {{ all | plural("member") }} in total.</p>
+</div>
+
+{% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+
+{% if resetLink %}
+<div class="card" role="status">
+  <h2 class="box-title">{{ icon("key", 17) }} Reset link for {{ resetLink.member.name }}</h2>
+  <p>{% if resetLink.failed %}The email couldn’t be sent just now.{% else %}The site’s email isn’t set up, so it can’t be sent.{% endif %} Give this one-time link to {{ resetLink.member.email }} privately. It works once and expires in an hour: <span class="temp-pass">{{ resetLink.url }}</span></p>
+  <p class="meta">It’s shown once. Their password stays as it is until they use the link.</p>
+</div>
+{% endif %}
+
+{% if rows.length %}
+<div class="table-wrap">
+<table class="table">
+  <thead><tr><th scope="col">Member</th><th scope="col">Joined</th><th scope="col" class="num">Comments</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
+  <tbody>
+  {% for m in rows %}
+  <tr>
+    <td><b>{{ m.name }}</b><br><span class="meta">{{ m.email }}{% if m.newsletterStatus == "active" %} · newsletter{% elif m.newsletterStatus == "pending" %} · newsletter (not confirmed){% endif %}{% if not m.verified_at %} · <b>email not verified</b>{% endif %}</span></td>
+    <td class="meta">{{ m.created_at | date(site.tz) }}{% if m.last_seen_at %}<br>Seen {{ m.last_seen_at | date(site.tz) }}{% endif %}</td>
+    <td class="num">{% if m.comment_count %}<a href="{{ A }}/comments?member={{ m.id }}">{{ m.comment_count }}</a>{% else %}0{% endif %}</td>
+    <td><span class="badge badge-{{ 'banned' if m.status == 'banned' else 'published' }}">{{ "Blocked" if m.status == "banned" else "Active" }}</span></td>
+    <td>
+      <div class="acts">
+        {% if m.status == "banned" %}
+        <form method="post" action="{{ A }}/members/{{ m.id }}/unban"><input type="hidden" name="_csrf" value="{{ csrf }}"><button class="btn btn-small" type="submit">Unblock</button></form>
+        {% else %}
+        <form method="post" action="{{ A }}/members/{{ m.id }}/ban" data-confirm="Block {{ m.name }}? They won’t be able to sign in or comment."><input type="hidden" name="_csrf" value="{{ csrf }}"><button class="btn btn-small" type="submit">{{ icon("ban", 14) }} Block</button></form>
+        {% endif %}
+        <form method="post" action="{{ A }}/members/{{ m.id }}/reset" data-confirm="Send {{ m.name }} a link to choose a new password?"><input type="hidden" name="_csrf" value="{{ csrf }}"><button class="btn btn-small" type="submit">Reset link</button></form>
+        <form method="post" action="{{ A }}/members/{{ m.id }}/delete" data-confirm="Delete {{ m.name }} and all their comments? This can’t be undone."><input type="hidden" name="_csrf" value="{{ csrf }}"><button class="btn btn-small btn-danger" type="submit">Delete</button></form>
+      </div>
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% if pages > 1 %}
+<nav class="pager" aria-label="Pages">
+  {% if pageNo > 1 %}<a class="btn" href="{{ A }}/members?page={{ pageNo - 1 }}{% if q %}&amp;q={{ q | urlencode }}{% endif %}">Newer</a>{% endif %}
+  <span class="meta">Page {{ pageNo }} of {{ pages }}</span>
+  {% if pageNo < pages %}<a class="btn" href="{{ A }}/members?page={{ pageNo + 1 }}{% if q %}&amp;q={{ q | urlencode }}{% endif %}">Older</a>{% endif %}
+</nav>
+{% endif %}
+{% else %}
+<p class="card empty">{% if q %}No members match “{{ q }}”.{% else %}No members yet. Readers appear here after they create an account to comment.{% endif %}</p>
+{% endif %}
+{% endblock %}

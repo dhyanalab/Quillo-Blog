@@ -1,0 +1,49 @@
+{% extends "public/layout.njk" %}
+{% from "public/partials/macros.njk" import crumbs as crumbsNav, row, sidebar, pagination as pager, avatar %}
+{% block main %}
+<div class="wrap">
+  <header class="list-head">
+    {% if crumbs %}{{ crumbsNav(crumbs) }}{% endif %}
+    {% if profile %}
+    <div class="profile">
+      {{ avatar(profile, 96) }}
+      <div>
+        <p class="kicker">Author</p>
+        <h1>{{ profile.name }}</h1>
+        {% if profile.job_title %}<p class="meta">{{ profile.job_title }}</p>{% endif %}
+        {% if profile.bio %}<p class="lede">{{ profile.bio }}</p>{% endif %}
+        {% if profile.links.length %}<ul class="netlinks" aria-label="{{ profile.name }} elsewhere">{% for l in profile.links %}<li><a href="{{ l.url }}" target="_blank" rel="noopener me" title="{{ l.label }}">{{ netIcon(l.id, 17) }}<span class="sr-only">{{ profile.name }} on {{ l.label }}</span></a></li>{% endfor %}</ul>{% endif %}
+      </div>
+    </div>
+    {% else %}
+    {% if heading.kicker %}<p class="kicker mt-14">{{ heading.kicker }}</p>{% endif %}
+    <h1>{{ heading.title }}</h1>
+    {% if heading.description %}<p class="lede">{{ heading.description }}</p>{% endif %}
+    {% endif %}
+    {% if search %}
+    <form class="search-big" role="search" action="{{ site.url.search }}" method="get">
+      <label class="sr-only" for="search-q">Search</label>
+      <input id="search-q" type="search" name="q" value="{{ search.q }}" placeholder="Search projects, tutorials and news" maxlength="100">
+      <button class="btn btn-primary" type="submit">Search</button>
+    </form>
+    {% endif %}
+    {% if subnav and subnav.length %}<nav class="subnav" aria-label="Sub-categories">{% for s in subnav %}<a href="{{ s.url }}">{{ s.label }}</a>{% endfor %}</nav>{% endif %}
+  </header>
+
+  <div class="list-body">
+    <div>
+      {% if heading.introHtml %}<div class="prose mb-32">{{ heading.introHtml | safe }}</div>{% endif %}
+      {% if profile %}<div class="sec-h"><h2>{{ heading.title }}</h2></div>{% endif %}
+      {% if slots.list_top %}<div class="kx-row kx-row-list">{{ slots.list_top | safe }}</div>{% endif %}
+      {% if items.length %}
+      <div class="rows">{% for p in items %}{{ row(p, 2, loop.first) }}{% endfor %}</div>
+      {% else %}
+      <p class="empty">{{ empty or "Nothing here yet." }}</p>
+      {% endif %}
+      {{ pager(pagination) }}
+      {% if feedUrl %}<p class="meta mt-24">{{ icon("rss", 15) }} <a href="{{ feedUrl }}">RSS feed for {{ heading.title }}</a></p>{% endif %}
+    </div>
+    {% if side %}{{ sidebar(side, site, true, slots.sidebar) }}{% endif %}
+  </div>
+</div>
+{% endblock %}

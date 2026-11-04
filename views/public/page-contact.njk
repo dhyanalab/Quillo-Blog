@@ -1,0 +1,71 @@
+{% extends "public/layout.njk" %}
+{% from "public/partials/landing.njk" import pageHero, socialButtons %}
+{# The Contact page: details come from Settings > Business details; the page text (if any) shows under the help tiles. #}
+{% block main %}
+{% set p = post %}
+{% set b = site.business %}
+{% set u = site.pageUrls %}
+<article class="lp" aria-labelledby="page-title">
+  {{ pageHero(p, "Contact", "mail") }}
+
+  <div class="wrap">
+    <ul class="lp-cards lp-contact" role="list">
+      {% if b.emails.length %}
+      <li class="lp-card">
+        <span class="lp-ic">{{ icon("mail", 22) }}</span>
+        <h2>Email us</h2>
+        <p class="lp-big">{% for e in b.emails %}<a href="mailto:{{ e }}">{{ e }}</a>{% endfor %}</p>
+        <p class="lp-note">Write to either address. We read every message.</p>
+        <a class="btn" href="mailto:{{ b.emails[0] }}">Send an email</a>
+      </li>
+      {% endif %}
+      {% if b.phone %}
+      <li class="lp-card">
+        <span class="lp-ic">{{ icon("phone", 22) }}</span>
+        <h2>Call us</h2>
+        <p class="lp-big"><a href="{{ b.phoneHref }}">{{ b.phone }}</a></p>
+        <p class="lp-note">Talk to the team behind {{ b.brand or site.title }}.</p>
+        <a class="btn" href="{{ b.phoneHref }}">Call now</a>
+      </li>
+      {% endif %}
+      {% if b.addressLines.length %}
+      <li class="lp-card">
+        <span class="lp-ic">{{ icon("pin", 22) }}</span>
+        <h2>Visit us</h2>
+        <address>{% if b.name %}<b>{{ b.name }}</b><br>{% endif %}{% for l in b.addressLines %}{{ l }}{% if not loop.last %}<br>{% endif %}{% endfor %}</address>
+        {% if b.mapUrl %}<a class="btn" href="{{ b.mapUrl }}" target="_blank" rel="noopener">{{ icon("ext", 16) }} Open in Google Maps</a>{% endif %}
+      </li>
+      {% endif %}
+    </ul>
+
+    <section class="lp-sec" aria-labelledby="help-h">
+      <div class="sec-h"><h2 id="help-h">How can we help?</h2></div>
+      <ul class="lp-tiles" role="list">
+        <li><a class="lp-tile" href="{{ site.url.latest }}">
+          <span class="lp-ic sm">{{ icon("msg", 18) }}</span>
+          <span><b>Help with a project</b><small>Ask in the comments under the post. Other readers often have the same question, and the answer helps everyone.</small></span>
+        </a></li>
+        {% if u.advertise %}<li><a class="lp-tile" href="{{ u.advertise }}">
+          <span class="lp-ic sm">{{ icon("speaker", 18) }}</span>
+          <span><b>Advertise with us</b><small>Banner places, sizes and how booking works.</small></span>
+        </a></li>{% endif %}
+        {% if u["privacy-policy"] %}<li><a class="lp-tile" href="{{ u['privacy-policy'] }}">
+          <span class="lp-ic sm">{{ icon("shield", 18) }}</span>
+          <span><b>Privacy and your data</b><small>Ask to see, correct or delete your data. Our Grievance Officer handles every request.</small></span>
+        </a></li>{% endif %}
+      </ul>
+    </section>
+
+    {% if p.html | trim %}
+    <section class="lp-sec"><div class="prose lp-prose">{{ p.html | safe }}</div></section>
+    {% endif %}
+
+    {% if site.social.length %}
+    <section class="lp-sec lp-follow" aria-labelledby="follow-h">
+      <div class="sec-h"><h2 id="follow-h">Follow us</h2></div>
+      {{ socialButtons(site.social) }}
+    </section>
+    {% endif %}
+  </div>
+</article>
+{% endblock %}

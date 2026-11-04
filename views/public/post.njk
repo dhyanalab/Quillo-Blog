@@ -1,0 +1,142 @@
+{% extends "public/layout.njk" %}
+{% from "public/partials/macros.njk" import crumbs, card, avatar %}
+{% block main %}
+{% set p = post %}
+<article class="post" aria-labelledby="post-title">
+  <header class="post-hero{% if not p.heroHtml %} no-img{% endif %}">
+    {{ p.heroHtml | safe }}
+    <div class="wrap">
+      {{ crumbs(p.crumbs) }}
+      <h1 id="post-title">{{ p.title }}</h1>
+      <div class="byline">
+        {% if p.author %}{{ avatar(p.author, 42) }}{% endif %}
+        <div>
+          {% if p.author %}<a href="{{ p.author.url }}">{{ p.author.name }}</a><br>{% endif %}
+          <span class="when">{% if p.state != "published" and preview %}{{ "Scheduled" if p.state == "scheduled" else "Draft" }} · {% endif %}Updated <time datetime="{{ p.updatedIso }}">{{ p.updatedDisplay }}</time> · {{ p.readMinutes }} min read</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap post-grid">
+    <aside class="rail" aria-label="On this page">
+      {% if p.toc.length > 1 %}
+      <details class="toc" open>
+        <summary>On this page {{ icon("down", 16) }}</summary>
+        <ol>{% for h in p.toc %}<li><a href="#{{ h.id }}">{{ h.text }}</a></li>{% endfor %}</ol>
+      </details>
+      {% endif %}
+      <div>
+        <span class="rail-label">Share</span>
+        <div class="share">
+          <a class="s-wa" href="https://wa.me/?text={{ (p.title + ' ' + p.shareUrl) | urlencode }}" target="_blank" rel="noopener" title="Share on WhatsApp">{{ brand("whatsapp", 18) }}<span class="sr-only">Share on WhatsApp</span></a>
+          <a class="s-x" href="https://x.com/intent/post?url={{ p.shareUrl | urlencode }}&amp;text={{ p.title | urlencode }}" target="_blank" rel="noopener" title="Share on X">{{ brand("x", 16) }}<span class="sr-only">Share on X</span></a>
+          <a class="s-in" href="https://www.linkedin.com/sharing/share-offsite/?url={{ p.shareUrl | urlencode }}" target="_blank" rel="noopener" title="Share on LinkedIn">{{ brand("linkedin", 17) }}<span class="sr-only">Share on LinkedIn</span></a>
+          <a class="s-fb" href="https://www.facebook.com/sharer/sharer.php?u={{ p.shareUrl | urlencode }}" target="_blank" rel="noopener" title="Share on Facebook">{{ brand("facebook", 18) }}<span class="sr-only">Share on Facebook</span></a>
+          <button class="s-copy copy-link" type="button" data-url="{{ p.shareUrl }}" title="Copy link" hidden>{{ icon("link", 18) }}<span class="sr-only">Copy link</span></button>
+        </div>
+      </div>
+      {{ slots.article_side | safe }}
+    </aside>
+
+    <div class="post-main">
+      {% if p.heroCaption %}<p class="hero-cap">{{ p.heroCaption }}</p>{% endif %}
+
+      {% if p.quickAnswerHtml or p.glance.length %}
+      <section class="answer" aria-labelledby="quick-answer">
+        <h2 class="answer-label" id="quick-answer">{{ "Quick answer" if p.quickAnswerHtml else "At a glance" }}</h2>
+        {% if p.quickAnswerHtml %}<p>{{ p.quickAnswerHtml | safe }}</p>{% endif %}
+        {% if p.glance.length %}
+        <table class="glance"><tbody>
+          {% for g in p.glance %}<tr><th scope="row">{{ g[0] }}</th><td>{{ g[1] }}</td></tr>{% endfor %}
+        </tbody></table>
+        {% endif %}
+      </section>
+      {% endif %}
+
+      {% if slots.article_top %}<div class="kx-row kx-row-in">{{ slots.article_top | safe }}</div>{% endif %}
+
+      {% if p.video %}{% set v = p.video %}
+      <section class="video" aria-labelledby="x-video">
+        <div class="yt">
+          <a class="yt-poster" href="{{ v.watchUrl }}" data-id="{{ v.id }}" data-title="{{ v.title }}" target="_blank" rel="noopener">
+            <img src="{{ v.thumbnail }}" data-fallback="{{ v.thumbnailFallback }}" alt="" width="1280" height="720" decoding="async" loading="lazy">
+            <span class="yt-play">{{ icon("play", 28) }}</span>
+            <span class="sr-only">Play video: {{ v.title }}</span>
+          </a>
+        </div>
+        <h2 id="x-video">{{ v.title or "Watch the video" }}</h2>
+        <p class="meta">{{ v.durationDisplay }}{% if v.durationDisplay and v.uploadDisplay %}<span class="dot"></span>{% endif %}{% if v.uploadDisplay %}Uploaded <time datetime="{{ v.uploadDate }}">{{ v.uploadDisplay }}</time>{% endif %}</p>
+        {% if v.chapters.length %}
+        <ol class="chapters" aria-label="Chapters">{% for c in v.chapters %}<li><a href="{{ c.url }}" target="_blank" rel="noopener"><span class="t">{{ c.at }}</span>{{ c.name }}</a></li>{% endfor %}</ol>
+        {% endif %}
+      </section>
+      {% endif %}
+
+      <div class="prose">
+{{ bodyParts[0] | safe }}
+{% if bodyParts[1] %}{% if slots.article_mid %}<div class="kx-row kx-row-in">{{ slots.article_mid | safe }}</div>{% endif %}
+{{ bodyParts[1] | safe }}{% endif %}
+      </div>
+
+      <div class="after">
+        {% if p.sourceFiles.length %}
+        <section id="source-code" aria-labelledby="source-code-h">
+          <div class="block-h"><h2 id="source-code-h">Source code</h2>{% if p.downloads.github %}<a class="btn btn-dark btn-sm" href="{{ p.downloads.github }}" target="_blank" rel="noopener">{{ brand("github", 16) }} View on GitHub</a>{% endif %}</div>
+          {% if p.tested_with.length %}<p class="block-sub">Tested with {{ p.tested_with | join(", ") }}</p>{% endif %}
+          <div class="src-files">
+            {% for f in p.sourceFiles %}
+            <details class="src-file"{% if loop.first %} open{% endif %}>
+              <summary>{{ icon("down", 18, "chev") }}<span class="src-name">{{ f.name }}</span><span class="src-info">{{ f.langLabel }} · {{ f.lines }} {{ f.lines | plural("line") }}</span>
+                <span class="src-acts"><button type="button" class="file-act code-copy" data-copy="src-{{ loop.index }}" hidden>{{ icon("copy", 15) }}<span>Copy</span></button><a class="file-act" href="{{ f.url }}" download>{{ icon("dl", 15) }}<span>Download</span></a></span></summary>
+              <pre id="src-{{ loop.index }}" tabindex="0"><code class="hljs">{{ f.html | safe }}</code></pre>
+            </details>
+            {% endfor %}
+          </div>
+          {% if p.sourceZip %}<div class="src-foot"><a class="btn btn-primary btn-sm" href="{{ p.sourceZip }}" download>{{ icon("dl", 16) }} Download all files (.zip)</a></div>{% endif %}
+        </section>
+        {% endif %}
+
+        {% if p.downloads.files.length or (p.downloads.github and not p.sourceFiles.length) %}
+        <section id="downloads" aria-labelledby="downloads-h">
+          <div class="block-h"><h2 id="downloads-h">Downloads</h2></div>
+          <div class="dl-row">
+            {% if p.downloads.github %}<a class="dl-btn dl-gh" href="{{ p.downloads.github }}" target="_blank" rel="noopener">{{ brand("github", 24) }}<span><b>View on GitHub</b><small>Code and wiring</small></span></a>{% endif %}
+            {% for f in p.downloads.files %}
+            <a class="dl-btn {{ 'dl-main' if f.primary else 'dl-alt' }}" href="{{ f.url }}" download>{{ icon(f.icon, 24) }}<span><b>{{ f.label }}</b><small>{{ f.type }} · {{ f.size | kb }}</small></span></a>
+            {% endfor %}
+          </div>
+        </section>
+        {% endif %}
+
+        {% if slots.article_end %}<div class="kx-row kx-row-in">{{ slots.article_end | safe }}</div>{% endif %}
+
+        {% if p.tags.length %}
+        <nav class="tags" aria-label="Tags"><b>Tags</b>{% for t in p.tags %}<a href="{{ t.url }}">{{ t.name }}</a>{% endfor %}</nav>
+        {% endif %}
+
+        {% if p.author %}{% set a = p.author %}
+        <section class="author-box" aria-labelledby="x-author">
+          {{ avatar(a, 72) }}
+          <div>
+            <h2 id="x-author"><a href="{{ a.url }}">{{ a.name }}</a></h2>
+            {% if a.job_title %}<p class="role">{{ a.job_title }}</p>{% endif %}
+            {% if a.bio %}<p>{{ a.bio }}</p>{% endif %}
+            {% if a.links.length %}<ul class="netlinks" aria-label="{{ a.name }} elsewhere">{% for l in a.links %}<li><a href="{{ l.url }}" target="_blank" rel="noopener me" title="{{ l.label }}">{{ netIcon(l.id, 17) }}<span class="sr-only">{{ a.name }} on {{ l.label }}</span></a></li>{% endfor %}</ul>{% endif %}
+          </div>
+        </section>
+        {% endif %}
+
+        {% if p.commentsOn %}{% include "public/partials/comments.njk" %}{% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if related.length %}
+  <section class="wrap related" aria-labelledby="x-related">
+    <div class="sec-h"><h2 id="x-related">Related projects</h2></div>
+    <div class="grid3">{% for r in related %}{{ card(r, "(max-width: 640px) calc(100vw - 32px), 380px") }}{% endfor %}</div>
+  </section>
+  {% endif %}
+</article>
+{% endblock %}

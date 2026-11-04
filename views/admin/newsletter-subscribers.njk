@@ -1,0 +1,66 @@
+{% extends "admin/layout.njk" %}
+{% set title = "Subscribers · Newsletter" %}
+{% set tab = "subscribers" %}
+{% block content %}
+<div class="adm-head">
+  <h1>Newsletter</h1>
+  <div class="adm-head-actions">{% if counts.total %}<form method="post" action="{{ A }}/newsletter/subscribers.csv"><input type="hidden" name="_csrf" value="{{ csrf }}"><button class="btn" type="submit">{{ icon("dl", 16) }} Export CSV</button></form>{% endif %}</div>
+  <p>{{ counts.active }} {{ counts.active | plural("subscriber") }}{% if counts.pending %}, {{ counts.pending }} waiting to confirm{% endif %}{% if counts.unsubscribed %}, and {{ counts.unsubscribed }} who unsubscribed{% endif %}.</p>
+</div>
+{% include "admin/partials/nl-tabs.njk" %}
+{% if notice %}<p class="flash" role="status">{{ icon("check", 16) }} {{ notice }}</p>{% endif %}
+
+<details class="card ads-guide"{% if addError or not counts.total %} open{% endif %}>
+  <summary><h2 class="box-title">{{ icon("plus", 17) }} Add subscribers</h2></summary>
+  <form class="form" method="post" action="{{ A }}/newsletter/subscribers/add">
+    <input type="hidden" name="_csrf" value="{{ csrf }}">
+    {% if addError %}<p class="form-error" role="alert">{{ addError }}</p>{% endif %}
+    <label class="field"><span>Email addresses</span><textarea name="emails" rows="4" placeholder="one@example.com&#10;two@example.com">{{ addText }}</textarea><small>One address, or many: paste a list or a column copied from a spreadsheet (up to 200 KB). Only add people who agreed to get your emails. People who unsubscribed are skipped, never added back.</small></label>
+    <label class="field"><span>Name <small>optional, when adding one person</small></span><input name="name" maxlength="80"></label>
+    <label class="field"><span>How did they agree to get your emails?</span><input name="consent" maxlength="100" required placeholder="For example: signed up on paper at the 2025 fair"><small>Kept with each address, so you can show where it came from.</small></label>
+    <div class="form-actions"><button class="btn btn-primary" type="submit">Add</button></div>
+  </form>
+</details>
+
+<form class="filters" method="get" action="{{ A }}/newsletter/subscribers">
+  <label class="sr-only" for="sq">Search subscribers</label>
+  <input id="sq" type="search" name="q" value="{{ q }}" placeholder="Search email or name">
+  <label class="sr-only" for="ss">Status</label>
+  <select id="ss" name="status" data-autosubmit><option value="">Everyone</option><option value="active"{% if status == "active" %} selected{% endif %}>Subscribed</option><option value="pending"{% if status == "pending" %} selected{% endif %}>Waiting to confirm</option><option value="unsubscribed"{% if status == "unsubscribed" %} selected{% endif %}>Unsubscribed</option></select>
+</form>
+
+{% if items.length %}
+<div class="table-wrap">
+<table class="table">
+  <thead><tr><th scope="col">Email</th><th scope="col">Joined from</th><th scope="col">Date</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
+  <tbody>
+  {% for s in items %}
+  <tr>
+    <td><b>{{ s.email }}</b>{% if s.name %}<br><span class="meta">{{ s.name }}</span>{% endif %}</td>
+    <td class="meta">{{ s.source | truncate(50) }}</td>
+    <td class="meta">{{ s.created_at | date(site.tz) }}</td>
+    <td>{% if s.status == "active" %}<span class="badge badge-published">Subscribed</span>{% elif s.status == "pending" %}<span class="badge badge-scheduled">Waiting to confirm</span>{% else %}<span class="badge">Unsubscribed</span><br><span class="meta">{{ s.unsubscribed_at | date(site.tz) }}</span>{% endif %}</td>
+    <td><div class="acts">
+      {% if s.status == "active" %}
+      <form method="post" action="{{ A }}/newsletter/subscribers/{{ s.id }}/unsubscribe"><input type="hidden" name="_csrf" value="{{ csrf }}"><button class="btn btn-small" type="submit">Unsubscribe</button></form>
+      {% elif s.status == "unsubscribed" %}
+      <form method="post" action="{{ A }}/newsletter/subscribers/{{ s.id }}/resubscribe" data-confirm="Subscribe {{ s.email }} again? Only do this if they asked you to."><input type="hidden" name="_csrf" value="{{ csrf }}"><button class="btn btn-small" type="submit">Subscribe again</button></form>
+      {% endif %}
+      <form method="post" action="{{ A }}/newsletter/subscribers/{{ s.id }}/delete" data-confirm="Remove {{ s.email }} from the list completely?"><input type="hidden" name="_csrf" value="{{ csrf }}"><button class="btn btn-small btn-danger" type="submit">Remove</button></form>
+    </div></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% if pages > 1 %}
+<nav class="pager" aria-label="Pages">
+  {% if pageNo > 1 %}<a class="btn" href="{{ prevUrl }}">Newer</a>{% endif %}
+  <span class="meta">Page {{ pageNo }} of {{ pages }}</span>
+  {% if pageNo < pages %}<a class="btn" href="{{ nextUrl }}">Older</a>{% endif %}
+</nav>
+{% endif %}
+{% else %}
+<p class="card empty">{% if q or status %}Nobody matches.{% else %}No subscribers yet. The signup box appears at the bottom of every page{% if not site.newsletter %} once you switch it on in Email settings{% endif %}.{% endif %}</p>
+{% endif %}
+{% endblock %}

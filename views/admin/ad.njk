@@ -1,0 +1,80 @@
+{% extends "admin/layout.njk" %}
+{% block content %}
+<div class="adm-head">
+  <h1>{{ "Edit banner" if ad.id else "New banner" }}</h1>
+  <div class="adm-head-actions"><a class="btn" href="{{ A }}/ads">Back to Ads</a></div>
+</div>
+{% if errors %}<ul class="form-error" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+{% if not adsEnabled %}<p class="form-error" role="status">Ads are switched off for the whole blog, so this banner won’t show until you switch them on at the top of the <a href="{{ A }}/ads">Ads page</a>.</p>{% endif %}
+
+{% if totals %}
+<ul class="stats" role="list">
+  <li class="card stat"><span class="stat-n">{{ totals.views }}</span><span>Views, all time</span></li>
+  <li class="card stat"><span class="stat-n">{{ totals.clicks }}</span><span>Clicks, all time</span></li>
+  <li class="card stat"><span class="stat-n">{% if totals.views %}{{ ((totals.clicks / totals.views) * 100) | round(2) }}%{% else %}–{% endif %}</span><span>Of views clicked</span></li>
+</ul>
+{% endif %}
+
+<form class="form settings" method="post" action="{{ A }}/ads{% if ad.id %}/{{ ad.id }}{% endif %}">
+  <input type="hidden" name="_csrf" value="{{ csrf }}">
+
+  <section class="card">
+    <h2 class="box-title">The banner</h2>
+    <label class="field"><span>Name</span><input name="name" value="{{ ad.name }}" maxlength="80" required placeholder="DigiKey, November"><small>For you only, to tell banners apart. Readers never see it.</small></label>
+    <label class="field"><span>Where the click goes</span><input type="url" name="url" value="{{ ad.url }}" required placeholder="https://www.digikey.in/…"><small>Paste the exact link the sponsor gave you, including any tracking code they added.</small></label>
+    <div class="field-row">
+      <div class="field"><span class="label">Picture for computers <small>required</small></span>
+        <div class="picker" data-picker data-neutral>
+          <input type="hidden" name="image_id" value="{{ image.id if image else '' }}">
+          <img class="picker-img" src="{{ image.url if image else '' }}" alt=""{% if not image %} hidden{% endif %}>
+          <div class="picker-btns"><button type="button" class="btn btn-small" data-pick>Upload or choose</button><button type="button" class="btn btn-small" data-clear{% if not image %} hidden{% endif %}>Remove</button></div>
+        </div>
+        <small>Use the size for the places you tick below, for example 728 × 90 for wide places or 300 × 250 for the sidebar.</small>
+      </div>
+      <div class="field"><span class="label">Picture for phones <small>optional</small></span>
+        <div class="picker" data-picker data-neutral>
+          <input type="hidden" name="mobile_image_id" value="{{ mobileImage.id if mobileImage else '' }}">
+          <img class="picker-img" src="{{ mobileImage.url if mobileImage else '' }}" alt=""{% if not mobileImage %} hidden{% endif %}>
+          <div class="picker-btns"><button type="button" class="btn btn-small" data-pick>Upload or choose</button><button type="button" class="btn btn-small" data-clear{% if not mobileImage %} hidden{% endif %}>Remove</button></div>
+        </div>
+        <small>Usually 320 × 100 or 300 × 250. Without one, phones show the computer picture, made smaller.</small>
+      </div>
+    </div>
+    <label class="field"><span>Describe the banner</span><input name="alt" value="{{ ad.alt }}" maxlength="200" placeholder="DigiKey: over 15 million electronic parts"><small>Read out to blind readers. Write what the banner says. Empty means the name above is used.</small></label>
+  </section>
+
+  <section class="card">
+    <h2 class="box-title">Where it appears</h2>
+    <p class="meta">Tick every place this banner should show. See the maps on the <a href="{{ A }}/ads">Ads page</a>.</p>
+    <div class="place-picks">
+      {% for pl in places %}
+      <label class="place-pick"><input type="checkbox" name="places" value="{{ pl.key }}"{% if pl.key in ad.places %} checked{% endif %}><span><b><span class="place-n">{{ pl.n }}</span> {{ pl.name }}</b><small>{{ pl.where }}</small><small>Size {{ pl.size }} · phones {{ pl.phone }}</small>{% if not pl.on %}<small class="place-off">This place is switched off on the Ads page</small>{% endif %}</span></label>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 class="box-title">When it shows</h2>
+    <div class="field-row">
+      <label class="field"><span>Start date <small>optional</small></span><input type="date" name="starts_on" value="{{ ad.startsOn }}"><small>Empty means straight away.</small></label>
+      <label class="field"><span>End date <small>optional</small></span><input type="date" name="ends_on" value="{{ ad.endsOn }}"><small>The banner comes down by itself at the end of this day.</small></label>
+    </div>
+    <label class="check"><input type="checkbox" name="active" value="1"{% if ad.active %} checked{% endif %}><span>Show this banner<br><small class="meta">Untick to pause it without deleting it.</small></span></label>
+  </section>
+
+  <div class="form-actions sticky-actions"><button class="btn btn-primary" type="submit">{{ "Save banner" if ad.id else "Add banner" }}</button><a class="btn" href="{{ A }}/ads">Cancel</a></div>
+</form>
+
+{% if daily.length %}
+<section class="card">
+  <h2 class="box-title">Last 30 days</h2>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">Day</th><th scope="col" class="num">Views</th><th scope="col" class="num">Clicks</th><th scope="col" class="num">Clicked</th></tr></thead>
+      <tbody>{% for d in daily %}<tr><td>{{ d.day }}</td><td class="num">{{ d.views }}</td><td class="num">{{ d.clicks }}</td><td class="num">{{ d.ctr }}</td></tr>{% endfor %}</tbody>
+    </table>
+  </div>
+  <p class="meta" style="margin-top:10px">A view counts when at least half the banner is on screen. Bots aren’t counted, and nothing about readers is stored.</p>
+</section>
+{% endif %}
+{% endblock %}

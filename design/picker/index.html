@@ -1,0 +1,67 @@
+<title>IoT Studio Blog Design Picker</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Outfit:wght@600;700&family=Nunito:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap">
+<link rel="stylesheet" href="chrome.css">
+<link rel="stylesheet" href="mock1.css">
+<link rel="stylesheet" href="mock2.css">
+
+<div class="topbar"><div class="topbar-in gut">
+  <div class="brand">IoT Studio Blog <small>design picker</small></div>
+  <div class="tb-right">
+    <div class="progress"><span class="bar"><i id="prog-bar"></i></span><span id="prog-n">0 of 12 chosen</span></div>
+    <div><span class="seg-label">Previews</span><span class="seg" id="mode" role="group" aria-label="Preview colours"><button type="button" data-mode="light" aria-pressed="true">Light</button><button type="button" data-mode="dark" aria-pressed="false">Dark</button></span></div>
+    <span class="status" id="status" role="status">Loading…</span>
+  </div>
+</div></div>
+
+<div class="shell gut">
+  <nav class="index" aria-label="Sections"><ol id="index-list"></ol></nav>
+  <main id="scope">
+    <div class="intro">
+      <h1>Pick the look for the IoT Studio Blog</h1>
+      <p>Choose one option in each of the 12 sections below. The previews are drawn at full desktop size and shrunk to fit. Use “View full size” to see one up close. Later previews use your earlier picks, so the article page shows your colours, fonts and buttons. All text in the previews is sample content.</p>
+      <div class="handled">
+        <h2>Already being done, no choice needed</h2>
+        <ul>
+          <li>The blog moves to <b>localhost:4100</b> and the admin to <b>localhost:4100/admin</b>.</li>
+          <li>Readers can create an account. Only signed-in readers can comment, and you moderate comments in the admin.</li>
+          <li>The name everywhere becomes <b>IoT Studio Blog</b>.</li>
+          <li>Removed: the series box (“ESP32 projects for beginners · LED Control · Climate Monitor · Tank Level”) and the Next project option.</li>
+          <li>The article top is cut down to title, author and date, then the picture. No more label bubbles or the “Published in … · Tested with” line.</li>
+          <li>Full code moves to its own Source code box after the FAQ and above Downloads.</li>
+          <li>STL and PDF files get download buttons. GitHub gets its own button.</li>
+          <li>Tables fit their content, and you can edit them in a grid in the editor.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="sections"></div>
+
+    <section class="sec" id="s-summary" aria-labelledby="h-summary">
+      <div class="sec-head"><h2 id="h-summary">Your picks</h2></div>
+      <p class="why">When you’re happy, press “I’m finished” and tell Claude in VS Code. If saving isn’t available, use “Copy picks” and paste the text to Claude.</p>
+      <div class="summary">
+        <div class="tbl"><table><thead><tr><th>Part</th><th>Your pick</th><th>Your note</th></tr></thead><tbody id="sum-body"></tbody></table></div>
+        <div class="row-actions"><button type="button" class="btn-main" id="finish">I’m finished</button><button type="button" class="btn-q" id="copy">Copy picks</button><span id="done-msg" class="status ok" hidden>Marked as finished. Tell Claude your picks are ready.</span></div>
+        <textarea class="copybox" id="copybox" aria-label="Your picks as text" readonly hidden></textarea>
+      </div>
+      <div class="final-grid">
+        <div class="final-item"><h3>Your home page so far</h3><div class="frame" data-w="1280" data-crop="1250" data-mock="final:home"></div><div class="row-actions" style="margin-top:10px"><button type="button" class="btn-q" data-full="final:home">View full size</button><button type="button" class="btn-q" data-expand>Show whole page</button></div></div>
+        <div class="final-item"><h3>Your article page so far</h3><div class="frame" data-w="1280" data-crop="1450" data-mock="final:article"></div><div class="row-actions" style="margin-top:10px"><button type="button" class="btn-q" data-full="final:article">View full size</button><button type="button" class="btn-q" data-expand>Show whole page</button></div></div>
+      </div>
+    </section>
+
+    <dialog id="full" aria-labelledby="full-title">
+      <div class="dlg-head"><b id="full-title">Preview</b><span class="seg" id="zoom" role="group" aria-label="Zoom"><button type="button" data-z="fit" aria-pressed="true">Fit to screen</button><button type="button" data-z="1" aria-pressed="false">Actual size</button></span><button type="button" class="btn-q" id="full-close">Close</button></div>
+      <div class="dlg-body"><div class="frame" id="full-frame" data-w="1280"></div></div>
+    </dialog>
+  </main>
+</div>
+
+<script src="data.js"></script>
+<script src="mocks1.js"></script>
+<script src="mocks2.js"></script>
+<script src="mocks3.js"></script>
+<script src="app.js"></script>

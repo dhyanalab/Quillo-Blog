@@ -1,0 +1,58 @@
+{% extends "admin/layout.njk" %}
+{% set title = "Media" %}
+{% block content %}
+<div class="adm-head"><h1>Media</h1></div>
+{% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+
+<form class="card dropzone" method="post" action="{{ A }}/media" enctype="multipart/form-data" data-dropzone>
+  <input type="hidden" name="_csrf" value="{{ csrf }}">
+  <p><strong>Drop files here</strong> or choose them. Images (JPEG, PNG, WebP, AVIF, GIF, SVG, up to 15 MB) are resized, converted to AVIF and WebP, and stripped of location data. Downloads (PDF, STL, 3MF, STEP, ZIP, up to 50 MB) are kept exactly as uploaded.</p>
+  <label class="btn btn-primary">{{ icon("upload", 16) }} Choose files<input type="file" name="file" multiple accept="image/jpeg,image/png,image/webp,image/avif,image/gif,image/svg+xml,.pdf,.stl,.3mf,.step,.stp,.zip" hidden data-autosubmit></label>
+  <span class="meta" data-progress aria-live="polite"></span>
+</form>
+
+<div class="adm-head" style="gap:10px">
+  <nav class="tabs" aria-label="Filter by type" style="border:0">
+    <a href="{{ A }}/media"{% if not kind %} aria-current="page"{% endif %}>All</a>
+    <a href="{{ A }}/media?kind=image"{% if kind == "image" %} aria-current="page"{% endif %}>Images</a>
+    <a href="{{ A }}/media?kind=file"{% if kind == "file" %} aria-current="page"{% endif %}>Downloads</a>
+  </nav>
+  <form class="filters" method="get" action="{{ A }}/media">
+    {% if kind %}<input type="hidden" name="kind" value="{{ kind }}">{% endif %}
+    <label class="sr-only" for="mq">Search media</label>
+    <input id="mq" type="search" name="q" value="{{ q }}" placeholder="Search by file name or alt text">
+  </form>
+</div>
+
+{% if items.length %}
+<ul class="media-grid" role="list">
+  {% for m in items %}
+  <li class="card media-item">
+    <a href="{{ m.url }}" target="_blank" rel="noopener noreferrer" class="media-thumb">{% if m.kind == "file" %}<span class="media-file">{{ icon("cube" if m.ext in ["stl", "3mf", "step", "stp"] else ("zip" if m.ext == "zip" else "pdf"), 30) }}{{ m.ext | upper }}</span>{% else %}<img src="{{ m.thumb }}" alt="" loading="lazy" width="{{ m.width or 400 }}" height="{{ m.height or 300 }}">{% endif %}</a>
+    <p class="meta media-name" title="{{ m.name }}">{{ m.name }}</p>
+    <p class="meta">{% if m.width %}{{ m.width }}×{{ m.height }} · {% endif %}{{ m.size | kb }}</p>
+    {% if m.kind != "file" %}
+    <form method="post" action="{{ A }}/media/{{ m.id }}" class="media-alt">
+      <input type="hidden" name="_csrf" value="{{ csrf }}"><input type="hidden" name="page" value="{{ pageNo }}">
+      <label class="sr-only" for="alt-{{ m.id }}">Default alt text</label>
+      <input id="alt-{{ m.id }}" name="alt" value="{{ m.alt }}" placeholder="Default alt text" maxlength="300">
+      <button class="btn btn-small" type="submit">Save</button>
+    </form>
+    {% endif %}
+    <div class="media-actions">
+      {% if m.kind != "file" %}<button class="btn btn-small" type="button" data-copy="{{ m.markdown }}">Copy Markdown</button>{% else %}<button class="btn btn-small" type="button" data-copy="{{ m.url }}">Copy link</button>{% endif %}
+      <form method="post" action="{{ A }}/media/{{ m.id }}/delete" data-confirm="Delete this file? This can’t be undone.">
+        <input type="hidden" name="_csrf" value="{{ csrf }}"><button class="btn btn-small btn-danger" type="submit">Delete</button>
+      </form>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+<nav class="pager" aria-label="Pages">
+  {% if pageNo > 1 %}<a class="btn" href="{{ A }}/media?page={{ pageNo - 1 }}{% if kind %}&amp;kind={{ kind }}{% endif %}{% if q %}&amp;q={{ q | urlencode }}{% endif %}">Newer</a>{% endif %}
+  {% if more %}<a class="btn" href="{{ A }}/media?page={{ pageNo + 1 }}{% if kind %}&amp;kind={{ kind }}{% endif %}{% if q %}&amp;q={{ q | urlencode }}{% endif %}">Older</a>{% endif %}
+</nav>
+{% else %}
+<p class="card empty">Nothing here{% if q %} matches “{{ q }}”{% else %} yet{% endif %}.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "admin/layout.njk" %}
+{% from "admin/partials/links.njk" import linksEditor %}
+{% set title = "Settings" %}
+{% block content %}
+<div class="adm-head"><h1>Settings</h1></div>
+{% if errors %}<ul class="form-error" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+
+<form method="post" action="{{ A }}/settings" class="form settings">
+  <input type="hidden" name="_csrf" value="{{ csrf }}">
+
+  <section class="card">
+    <h2 class="box-title">General</h2>
+    <label class="field"><span>Blog title</span><input name="site_title" value="{{ s.site_title }}" maxlength="100" required></label>
+    <label class="field"><span>Description <small class="count" data-for="st-desc" data-max="155"></small></span><textarea id="st-desc" name="site_description" rows="2" maxlength="300">{{ s.site_description }}</textarea><small>The home page meta description.</small></label>
+    <label class="field"><span>Site URL</span><input name="site_url" type="url" value="{{ s.site_url }}" required{% if not canSiteUrl %} readonly{% endif %}><small>Domain only, e.g. https://iotstudio.in.{% if not canSiteUrl %} Only the owner can change this.{% endif %} The blog lives under <code>{{ site.base or "/" }}</code>.{% if envSiteUrl %} The SITE_URL environment variable ({{ envSiteUrl }}) currently overrides this.{% endif %}</small></label>
+    {% if siteUrlRisky %}<label class="check"><input type="checkbox" name="confirm_site_url" value="1"> Use this address anyway (it isn’t a public https address)</label>{% endif %}
+    <div class="field-row">
+      <label class="field"><span>Time zone</span><select name="timezone">{% for z in zones %}<option{% if z == s.timezone %} selected{% endif %}>{{ z }}</option>{% endfor %}</select></label>
+      <label class="field"><span>Posts per page</span><input type="number" name="posts_per_page" value="{{ s.posts_per_page }}" min="4" max="48"></label>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 class="box-title">Brand</h2>
+    <label class="field"><span>Organisation name</span><input name="org_name" value="{{ s.org_name }}" maxlength="100"><small>Used as the publisher in structured data and on social images.</small></label>
+    <div class="field-row">
+      <div class="field"><span class="label">Logo <small>SVG or PNG, wide</small></span>
+        <div class="picker" data-picker>
+          <input type="hidden" name="logo_id" value="{{ logo.id if logo else '' }}">
+          <img class="picker-img" src="{{ logo.url if logo else '' }}" alt=""{% if not logo %} hidden{% endif %}>
+          <div class="picker-btns"><button type="button" class="btn btn-small" data-pick>Choose</button><button type="button" class="btn btn-small" data-clear{% if not logo %} hidden{% endif %}>Remove</button></div>
+        </div>
+      </div>
+      <div class="field"><span class="label">Default social image <small>1200×630</small></span>
+        <div class="picker" data-picker>
+          <input type="hidden" name="default_og_image_id" value="{{ defaultOg.id if defaultOg else '' }}">
+          <img class="picker-img" src="{{ defaultOg.url if defaultOg else '' }}" alt=""{% if not defaultOg %} hidden{% endif %}>
+          <div class="picker-btns"><button type="button" class="btn btn-small" data-pick>Choose</button><button type="button" class="btn btn-small" data-clear{% if not defaultOg %} hidden{% endif %}>Remove</button></div>
+        </div>
+      </div>
+    </div>
+    <label class="field"><span>Logo link</span><input name="home_url" value="{{ s.home_url }}" placeholder="Empty = blog home, or https://iotstudio.in/"></label>
+    <label class="field"><span>About text <small>footer</small></span><textarea name="about_text" rows="3" maxlength="600">{{ s.about_text }}</textarea></label>
+  </section>
+
+  <section class="card" id="business">
+    <h2 class="box-title">Business details</h2>
+    <p class="meta">Shown in the footer, used on your legal pages, and given to search engines so they know who runs the blog.</p>
+    <div class="field-row">
+      <label class="field"><span>Business name <small>the registered name</small></span><input name="business_name" value="{{ s.business_name }}" maxlength="120" placeholder="Dhyana Engineering Solutions"></label>
+      <label class="field"><span>Brand</span><input name="brand_name" value="{{ s.brand_name }}" maxlength="80" placeholder="IoT Studio"></label>
+    </div>
+    <label class="field"><span>Brand website</span><input type="url" name="brand_url" value="{{ s.brand_url }}" placeholder="https://www.iotstudio.in"></label>
+    <label class="field"><span>Street address</span><input name="address_street" value="{{ s.address_street }}" maxlength="200" placeholder="Door number, floor, street, area"></label>
+    <div class="field-row">
+      <label class="field"><span>City</span><input name="address_city" value="{{ s.address_city }}" maxlength="80"></label>
+      <label class="field"><span>State</span><input name="address_region" value="{{ s.address_region }}" maxlength="80"></label>
+      <label class="field"><span>PIN code</span><input name="address_postcode" value="{{ s.address_postcode }}" maxlength="20"></label>
+      <label class="field"><span>Country</span><input name="address_country" value="{{ s.address_country }}" maxlength="60"></label>
+    </div>
+    <div class="field-row">
+      <label class="field"><span>Phone</span><input type="tel" name="contact_phone" value="{{ s.contact_phone }}" maxlength="30" placeholder="+91 …"></label>
+      <label class="field"><span>Email</span><input type="email" name="contact_email" value="{{ s.contact_email }}" maxlength="120"></label>
+      <label class="field"><span>Another email <small>optional</small></span><input type="email" name="contact_email_alt" value="{{ s.contact_email_alt }}" maxlength="120"></label>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 class="box-title">Menus</h2>
+    <p class="meta">The menu bar and footer links now have their own page, where you pick each link from a list.</p>
+    <p><a class="btn" href="{{ A }}/menus">Edit the menus</a></p>
+  </section>
+
+  <section class="card">
+    <h2 class="box-title">Calls to action</h2>
+    <div class="field-row">
+      <label class="field"><span>Download button label</span><input name="cta_download_label" value="{{ s.cta_download_label }}" maxlength="60"></label>
+      <label class="field"><span>Download URL</span><input name="cta_download_url" value="{{ s.cta_download_url }}" placeholder="https://…"></label>
+    </div>
+    <div class="field-row">
+      <label class="field"><span>Kit button label</span><input name="cta_kit_label" value="{{ s.cta_kit_label }}" maxlength="60"></label>
+      <label class="field"><span>Kit URL</span><input name="cta_kit_url" value="{{ s.cta_kit_url }}" placeholder="https://…"></label>
+    </div>
+    <p class="meta">Buttons with a URL appear in the menu bar and on the home page.</p>
+  </section>
+
+  <section class="card">
+    <h2 class="box-title">Social profiles</h2>
+    <p class="meta">Shown as logos in the footer, and given to search engines so they connect your blog with these profiles.</p>
+    {{ linksEditor(socialRows, "Pick the network, then type the username or paste the full link.") }}
+  </section>
+
+  <div class="link-cards">
+    <a class="card link-card" href="{{ A }}/newsletter/settings">{{ icon("mail", 20) }}<span><b>Newsletter</b><small>The signup box, and the email service that sends your newsletters</small></span></a>
+    <a class="card link-card" href="{{ A }}/analytics">{{ icon("chart", 20) }}<span><b>Analytics &amp; SEO</b><small>Visitor numbers, Google Search Console, Bing and AI crawlers</small></span></a>
+  </div>
+
+  <section class="card" id="comments">
+    <h2 class="box-title">Comments and reader accounts</h2>
+    <label class="check"><input type="checkbox" name="comments_enabled" value="1"{% if s.comments_enabled %} checked{% endif %}> Allow comments on posts (you can turn them off for a single post in the editor)</label>
+    <label class="check"><input type="checkbox" name="members_signup" value="1"{% if s.members_signup %} checked{% endif %}> Let readers create accounts</label>
+    <fieldset class="field"><legend>Approval</legend>
+      <label class="check"><input type="radio" name="comments_moderation" value="first"{% if s.comments_moderation == "first" %} checked{% endif %}> A reader’s first comment waits for approval; later ones go live at once</label>
+      <label class="check"><input type="radio" name="comments_moderation" value="all"{% if s.comments_moderation == "all" %} checked{% endif %}> Every comment waits for approval</label>
+      <label class="check"><input type="radio" name="comments_moderation" value="none"{% if s.comments_moderation == "none" %} checked{% endif %}> Comments go live at once</label>
+    </fieldset>
+  </section>
+
+  <section class="card">
+    <h2 class="box-title">Home page</h2>
+    <label class="field"><span>News category</span><select name="news_category_slug"><option value="">No News column</option>{% for k in categories %}<option value="{{ k.slug }}"{% if s.news_category_slug == k.slug %} selected{% endif %}>{{ k.name }}</option>{% endfor %}</select><small>Its posts fill the News column on the home page and in sidebars, and stay out of the main list.</small></label>
+    <p class="meta">Editor’s Choice shows the posts marked “Editor’s Choice” in the editor, newest first. The category rows come from categories with “Show on the home page” ticked.</p>
+  </section>
+
+  <div class="form-actions sticky-actions"><button class="btn btn-primary" type="submit">Save settings</button></div>
+</form>
+
+{% endblock %}

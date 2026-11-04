@@ -1,0 +1,73 @@
+{# Comments: readers sign in to comment and reply. One level of replies. #}
+{% macro comment(c, isReply=false) %}
+<div class="cmt" id="comment-{{ c.id }}">
+  {% if c.status == "deleted" %}
+  <span class="av">?</span>
+  <div><p class="cmt-body"><em>Comment removed</em></p></div>
+  {% else %}
+  <span class="av">{{ (c.member_name or c.staff_name or "?") | initials }}</span>
+  <div>
+    <p class="cmt-h"><b>{{ c.member_name or c.staff_name or "Deleted account" }}</b>{% if c.user_id %}<span class="badge-author" title="Written by the {{ site.title }} team">{{ "Author" if c.user_id == post.author.id else "Team" }}</span>{% endif %}<time datetime="{{ c.created_at }}">{{ c.created_at | date(site.tz) }}</time></p>
+    <p class="cmt-body">{{ c.body }}</p>
+    <div class="cmt-acts">
+      {% if member %}
+      <form method="post" action="{{ site.url.home }}comments/{{ c.id }}/like/">
+        <input type="hidden" name="_csrf" value="{{ memberCsrf }}">
+        <button class="cmt-act" type="submit" aria-pressed="{{ 'true' if liked.has(c.id) else 'false' }}">{{ icon("heart", 15) }} {{ c.likes }}<span class="sr-only"> likes, like this comment</span></button>
+      </form>
+      {% if not isReply %}<button class="cmt-act reply-btn" type="button" data-reply="{{ c.id }}" data-name="{{ c.member_name or c.staff_name }}" hidden>{{ icon("reply", 15) }} Reply</button>{% endif %}
+      {% if c.member_id == member.id %}
+      <form method="post" action="{{ site.url.home }}comments/{{ c.id }}/delete/" class="confirm-form" data-confirm="Delete your comment?">
+        <input type="hidden" name="_csrf" value="{{ memberCsrf }}">
+        <button class="cmt-act" type="submit">{{ icon("trash", 15) }} Delete</button>
+      </form>
+      {% endif %}
+      {% else %}
+      <span class="cmt-act">{{ icon("heart", 15) }} {{ c.likes }}<span class="sr-only"> likes</span></span>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endmacro %}
+
+<section id="comments" class="comments" aria-labelledby="comments-h">
+  <div class="comments-h">
+    <h2 id="comments-h">{% if thread.count %}{{ thread.count }} {{ thread.count | plural("comment") }}{% else %}Comments{% endif %}</h2>
+  </div>
+
+  {% if commentNotice %}<p class="notice cmt-notice notice-{{ commentNotice.kind }}" role="status">{{ commentNotice.text }}</p>{% endif %}
+
+  {% if member %}
+  <form class="compose" id="compose" method="post" action="{{ post.url }}comments/">
+    <input type="hidden" name="_csrf" value="{{ memberCsrf }}">
+    <input type="hidden" name="parent_id" value="">
+    <label class="sr-only" for="comment-body">Your comment</label>
+    <p class="reply-to" hidden></p>
+    <textarea id="comment-body" name="body" required maxlength="5000" placeholder="Write a comment…"></textarea>
+    <div class="compose-foot"><span>Commenting as <b>{{ member.name }}</b> · <a href="{{ site.url.account }}">Account</a></span><span><button class="btn btn-sm cancel-reply" type="button" hidden>Cancel reply</button> <button class="btn btn-primary btn-sm" type="submit">Post comment</button></span></div>
+  </form>
+  {% elif preview %}
+  <p class="no-comments">Comments appear here once the post is live.</p>
+  {% else %}
+  <div class="gate">
+    <div><b>Join the discussion</b><p>{% if site.comments.signup %}Create a free account or sign in to comment and reply.{% else %}Sign in to comment and reply.{% endif %}</p></div>
+    <div class="gate-btns">{% if site.comments.signup %}<a class="btn btn-primary" href="{{ site.url.signup }}?next={{ (post.url + '#comments') | urlencode }}">Create account</a>{% endif %}<a class="btn" href="{{ site.url.signin }}?next={{ (post.url + '#comments') | urlencode }}">Sign in</a></div>
+  </div>
+  {% endif %}
+
+  {% if thread.comments.length %}
+  <ol class="thread">
+    {% for c in thread.comments %}
+    <li>
+      {{ comment(c) }}
+      {% if c.replies.length %}
+      <ol class="replies">{% for r in c.replies %}<li>{{ comment(r, true) }}</li>{% endfor %}</ol>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+  {% elif not preview %}
+  <p class="no-comments">No comments yet. Be the first to ask a question or share your build.</p>
+  {% endif %}
+</section>

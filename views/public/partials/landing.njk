@@ -1,0 +1,29 @@
+{# Pieces for the About, Contact, Advertise and legal pages. #}
+{% from "public/partials/macros.njk" import crumbs %}
+
+{# Header band: breadcrumbs, a small label, the title, the page summary, the last-updated date (legal pages),
+   buttons and a large line icon. #}
+{% macro pageHero(p, eyebrow, art, buttons=[], showUpdated=false) %}
+<header class="lp-hero">
+  <div class="wrap lp-hero-in">
+    <div class="lp-hero-text">
+      {{ crumbs(p.crumbs) }}
+      <p class="lp-eyebrow">{{ eyebrow }}</p>
+      <h1 id="page-title">{{ p.title }}</h1>
+      {% if p.excerpt %}<p class="lp-lead">{{ p.excerpt }}</p>{% endif %}
+      {% if showUpdated %}<p class="lp-meta">{{ icon("clock", 15) }} Last updated <time datetime="{{ p.updatedIso }}">{{ p.updatedDisplay }}</time></p>{% endif %}
+      {% if buttons.length %}
+      <div class="lp-actions">{% for b in buttons %}<a class="btn{% if loop.first %} btn-primary{% else %} lp-btn-light{% endif %}" href="{{ b.url }}"{% if b.external %} target="_blank" rel="noopener"{% endif %}>{% if b.icon %}{{ icon(b.icon, 16) }}{% endif %}{{ b.label }}</a>{% endfor %}</div>
+      {% endif %}
+    </div>
+    <div class="lp-hero-art" aria-hidden="true">{{ icon(art, 200) }}</div>
+  </div>
+</header>
+{% endmacro %}
+
+{# Social profiles as labelled buttons with their logos. #}
+{% macro socialButtons(social) %}
+<ul class="lp-social">
+  {% for s in social %}<li><a href="{{ s.url }}" rel="me noopener" target="_blank">{{ netIcon(s.key, 18) }}<span>{{ s.label }}</span></a></li>{% endfor %}
+</ul>
+{% endmacro %}

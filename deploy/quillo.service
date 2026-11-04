@@ -1,0 +1,21 @@
+# systemd service for Quillo. deploy/install.sh fills in the @...@ values; to do it by hand, replace them,
+# save as /etc/systemd/system/quillo.service, then: sudo systemctl daemon-reload && sudo systemctl enable --now quillo
+[Unit]
+Description=Quillo blog
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=@USER@
+WorkingDirectory=@APP_DIR@
+EnvironmentFile=@ENV_FILE@
+ExecStart=@NODE@ server.js
+# The server exits on purpose after an unexpected error; systemd starts it again.
+Restart=always
+RestartSec=3
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

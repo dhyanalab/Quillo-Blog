@@ -1,0 +1,78 @@
+{% extends "admin/layout.njk" %}
+{% set title = "Dashboard" %}
+{% block content %}
+<div class="adm-head">
+  <h1>Dashboard</h1>
+  <div class="adm-head-actions">
+    {% if site.s.analytics_dashboard and can.settings() %}<a class="btn" href="{{ site.s.analytics_dashboard }}" target="_blank" rel="noopener">{{ icon("chart", 16) }} Visitor numbers</a>{% endif %}
+    <a class="btn btn-primary" href="{{ A }}/posts/new">{{ icon("plus", 16) }} New post</a>
+  </div>
+</div>
+
+<ul class="stats" role="list">
+  <li class="card stat"><span class="stat-n">{{ counts.published or 0 }}</span><a href="{{ A }}/posts?state=published">Published posts</a></li>
+  <li class="card stat"><span class="stat-n">{{ counts.draft or 0 }}</span><a href="{{ A }}/posts?state=draft">Drafts</a></li>
+  <li class="card stat"><span class="stat-n">{{ counts.scheduled or 0 }}</span><a href="{{ A }}/posts?state=scheduled">Scheduled</a></li>
+  {% if can.taxonomy() %}<li class="card stat"><span class="stat-n">{{ comments.pending or 0 }}</span><a href="{{ A }}/comments?status=pending">Comments to approve</a></li>{% endif %}
+  {% if can.settings() %}
+  <li class="card stat"><span class="stat-n">{{ members }}</span><a href="{{ A }}/members">Members</a></li>
+  <li class="card stat"><span class="stat-n">{{ subscribers }}</span><a href="{{ A }}/newsletter/subscribers">Subscribers</a></li>
+  <li class="card stat"><span class="stat-n">{{ pendingSubscribers or 0 }}</span><a href="{{ A }}/newsletter/subscribers">Waiting to confirm</a></li>
+  {% endif %}
+</ul>
+
+{% if recoveryReset %}
+<p class="health-warn notice-box">{{ icon("alert", 16) }}<span>Your old recovery codes were removed because they used an older, weaker format. <a href="{{ A }}/account/two-step">Create new ones now.</a></span></p>
+{% endif %}
+
+{% if warnings and warnings.length %}
+<section class="card">
+  <h2 class="box-title">{{ icon("alert", 17) }} Worth a look</h2>
+  <ul class="health">{% for w in warnings %}<li class="health-warn">{{ w }}</li>{% endfor %}</ul>
+</section>
+{% endif %}
+
+{% if health.length and can.settings() %}
+<section class="card">
+  <h2 class="box-title">{{ icon("alert", 17) }} Before you launch</h2>
+  <ul class="health">{% for h in health %}<li class="health-{{ h.level }}">{{ h.text }}</li>{% endfor %}</ul>
+  <p class="meta">Sitemap: <a href="{{ sitemapUrl }}" target="_blank" rel="noopener">{{ sitemapUrl }}</a> · Robots: <a href="{{ robotsUrl }}" target="_blank" rel="noopener">{{ robotsUrl }}</a></p>
+</section>
+{% endif %}
+
+{% if noTwoStep and noTwoStep.length %}
+<section class="card">
+  <h2 class="box-title">{{ icon("key", 17) }} Staff without two-step sign-in</h2>
+  <ul class="adm-list">{% for p in noTwoStep %}<li><a href="{{ A }}/users/{{ p.id }}">{{ p.name }}</a><span class="meta">{{ roleLabels[p.role] }}. Ask them to turn it on under Your profile.</span></li>{% endfor %}</ul>
+</section>
+{% endif %}
+
+<div class="adm-cols">
+  <section class="card">
+    <h2 class="box-title">Drafts</h2>
+    {% if drafts.length %}
+    <ul class="adm-list">{% for p in drafts %}<li><a href="{{ A }}/{{ 'pages' if p.type == 'page' else 'posts' }}/{{ p.id }}">{{ p.title or "(Untitled)" }}</a><span class="meta">Edited {{ p.modified_at | datetime(site.tz) }}</span></li>{% endfor %}</ul>
+    {% else %}<p class="meta">No drafts. <a href="{{ A }}/posts/new">Start one</a>.</p>{% endif %}
+  </section>
+  {% if latestComments %}
+  <section class="card">
+    <h2 class="box-title">Latest comments</h2>
+    {% if latestComments.length %}
+    <ul class="adm-list">{% for cm in latestComments %}<li><a href="{{ A }}/comments?post={{ cm.post_id }}">{{ cm.member_name or cm.staff_name or "Deleted account" }} on “{{ cm.post_title }}”</a><span class="meta">{{ cm.body | truncate(90) }}{% if cm.status == "pending" %} · <b>waiting for approval</b>{% endif %}</span></li>{% endfor %}</ul>
+    {% else %}<p class="meta">No comments yet.</p>{% endif %}
+  </section>
+  {% endif %}
+  <section class="card">
+    <h2 class="box-title">Most read</h2>
+    {% if popular.length %}
+    <ol class="adm-list">{% for p in popular %}<li><a href="{{ site.url.post(p.slug) }}" target="_blank" rel="noopener">{{ p.title }}</a><span class="meta">{{ p.views }} {{ p.views | plural("view") }}</span></li>{% endfor %}</ol>
+    {% else %}<p class="meta">No views yet.</p>{% endif %}
+  </section>
+  <section class="card">
+    <h2 class="box-title">Scheduled</h2>
+    {% if scheduled.length %}
+    <ul class="adm-list">{% for p in scheduled %}<li><a href="{{ A }}/posts/{{ p.id }}">{{ p.title }}</a><span class="meta">Goes live {{ p.published_at | datetime(site.tz) }}</span></li>{% endfor %}</ul>
+    {% else %}<p class="meta">Nothing scheduled.</p>{% endif %}
+  </section>
+</div>
+{% endblock %}

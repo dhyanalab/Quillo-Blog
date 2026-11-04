@@ -1,0 +1,3 @@
+/* Full-page preview from the editor: editorial markers stand out so they get fixed before publishing. */
+.marker{background:var(--warn-soft);color:var(--ink);border:1.5px dashed var(--warn);border-radius:6px;padding:1px 6px;font-weight:700}
+.marker-todo{display:inline-block;padding:4px 10px}

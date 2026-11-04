@@ -1,0 +1,73 @@
+{% extends "admin/layout.njk" %}
+{% set title = "Email settings · Newsletter" %}
+{% set tab = "settings" %}
+{% block content %}
+<div class="adm-head">
+  <h1>Newsletter</h1>
+</div>
+{% include "admin/partials/nl-tabs.njk" %}
+{% if errors %}<ul class="form-error" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+
+<form class="form settings" method="post" action="{{ A }}/newsletter/settings">
+  <input type="hidden" name="_csrf" value="{{ csrf }}">
+
+  <section class="card">
+    <h2 class="box-title">Signup box</h2>
+    <label class="check"><input type="checkbox" name="newsletter_enabled" value="1"{% if s.newsletter_enabled %} checked{% endif %}> Show the signup box at the bottom of every page and in the sidebar</label>
+    <label class="field"><span>Heading</span><input name="newsletter_heading" value="{{ s.newsletter_heading }}" maxlength="120"></label>
+    <label class="field"><span>Text</span><input name="newsletter_text" value="{{ s.newsletter_text }}" maxlength="300"></label>
+  </section>
+
+  <section class="card">
+    <h2 class="box-title">Who newsletters come from</h2>
+    {% if not canServer %}<p class="meta">{{ icon("info", 15) }} Only the owner can change this: it applies to every email the blog sends, including sign-in and password emails.</p>{% endif %}
+    <div class="field-row">
+      <label class="field"><span>Sender name</span><input name="mail_from_name" value="{{ s.mail_from_name }}" maxlength="80" placeholder="{{ site.title }}"{% if not canServer %} disabled{% endif %}></label>
+      <label class="field"><span>Sender email</span><input type="email" name="mail_from_email" value="{{ s.mail_from_email }}" maxlength="120" placeholder="newsletter@yourdomain.com"{% if not canServer %} disabled{% endif %}><small>Must be an address your email service lets you send from.</small></label>
+      <label class="field"><span>Replies go to <small>optional</small></span><input type="email" name="mail_reply_to" value="{{ s.mail_reply_to }}" maxlength="120" placeholder="Same as the sender"{% if not canServer %} disabled{% endif %}></label>
+    </div>
+  </section>
+
+  <section class="card" data-smtp>
+    <h2 class="box-title">Email service</h2>
+    <p class="meta">The service that actually delivers the emails. Pick yours and the server details fill in by themselves.</p>
+    {% if not canServer %}<p class="meta">{{ icon("info", 15) }} Only the owner can change the email service. You can see it here, and you can still send a test email.</p>{% endif %}
+    {% set off = " disabled" if not canServer else "" %}
+    <label class="field"><span>Service</span>
+      <select name="smtp_preset" data-smtp-preset{{ off }}{% if locks.host %} disabled{% endif %}>
+        <option value="">Choose…</option>
+        {% for key, p in presets %}<option value="{{ key }}" data-host="{{ p.host }}" data-port="{{ p.port }}" data-secure="{{ p.secure }}" data-user="{{ p.user }}" data-pass="{{ p.pass }}"{% if s.smtp_preset == key %} selected{% endif %}>{{ p.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <div class="field-row" data-smtp-server>
+      <label class="field"><span>Server</span><input name="smtp_host" value="{{ s.smtp_host }}" maxlength="200" placeholder="smtp.example.com"{{ off }}{% if locks.host %} readonly{% endif %}>{% if locks.host %}<small>Fixed by the server’s SMTP_HOST setting.</small>{% endif %}</label>
+      <label class="field"><span>Port</span><input type="number" name="smtp_port" value="{{ s.smtp_port }}" min="1" max="65535"{{ off }}{% if locks.port %} readonly{% endif %}>{% if locks.port %}<small>Fixed by the server’s SMTP_PORT setting.</small>{% endif %}</label>
+      <label class="field"><span>Security</span><select name="smtp_secure"{{ off }}{% if locks.secure %} disabled{% endif %}><option value="ssl"{% if s.smtp_secure == "ssl" %} selected{% endif %}>SSL (usually port 465)</option><option value="starttls"{% if s.smtp_secure != "ssl" %} selected{% endif %}>STARTTLS (usually port 587)</option></select></label>
+    </div>
+    <div class="field-row">
+      <label class="field"><span>User name</span><input name="smtp_user" value="{{ s.smtp_user }}" maxlength="200" autocomplete="off"{{ off }}{% if locks.user %} readonly{% endif %}><small data-smtp-user-help>{{ presets[s.smtp_preset].user if presets[s.smtp_preset] else "Usually your email address" }}</small></label>
+      <label class="field"><span>Password</span><input type="password" name="smtp_pass" value="" maxlength="500" autocomplete="new-password"{{ off }} placeholder="{{ 'Saved. Leave empty to keep it' if hasPass else '' }}"><small data-smtp-pass-help>{{ presets[s.smtp_preset].pass if presets[s.smtp_preset] else "Your email password or SMTP key" }}</small></label>
+    </div>
+    {% if hasPass and canServer %}<label class="check"><input type="checkbox" name="smtp_pass_clear" value="1"> Remove the saved password</label>{% endif %}
+    {% if canServer %}<p class="meta">If you change the server, port, security or user name, the saved password is removed and you enter it again.</p>{% endif %}
+    {% if envPass %}<p class="meta">The SMTP_PASSWORD setting on the server is used instead of the password saved here.</p>{% endif %}
+  </section>
+
+  <div class="form-actions sticky-actions">
+    <button class="btn btn-primary" type="submit" name="action" value="save">Save</button>
+    <button class="btn" type="submit" name="action" value="test">{{ icon("mail", 16) }} Save and send me a test email</button>
+    <span class="meta">The test goes to {{ me }}.</span>
+  </div>
+</form>
+
+<details class="card ads-guide">
+  <summary><h2 class="box-title">{{ icon("info", 17) }} Which email service should I use?</h2></summary>
+  <ul class="notes">
+    <li><b>Zoho Mail</b>, if your business email is on Zoho: works straight away with your mailbox address and password. Zoho is made for everyday email, not bulk sending, so keep it for tests and a small list (a few hundred people).</li>
+    <li><b>Brevo</b>: made for newsletters, free for 300 emails a day. Sign up at brevo.com, add your domain under Senders &amp; IP, add the DNS records it shows you, then copy the SMTP login and key from “SMTP &amp; API”.</li>
+    <li><b>Gmail</b>: needs 2-Step Verification and an app password. Personal Gmail sends about 500 emails a day.</li>
+    <li><b>Amazon SES</b>: the cheapest for big lists, but needs an AWS account and approval.</li>
+  </ul>
+  <p class="meta" style="margin-top:12px">Whichever you choose, add the SPF and DKIM records it gives you to your domain’s DNS. Without them, newsletters tend to land in spam.</p>
+</details>
+{% endblock %}

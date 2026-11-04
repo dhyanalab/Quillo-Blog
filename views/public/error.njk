@@ -1,0 +1,15 @@
+{% extends "public/layout.njk" %}
+{% block main %}
+<div class="wrap auth wide">
+  <section class="auth-card">
+    <p class="kicker">Error {{ code }}</p>
+    <h1>{{ heading }}</h1>
+    <p class="sub">{{ text }} Try a search, or start from the <a href="{{ site.url.home }}">home page</a>.</p>
+    <form class="search-big mt-0" role="search" action="{{ site.url.search }}" method="get">
+      <label class="sr-only" for="err-q">Search</label>
+      <input id="err-q" type="search" name="q" placeholder="Search projects, tutorials and news" maxlength="100">
+      <button class="btn btn-primary btn-auto" type="submit">Search</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

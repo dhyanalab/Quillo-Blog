@@ -1,0 +1,14 @@
+<dialog class="media-dialog" id="media-dialog" aria-labelledby="media-dialog-title">
+  <div class="md-head">
+    <h2 id="media-dialog-title">Choose an image</h2>
+    <button class="icon-btn" type="button" data-close aria-label="Close">✕</button>
+  </div>
+  <div class="md-tools">
+    <label class="btn btn-primary md-upload">Upload<input type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif,image/svg+xml" hidden></label>
+    <label class="sr-only" for="md-search">Search media</label>
+    <input id="md-search" type="search" placeholder="Search by file name or alt text">
+    <span class="meta md-status" aria-live="polite"></span>
+  </div>
+  <ul class="md-grid" role="list"></ul>
+  <div class="md-foot"><button class="btn" type="button" data-more hidden>Load more</button></div>
+</dialog>

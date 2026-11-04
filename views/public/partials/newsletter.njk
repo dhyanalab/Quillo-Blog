@@ -1,0 +1,15 @@
+<section class="newsletter" id="newsletter" aria-labelledby="nl-title">
+  <div class="wrap nl-inner">
+    <div>
+      <h2 id="nl-title">{{ site.newsletter.heading }}</h2>
+      <p>{{ site.newsletter.text }}</p>
+    </div>
+    <form class="nl-form" method="post" action="{{ site.url.subscribe }}">
+      <label class="sr-only" for="nl-email">Email address</label>
+      <input id="nl-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com" maxlength="200">
+      <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <input type="hidden" name="source" value="{{ newsletterSource or currentUrl }}">
+      <button class="btn btn-primary" type="submit">Subscribe</button>
+    </form>
+  </div>
+</section>

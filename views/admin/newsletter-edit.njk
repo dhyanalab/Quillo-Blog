@@ -1,0 +1,94 @@
+{% extends "admin/layout.njk" %}
+{% set title = (n.subject or "New newsletter") + " · Newsletter" %}
+{% block head %}{% if refresh %}<meta http-equiv="refresh" content="4">{% endif %}{% endblock %}
+{% block content %}
+<div class="adm-head">
+  <h1>{% if n.status == "draft" %}{{ "Edit newsletter" if n.id else "New newsletter" }}{% else %}{{ n.subject }}{% endif %}</h1>
+  <div class="adm-head-actions"><a class="btn" href="{{ A }}/newsletter">{{ icon("left", 16) }} All newsletters</a></div>
+</div>
+{% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+
+{% if n.status != "draft" %}
+{# Sent, sending or stopped: show the numbers. #}
+{% set done = n.sent_n + n.failed_n %}
+<section class="card nl-status">
+  {% if n.status == "sending" %}
+  <h2 class="box-title">{{ icon("send", 17) }} Sending… {{ n.sent_n }} of {{ n.recipients }}</h2>
+  <progress max="{{ n.recipients or 1 }}" value="{{ done }}">{{ done }} of {{ n.recipients }}</progress>
+  <p class="meta">You can leave this page. Sending carries on in the background, and this page updates by itself.</p>
+  {% elif n.status == "sent" %}
+  <h2 class="box-title">{{ icon("check", 17) }} Sent to {{ n.sent_n }} {{ n.sent_n | plural("subscriber") }}</h2>
+  <p class="meta">{{ n.sent_at | datetime(site.tz) }}{% if n.failed_n %} · {{ n.failed_n }} couldn’t be delivered{% endif %}</p>
+  {% else %}
+  <h2 class="box-title">{{ icon("alert", 17) }} Sending stopped</h2>
+  <p>{{ n.sent_n }} of {{ n.recipients }} sent. The email service kept refusing, so sending stopped to protect your account.</p>
+  {% if n.last_error %}<p class="form-error">{{ n.last_error }}</p>{% endif %}
+  <p class="meta">Fix the problem in <a href="{{ A }}/newsletter/settings">Email settings</a>, then try again. People who already got it won’t get it twice.</p>
+  {% endif %}
+  <div class="form-actions">
+    <a class="btn" href="{{ A }}/newsletter/{{ n.id }}/preview" target="_blank" rel="noopener noreferrer">{{ icon("eye", 16) }} View the email</a>
+    {% if n.status != "sending" and (n.failed_n or n.queued_n) %}
+    <form method="post" action="{{ A }}/newsletter/{{ n.id }}/retry"><input type="hidden" name="_csrf" value="{{ csrf }}"><button class="btn btn-primary" type="submit">Try the {{ n.failed_n + n.queued_n }} unsent emails again</button></form>
+    {% endif %}
+    {% if n.status != "sending" %}
+    <form method="post" action="{{ A }}/newsletter/{{ n.id }}/delete" data-confirm="Delete this newsletter from the list? Emails already sent stay in people’s inboxes."><input type="hidden" name="_csrf" value="{{ csrf }}"><button class="btn btn-danger" type="submit">Delete</button></form>
+    {% endif %}
+  </div>
+</section>
+{% if failures.length %}
+<section class="card">
+  <h2 class="box-title">Not delivered</h2>
+  <div class="table-wrap"><table class="table"><thead><tr><th scope="col">Email</th><th scope="col">Reason</th></tr></thead><tbody>
+  {% for f in failures %}<tr><td>{{ f.email }}</td><td class="meta">{{ f.error }}</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endif %}
+
+{% else %}
+{# Draft: write, preview, test, send. #}
+<form class="form settings nl-form" method="post" action="{{ A }}/newsletter/{{ n.id or 'new' }}">
+  <input type="hidden" name="_csrf" value="{{ csrf }}">
+  {% if nonce %}<input type="hidden" name="nonce" value="{{ nonce }}">{% endif %}
+  <section class="card">
+    <label class="field"><span>Subject <small class="count" data-for="nl-subject" data-max="70"></small></span><input id="nl-subject" name="subject" value="{{ n.subject }}" maxlength="150" required placeholder="New: a phone-controlled LED with ESP32"><small>The first thing people see in their inbox. Short and specific works best.</small></label>
+    <label class="field"><span>Preview line <small>optional</small></span><input name="preheader" value="{{ n.preheader }}" maxlength="150" placeholder="Wiring, code and a free dashboard, in 15 minutes"><small>The grey line inboxes show after the subject.</small></label>
+    <label class="field"><span>Message</span><textarea name="body_md" rows="9" maxlength="20000" placeholder="Hi! This month we built…">{{ n.body_md }}</textarea><small>Plain text is fine. For <b>bold</b> write **bold**; for a link write [the words](https://…). A blank line starts a new paragraph.</small></label>
+  </section>
+
+  <section class="card">
+    <h2 class="box-title">Posts to feature</h2>
+    <p class="meta">Each one appears as a card with its picture, summary and a “Read more” button. Tick up to 12.</p>
+    {% if posts.length %}
+    <ul class="pick-posts">
+      {% for p in posts %}
+      <li><label class="check"><input type="checkbox" name="post_ids" value="{{ p.id }}"{% if p.id in n.postIds %} checked{% endif %}><span>{{ p.title }}<br><small class="meta">{{ p.published_at | date(site.tz) }}</small></span></label></li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="meta">No published posts yet. You can still send a message on its own.</p>{% endif %}
+  </section>
+
+  <section class="card nl-send">
+    <div class="form-actions">
+      <button class="btn" type="submit" name="action" value="save">Save draft</button>
+      <button class="btn" type="submit" name="action" value="preview" formtarget="_blank">{{ icon("eye", 16) }} Preview</button>
+    </div>
+    <div class="nl-test">
+      <label class="field"><span>Send a test to</span><input type="email" name="test_to" value="{{ testTo }}" maxlength="120"><small>Your own address, or the address of someone on your team.</small></label>
+      <button class="btn" type="submit" name="action" value="test">{{ icon("mail", 16) }} Send test</button>
+    </div>
+    <div class="nl-go">
+      {% if problems.length %}
+      <p class="meta">{{ icon("alert", 15) }} To send, first <a href="{{ A }}/newsletter/settings">connect your email service</a>.</p>
+      {% elif not active %}
+      <p class="meta">There are no subscribers yet. <a href="{{ A }}/newsletter/subscribers">Add some</a>, or wait for readers to sign up.</p>
+      {% else %}
+      <button class="btn btn-primary" type="submit" name="action" value="send" data-confirm="Send this newsletter to {{ active }} {{ active | plural('subscriber') }} now? This can’t be undone.">{{ icon("send", 16) }} Send to {{ active }} {{ active | plural("subscriber") }}</button>
+      {% endif %}
+    </div>
+  </section>
+</form>
+{% if n.id %}
+<form method="post" action="{{ A }}/newsletter/{{ n.id }}/delete" data-confirm="Delete this draft?"><input type="hidden" name="_csrf" value="{{ csrf }}"><button class="btn btn-small btn-danger" type="submit">Delete draft</button></form>
+{% endif %}
+{% endif %}
+{% endblock %}

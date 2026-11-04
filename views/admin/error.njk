@@ -1,0 +1,15 @@
+{% extends "admin/layout.njk" %}
+{% block content %}
+<section class="card">
+  <h1>{{ title }}</h1>
+  <p>{{ message }}</p>
+  <p><a class="btn" href="{{ A }}/">Back to the dashboard</a></p>
+</section>
+{% endblock %}
+{% block auth %}
+<section class="card auth-card">
+  <h1>{{ title }}</h1>
+  <p>{{ message }}</p>
+  <p><a class="btn" href="{{ A }}/login">Sign in</a></p>
+</section>
+{% endblock %}

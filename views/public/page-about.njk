@@ -1,0 +1,61 @@
+{% extends "public/layout.njk" %}
+{% from "public/partials/landing.njk" import pageHero, socialButtons %}
+{# The About page: the page text is the story; topics, quick facts and the app box come from categories and Settings. #}
+{% block main %}
+{% set p = post %}
+{% set b = site.business %}
+{% set u = site.pageUrls %}
+<article class="lp" aria-labelledby="page-title">
+  {{ pageHero(p, "About us", "chip", heroButtons) }}
+
+  <div class="wrap">
+    {% if topics.length %}
+    <ul class="lp-cards lp-topics" role="list">
+      {% for t in topics %}
+      <li class="lp-card">
+        <span class="lp-ic">{{ icon(t.icon, 22) }}</span>
+        {# A topic with nothing published has no page yet (404), so its card isn't a link until then. #}
+        <h2>{% if t.count %}<a href="{{ t.url }}">{{ t.name }}</a>{% else %}{{ t.name }}{% endif %}</h2>
+        {% if t.description %}<p class="lp-note">{{ t.description }}</p>{% endif %}
+        <p class="lp-more">{% if t.count %}<a href="{{ t.url }}">{{ t.count }} {{ t.count | plural("post") }}</a>{% else %}Coming soon{% endif %}</p>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    <div class="lp-story">
+      <div class="prose lp-prose">{{ p.html | safe }}</div>
+      <aside class="lp-facts" aria-labelledby="facts-h">
+        <h2 id="facts-h">Quick facts</h2>
+        <dl>
+          {% if b.brand %}<div><dt>Brand</dt><dd>{{ b.brand }}</dd></div>{% endif %}
+          {% if b.name %}<div><dt>Run by</dt><dd>{{ b.name }}</dd></div>{% endif %}
+          {% if b.locality %}<div><dt>Based in</dt><dd>{{ b.locality }}</dd></div>{% endif %}
+          {% if brandHost %}<div><dt>Website</dt><dd><a href="{{ b.brandUrl }}" target="_blank" rel="noopener">{{ brandHost }}</a></dd></div>{% endif %}
+          {% if b.emails.length %}<div><dt>Email</dt><dd><a href="mailto:{{ b.emails[0] }}">{{ b.emails[0] }}</a></dd></div>{% endif %}
+        </dl>
+        {% if site.social.length %}
+        <ul class="social" aria-label="Follow {{ site.title }}">
+          {% for s in site.social %}<li><a href="{{ s.url }}" rel="me noopener" target="_blank" title="{{ s.label }}">{{ netIcon(s.key, 18) }}<span class="sr-only">{{ s.label }}</span></a></li>{% endfor %}
+        </ul>
+        {% endif %}
+        {% if u.contact %}<a class="btn lp-facts-btn" href="{{ u.contact }}">{{ icon("mail", 16) }} Get in touch</a>{% endif %}
+      </aside>
+    </div>
+
+    {% if site.cta.length or brandHost %}
+    <section class="lp-app" aria-labelledby="app-h">
+      <div class="lp-app-text">
+        <h2 id="app-h">Build with {{ b.brand or site.title }}</h2>
+        {% if site.about %}<p>{{ site.about }}</p>{% endif %}
+        <div class="lp-actions">
+          {% for cta in site.cta %}<a class="btn{% if loop.first %} btn-primary{% endif %}" href="{{ cta.url }}">{% if cta.primary %}{{ icon("dl", 16) }}{% endif %}{{ cta.label }}</a>{% endfor %}
+          {% if brandHost %}<a class="btn" href="{{ b.brandUrl }}" target="_blank" rel="noopener">{{ icon("ext", 16) }} Visit {{ brandHost }}</a>{% endif %}
+        </div>
+      </div>
+      <div class="lp-app-art" aria-hidden="true">{{ icon("mobile", 120) }}</div>
+    </section>
+    {% endif %}
+  </div>
+</article>
+{% endblock %}

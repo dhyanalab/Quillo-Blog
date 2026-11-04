@@ -1,0 +1,33 @@
+node_modules/
+data/
+test/output/
+
+# Settings and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secret.key
+
+# Database files, backups and their SQLite side files, wherever DATA_DIR points
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+*.bak
+backups/
+
+# Logs and editor leftovers
+*.log
+.DS_Store
+Thumbs.db
+
+# Leftover build folder from an earlier version
+_site/

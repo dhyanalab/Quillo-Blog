@@ -1,0 +1,26 @@
+{% extends "public/layout.njk" %}
+{% set hideNewsletter = true %}
+{% block main %}
+<div class="wrap auth">
+  <section class="auth-card" aria-labelledby="auth-h">
+    <h1 id="auth-h">Reset your password</h1>
+    {% if sent %}
+    <p class="notice notice-ok" role="status">If that address has an account, we’ve emailed a link.</p>
+    <p class="sub">The link works for one hour. If it doesn’t arrive in a few minutes, look in your spam folder.</p>
+    {% else %}
+    <p class="sub">Enter the email you signed up with and we’ll send you a link to choose a new password.</p>
+    {% if error %}<p class="notice notice-err" role="alert">{{ error }}</p>{% endif %}
+    {% if unavailable %}
+    <p class="notice notice-info">Password links open once the site’s email is set up. Until then, ask the {{ site.title }} team to reset it for you.</p>
+    {% else %}
+    <form method="post" action="{{ action }}">
+      <input type="hidden" name="_csrf" value="{{ formCsrf }}">
+      <div class="field"><label for="fg-email">Email</label><input id="fg-email" type="email" name="email" value="{{ email }}" required autocomplete="email" maxlength="200" autofocus></div>
+      <button class="btn btn-primary" type="submit">Email me a link</button>
+    </form>
+    {% endif %}
+    {% endif %}
+    <p class="alt">Remembered it? <a href="{{ site.url.signin }}">Sign in</a></p>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{# Shared pieces: breadcrumbs, cards, rows and the sidebar. #}
+
+{% macro crumbs(items) %}
+<nav class="crumbs" aria-label="Breadcrumb"><ol>
+{% for c in items %}<li>{% if c.url and not loop.last %}<a href="{{ c.url }}">{{ c.name }}</a>{% else %}<span aria-current="page">{{ c.name }}</span>{% endif %}</li>{% endfor %}
+</ol></nav>
+{% endmacro %}
+
+{% macro avatar(a, size=28) %}<span class="av av-{{ size }}">{% if a.hasPhoto %}{{ a.avatar(size) | safe }}{% else %}{{ a.name | initials }}{% endif %}</span>{% endmacro %}
+
+{# Grid card: picture, category, title, date. #}
+{% macro card(p, sizes, h=3, excerpt=false) %}
+<article class="pcard">
+  <a class="thumb" href="{{ p.url }}" tabindex="-1" aria-hidden="true">{{ p.thumb(sizes) | safe }}</a>
+  {% if p.category %}<a class="kicker" href="{{ p.category.url }}">{{ p.category.name }}</a>{% endif %}
+  <h{{ h }} class="card-title"><a href="{{ p.url }}">{{ p.title }}</a></h{{ h }}>
+  {% if excerpt and p.excerpt %}<p class="desc">{{ p.excerpt }}</p>{% endif %}
+  <p class="meta"><time datetime="{{ p.published }}">{{ p.publishedDisplay }}</time><span class="dot"></span>{{ p.readMinutes }} min read</p>
+</article>
+{% endmacro %}
+
+{# Small card with the picture on the left (Editor's Choice). #}
+{% macro hcard(p, h=3) %}
+<article class="hcard">
+  <a class="thumb" href="{{ p.url }}" tabindex="-1" aria-hidden="true">{{ p.thumb("118px") | safe }}</a>
+  <div>
+    {% if p.category %}<a class="kicker" href="{{ p.category.url }}">{{ p.category.name }}</a>{% endif %}
+    <h{{ h }} class="hcard-title"><a href="{{ p.url }}">{{ p.title }}</a></h{{ h }}>
+    <p class="meta">{% if p.author %}{{ p.author.name }}<span class="dot"></span>{% endif %}<time datetime="{{ p.published }}">{{ p.publishedDisplay }}</time></p>
+  </div>
+</article>
+{% endmacro %}
+
+{# List row: picture left, text right. #}
+{% macro row(p, h=3, eager=false) %}
+<article class="rowc">
+  <a class="thumb" href="{{ p.url }}" tabindex="-1" aria-hidden="true">{{ p.thumb("(max-width: 640px) 110px, 270px", eager) | safe }}</a>
+  <div>
+    {% if p.category %}<a class="kicker" href="{{ p.category.url }}">{{ p.category.name }}</a>{% endif %}
+    <h{{ h }} class="row-title"><a href="{{ p.url }}">{{ p.title }}</a></h{{ h }}>
+    {% if p.excerpt %}<p class="desc">{{ p.excerpt }}</p>{% endif %}
+    <p class="meta">{% if p.author %}{{ avatar(p.author, 24) }}<span>{{ p.author.name }}</span><span class="dot"></span>{% endif %}<time datetime="{{ p.published }}">{{ p.publishedDisplay }}</time><span class="dot"></span>{{ p.readMinutes }} min read</p>
+  </div>
+</article>
+{% endmacro %}
+
+{# Sidebar: News, Most read, newsletter, topics. #}
+{% macro sidebar(side, site, showNewsletter=true, slot="") %}
+<aside class="side" aria-label="More to read">
+  {% if side.news.length %}
+  <section class="box" aria-labelledby="side-news">
+    <div class="sec-h"><h2 id="side-news">News</h2><a href="{{ side.newsUrl }}">All news</a></div>
+    <ul class="news-list">{% for n in side.news %}<li><p class="meta"><time datetime="{{ n.published }}">{{ n.publishedDisplay }}</time></p><a href="{{ n.url }}">{{ n.title }}</a></li>{% endfor %}</ul>
+  </section>
+  {% endif %}
+  {{ slot | safe }}
+  {% if side.popular.length %}
+  <section class="box" aria-labelledby="side-popular">
+    <div class="sec-h"><h2 id="side-popular">Most read</h2></div>
+    <ol class="rank">{% for p in side.popular %}<li><a href="{{ p.url }}">{{ p.title }}</a></li>{% endfor %}</ol>
+  </section>
+  {% endif %}
+  {% if showNewsletter and site.newsletter %}
+  <section class="box nl-box" aria-labelledby="side-nl">
+    <h2 id="side-nl">{{ site.newsletter.heading }}</h2>
+    <p>{{ site.newsletter.text }}</p>
+    <form method="post" action="{{ site.url.subscribe }}">
+      <label class="sr-only" for="side-email">Email address</label>
+      <input id="side-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com" maxlength="200">
+      <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <input type="hidden" name="source" value="sidebar">
+      <button class="btn btn-primary" type="submit">Subscribe</button>
+    </form>
+  </section>
+  {% endif %}
+  {% if side.topics.length %}
+  <section class="box" aria-labelledby="side-topics">
+    <h2 id="side-topics">Topics</h2>
+    <ul class="topics">{% for t in side.topics %}<li><a href="{{ t.url }}">{{ t.name }} <span>{{ t.count }}</span></a></li>{% endfor %}</ul>
+  </section>
+  {% endif %}
+</aside>
+{% endmacro %}
+
+{% macro pagination(pg) %}
+{% if pg %}
+<nav class="pagination" aria-label="Pages">
+  {% if pg.prev %}<a class="pg" href="{{ pg.prev }}" rel="prev">Previous</a>{% endif %}
+  <ol>
+    {% for it in pg.items %}
+    <li>{% if it.gap %}<span class="pg-gap">…</span>{% elif it.current %}<span class="pg current" aria-current="page">{{ it.n }}</span>{% else %}<a class="pg" href="{{ it.url }}">{{ it.n }}</a>{% endif %}</li>
+    {% endfor %}
+  </ol>
+  {% if pg.next %}<a class="pg" href="{{ pg.next }}" rel="next">Next</a>{% endif %}
+</nav>
+{% endif %}
+{% endmacro %}

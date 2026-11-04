@@ -1,0 +1,18 @@
+# Keep every text file with LF line endings on every computer. The blog checks some files byte for byte:
+# database updates (src/migrations), the editor bundle (assets/vendor, against toastui-editor.sha256), and shell scripts run on Linux.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.avif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.pdf binary
+*.zip binary
+*.stl binary

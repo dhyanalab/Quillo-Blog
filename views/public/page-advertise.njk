@@ -1,0 +1,127 @@
+{% extends "public/layout.njk" %}
+{% from "public/partials/landing.njk" import pageHero %}
+{# The Advertise page: banner places and sizes come from the ad system (places switched off in Admin > Ads are left out);
+   contact details come from Settings > Business details. The page text (if any) shows above the booking box. #}
+{% block main %}
+{% set p = post %}
+{% set b = site.business %}
+{% macro slot(key, cls="") %}{% if placeNo[key] %}<div class="am-slot{% if cls %} {{ cls }}{% endif %}">{{ placeNo[key] }}</div>{% endif %}{% endmacro %}
+<article class="lp" aria-labelledby="page-title">
+  {{ pageHero(p, "Advertise", "speaker", heroButtons) }}
+
+  <div class="wrap">
+    <ul class="lp-cards" role="list">
+      <li class="lp-card">
+        <span class="lp-ic">{{ icon("users", 22) }}</span>
+        <h2>Readers who build</h2>
+        <p class="lp-note">Makers, students and engineers who follow the projects and buy the parts to build them.</p>
+      </li>
+      <li class="lp-card">
+        <span class="lp-ic">{{ icon("chip", 22) }}</span>
+        <h2>Right beside the projects</h2>
+        <p class="lp-note">Your banner sits next to step-by-step builds, where readers choose their boards, sensors and tools.</p>
+      </li>
+      <li class="lp-card">
+        <span class="lp-ic">{{ icon("chart", 22) }}</span>
+        <h2>Clear numbers</h2>
+        <p class="lp-note">You get the views and clicks of your banner for every day it runs.</p>
+      </li>
+    </ul>
+
+    {% if places.length %}
+    <section class="lp-sec" id="places" aria-labelledby="places-h">
+      <div class="sec-h"><h2 id="places-h">Banner places</h2></div>
+      <p class="lp-intro">Book one place or several. The numbers on the page maps match the list below.<span class="lp-swipe"> Swipe the maps to see each page.</span></p>
+      <div class="am-maps" aria-hidden="true">
+        <figure class="am-map">
+          <div class="am-bar">Menu bar</div>{{ slot("top") }}
+          <div class="am-split"><div><div class="am-block tall">Big story</div><div class="am-block">Latest posts</div></div><div><div class="am-block">News</div>{{ slot("sidebar", "sq") }}</div></div>
+          {{ slot("home_mid") }}<div class="am-block">Category rows</div>{{ slot("footer") }}
+          <figcaption>Home page</figcaption>
+        </figure>
+        <figure class="am-map">
+          <div class="am-bar">Menu bar</div>{{ slot("top") }}
+          <div class="am-block tall">Picture and title</div>
+          <div class="am-split rev"><div><div class="am-block">Contents</div>{{ slot("article_side", "sq") }}</div><div><div class="am-block">Quick answer</div>{{ slot("article_top") }}<div class="am-block">Article text</div>{{ slot("article_mid") }}<div class="am-block">Code and downloads</div>{{ slot("article_end") }}<div class="am-block">Comments</div></div></div>
+          {{ slot("footer") }}
+          <figcaption>Article page</figcaption>
+        </figure>
+        <figure class="am-map">
+          <div class="am-bar">Menu bar</div>{{ slot("top") }}
+          <div class="am-block">Category title</div>
+          <div class="am-split"><div>{{ slot("list_top") }}<div class="am-block tall">List of posts</div></div><div><div class="am-block">News</div>{{ slot("sidebar", "sq") }}</div></div>
+          {{ slot("footer") }}
+          <figcaption>Category page</figcaption>
+        </figure>
+      </div>
+      <ul class="am-places" role="list">
+        {% for pl in places %}
+        <li class="am-place">
+          <div class="am-place-head"><span class="am-n">{{ pl.n }}</span><h3>{{ pl.name }}</h3></div>
+          <p class="lp-note">{{ pl.where }}</p>
+          <div class="am-shape-row" aria-hidden="true"><span class="am-shape am-shape-{{ pl.shape }}"></span></div>
+          <dl class="am-sizes">
+            <div><dt>Computers</dt><dd>{{ pl.size }}</dd></div>
+            <div><dt>Phones</dt><dd>{{ pl.phone }}</dd></div>
+          </dl>
+        </li>
+        {% endfor %}
+      </ul>
+      <p class="lp-small">Sizes are in pixels, width × height. They’re standard banner sizes, so most sponsors have them ready.</p>
+    </section>
+    {% endif %}
+
+    <section class="lp-sec" aria-labelledby="how-h">
+      <div class="sec-h"><h2 id="how-h">How booking works</h2></div>
+      <ol class="lp-steps">
+        <li><b>Tell us what you’d like</b><span>The places, and the dates you want your banner to run.</span></li>
+        <li><b>Get a price</b><span>Prices depend on the places and how long you book. We send the rate card and current readership figures.</span></li>
+        <li><b>Send your banners</b><span>Pictures in the sizes above, plus the link each one should open.</span></li>
+        <li><b>Go live</b><span>Your banner appears on the start date and comes down by itself after the end date.</span></li>
+        <li><b>Get your report</b><span>How many times your banner was seen and clicked, day by day.</span></li>
+      </ol>
+    </section>
+
+    <div class="lp-sec lp-two">
+      <section class="lp-panel" aria-labelledby="fit-h">
+        <h2 id="fit-h">Who advertises here</h2>
+        <ul class="lp-checks">
+          <li>{{ icon("check", 16) }}<span>Electronics shops and distributors</span></li>
+          <li>{{ icon("check", 16) }}<span>Board, module and sensor makers</span></li>
+          <li>{{ icon("check", 16) }}<span>PCB and 3D-printing services</span></li>
+          <li>{{ icon("check", 16) }}<span>Tool and test-equipment brands</span></li>
+          <li>{{ icon("check", 16) }}<span>Courses and training for makers</span></li>
+        </ul>
+      </section>
+      <section class="lp-panel" aria-labelledby="rules-h">
+        <h2 id="rules-h">Banner guidelines</h2>
+        <ul class="lp-checks">
+          <li>{{ icon("image", 16) }}<span>JPG, PNG or GIF files, each under 150 KB</span></li>
+          <li>{{ icon("mobile", 16) }}<span>A smaller banner for phones if you have one; otherwise we use your main banner</span></li>
+          <li>{{ icon("tag", 16) }}<span>Every banner is marked “Sponsored”, so readers know it’s an ad</span></li>
+          <li>{{ icon("users", 16) }}<span>When several sponsors share a place, they take turns, so each gets a fair share</span></li>
+          <li>{{ icon("shield", 16) }}<span>We accept products that are relevant and safe for our readers, and may decline any banner</span></li>
+        </ul>
+      </section>
+    </div>
+
+    {% if p.html | trim %}
+    <section class="lp-sec"><div class="prose lp-prose">{{ p.html | safe }}</div></section>
+    {% endif %}
+
+    {% if bookUrl or b.phone %}
+    <section class="lp-app lp-book" aria-labelledby="book-h">
+      <div class="lp-app-text">
+        <h2 id="book-h">Ready to book a banner?</h2>
+        <p>Tell us the places and dates you’d like, and we’ll reply with prices, the rate card and current readership figures.</p>
+        <div class="lp-actions">
+          {% if bookUrl %}<a class="btn btn-primary" href="{{ bookUrl }}">{{ icon("mail", 16) }} Email {{ b.emails[0] or "us" }}</a>{% endif %}
+          {% if b.phone %}<a class="btn" href="{{ b.phoneHref }}">{{ icon("phone", 16) }} Call {{ b.phone }}</a>{% endif %}
+        </div>
+      </div>
+      <div class="lp-app-art" aria-hidden="true">{{ icon("speaker", 120) }}</div>
+    </section>
+    {% endif %}
+  </div>
+</article>
+{% endblock %}

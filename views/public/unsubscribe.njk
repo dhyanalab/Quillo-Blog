@@ -1,0 +1,39 @@
+{% extends "public/layout.njk" %}
+{% set hideNewsletter = true %}
+{% block main %}
+<div class="wrap auth">
+  <section class="auth-card">
+    {% if not sub %}
+    <h1>This link has expired</h1>
+    <p class="sub">We couldn’t find that subscription. It may already be removed. To be sure, reply to any of our emails and we’ll take you off the list.</p>
+    {% elif done %}
+    <h1>You’re unsubscribed</h1>
+    <p class="sub">{{ maskedEmail }} won’t get any more newsletters from {{ site.title }}.</p>
+    <form method="post" action="{{ action }}">
+      <input type="hidden" name="again" value="1">
+      <button class="btn" type="submit">I clicked by mistake, keep me subscribed</button>
+    </form>
+    {% elif sub.status == "pending" %}
+    <h1>Not subscribed yet</h1>
+    <p class="sub">{{ maskedEmail }} hasn’t been confirmed, so it isn’t getting newsletters from {{ site.title }}.</p>
+    {% elif sub.status != "active" %}
+    <h1>You’re already unsubscribed</h1>
+    <p class="sub">{{ maskedEmail }} isn’t getting newsletters from {{ site.title }}.</p>
+    <form method="post" action="{{ action }}">
+      <input type="hidden" name="again" value="1">
+      <button class="btn" type="submit">Subscribe me again</button>
+    </form>
+    {% elif again %}
+    <h1>You’re still subscribed</h1>
+    <p class="sub">Thanks for staying. {{ maskedEmail }} will keep getting our newsletters.</p>
+    {% else %}
+    <h1>Unsubscribe?</h1>
+    <p class="sub">Stop sending newsletters from {{ site.title }} to <b>{{ maskedEmail }}</b>.</p>
+    <form method="post" action="{{ action }}">
+      <button class="btn btn-primary" type="submit">Unsubscribe</button>
+    </form>
+    {% endif %}
+    <p class="mt-18"><a href="{{ site.url.home }}">Back to the blog</a></p>
+  </section>
+</div>
+{% endblock %}

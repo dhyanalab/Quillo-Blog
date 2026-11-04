@@ -1,0 +1,52 @@
+{% extends "public/layout.njk" %}
+{% from "public/partials/macros.njk" import hcard, row, card, sidebar, avatar %}
+{% block main %}
+<div class="wrap home">
+  <h1 class="sr-only">{{ site.title }}: {{ site.description }}</h1>
+
+  {% if story %}
+  <div class="home-top">
+    <article class="story">
+      {{ story.image("(max-width: 1080px) calc(100vw - 40px), 800px", true) | safe }}
+      <div class="story-body">
+        {% if story.category %}<a class="pill" href="{{ story.category.url }}">{{ story.category.name }}</a>{% endif %}
+        <h2 class="story-title"><a href="{{ story.url }}">{{ story.title }}</a></h2>
+        {% if story.excerpt %}<p>{{ story.excerpt }}</p>{% endif %}
+        <p class="meta">{% if story.author %}{{ story.author.name }}<span class="dot"></span>{% endif %}<time datetime="{{ story.published }}">{{ story.publishedDisplay }}</time><span class="dot"></span>{{ story.readMinutes }} min read</p>
+      </div>
+    </article>
+    {% if picks.length %}
+    <section class="box" aria-labelledby="picks-h">
+      <div class="sec-h"><h2 id="picks-h">Editor’s Choice</h2></div>
+      <div class="picks">{% for p in picks %}{{ hcard(p) }}{% endfor %}</div>
+    </section>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="home-body">
+    <section aria-labelledby="latest-h">
+      <div class="sec-h"><h2 id="latest-h">Latest</h2><a href="{{ site.url.latest }}">View all</a></div>
+      {% if latest.length %}
+      <div class="rows">{% for p in latest %}{{ row(p) }}{% endfor %}</div>
+      {% if moreUrl %}<p class="more-link"><a class="btn" href="{{ moreUrl }}">More posts</a></p>{% endif %}
+      {% elif not story %}
+      <p class="empty">No posts yet. They’ll appear here as soon as the first one is published.</p>
+      {% endif %}
+    </section>
+    {{ sidebar(side, site, true, slots.sidebar) }}
+  </div>
+  {% if slots.home_mid %}<div class="kx-row">{{ slots.home_mid | safe }}</div>{% endif %}
+
+  {% if sections.length %}
+  <div class="cat-rows">
+    {% for s in sections %}
+    <section aria-labelledby="cat-{{ s.category.slug }}">
+      <div class="sec-h"><h2 id="cat-{{ s.category.slug }}">{{ s.category.name }}</h2><a href="{{ s.category.url }}">View all</a></div>
+      <div class="grid{{ s.posts.length }}">{% for p in s.posts %}{{ card(p, "(max-width: 640px) calc(100vw - 32px), (max-width: 1080px) 45vw, 280px") }}{% endfor %}</div>
+    </section>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

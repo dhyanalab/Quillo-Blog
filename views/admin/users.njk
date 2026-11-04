@@ -1,0 +1,50 @@
+{% extends "admin/layout.njk" %}
+{% set title = "Staff" %}
+{% block content %}
+<div class="adm-head">
+  <h1>Staff</h1>
+  <div class="adm-head-actions"><a class="btn btn-primary" href="{{ A }}/users/new">Add a person</a></div>
+</div>
+<div class="table-wrap">
+<table class="table">
+  <thead><tr><th scope="col">Name</th><th scope="col">Role</th><th scope="col">Email</th><th scope="col">Two-step</th><th scope="col" class="num">Posts</th><th scope="col">Last sign-in</th></tr></thead>
+  <tbody>
+  {% for u in users %}
+  <tr>
+    <td><a class="row-title" href="{{ A }}/users/{{ u.id }}">{{ u.name }}</a>{% if u.status == "suspended" %} <span class="badge badge-draft">Suspended</span>{% endif %}{% if u.mustChange %} <span class="badge badge-draft">Must set a password</span>{% endif %}</td>
+    <td>{{ roleLabels[u.role] }}</td>
+    <td class="meta">{{ u.email }}</td>
+    <td>{% if u.twoStep %}<span class="badge badge-published">On</span>{% else %}<span class="badge badge-draft">Off</span>{% endif %}</td>
+    <td class="num">{{ u.post_count }}</td>
+    <td class="meta">{{ (u.last_login_at | datetime(site.tz)) or "Never" }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% if canSetRule %}
+<section class="card">
+  <h2 class="box-title">Two-step sign-in</h2>
+  {% if ruleError %}<p class="form-error" role="alert">{{ ruleError }}</p>{% endif %}
+  <form method="post" action="{{ A }}/users/two-step-rule" class="form">
+    <input type="hidden" name="_csrf" value="{{ csrf }}">
+    <label class="field"><span>Who must use it</span><select name="rule">
+      <option value="off"{% if twoStepRule == "off" %} selected{% endif %}>Nobody (each person chooses)</option>
+      <option value="admins"{% if twoStepRule == "admins" %} selected{% endif %}>The owner and administrators</option>
+      <option value="staff"{% if twoStepRule == "staff" %} selected{% endif %}>Everyone on the staff</option>
+    </select><small>People who haven’t turned it on can only reach their profile and the two-step page until they do. Turn it on for yourself first.</small></label>
+    <div class="form-actions"><button class="btn" type="submit">Save</button></div>
+  </form>
+</section>
+{% endif %}
+<section class="card">
+  <h2 class="box-title">Roles</h2>
+  <ul class="roles">
+    <li><b>Owner</b>: everything, including every setting and every person.</li>
+    <li><b>Administrator</b>: settings and staff, but only for people below an administrator. Only the owner can change an administrator or the owner.</li>
+    <li><b>Editor</b>: writes, edits and publishes any post or page; manages categories, tags and comments.</li>
+    <li><b>Author</b>: writes, edits and publishes their own posts.</li>
+    <li><b>Contributor</b>: writes their own drafts; an editor publishes them.</li>
+  </ul>
+</section>
+{% endblock %}

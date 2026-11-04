@@ -1,0 +1,48 @@
+{% if site.newsletter and not hideNewsletter %}{% include "public/partials/newsletter.njk" %}{% endif %}
+{% set b = site.business %}
+<footer class="site-foot">
+  <div class="wrap foot-grid">
+    <div class="foot-about">
+      <a class="brand" href="{{ site.homeUrl }}">{% if site.logo %}<img src="{{ site.url.media(site.logo.path) }}" alt="{{ site.title }}" height="30" width="{{ (site.logo.width / site.logo.height * 30) | round if site.logo.height else 120 }}" loading="lazy">{% else %}<span class="brand-mark" aria-hidden="true">{{ icon("chip", 18) }}</span><span class="brand-word">{% if site.title.endsWith(" Blog") %}{{ site.title.slice(0, -5) }} <b>Blog</b>{% else %}{{ site.title }}{% endif %}</span>{% endif %}</a>
+      {% if site.about %}<p>{{ site.about }}</p>{% endif %}
+      {% if site.cta.length %}
+      <div class="foot-cta">{% for cta in site.cta %}<a class="btn" href="{{ cta.url }}">{% if cta.primary %}{{ icon("dl", 16) }}{% endif %}{{ cta.label }}</a>{% endfor %}</div>
+      {% endif %}
+      {% if site.social.length %}
+      <ul class="social" aria-label="Follow {{ site.title }}">
+        {% for s in site.social %}<li><a href="{{ s.url }}" rel="me noopener" target="_blank" title="{{ s.label }}">{{ netIcon(s.key, 18) }}<span class="sr-only">{{ s.label }}</span></a></li>{% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+    {% if site.footer.length %}
+    <nav class="foot-links" aria-label="Footer">
+      {% for col in site.footer %}
+      <div class="foot-col">
+        <h2 class="foot-title">{{ col.title }}</h2>
+        <ul>{% for l in col.links %}<li><a href="{{ l.url }}">{{ l.label }}</a></li>{% endfor %}</ul>
+      </div>
+      {% endfor %}
+    </nav>
+    {% endif %}
+    {% if b.locality or b.phone or b.emails.length %}
+    <div class="foot-col foot-contact">
+      <h2 class="foot-title">Contact</h2>
+      <address>
+        <ul>
+          {% if b.locality %}<li>{{ icon("pin", 16) }}<span>{{ b.locality }}</span></li>{% endif %}
+          {% if b.phone %}<li>{{ icon("phone", 16) }}<a href="{{ b.phoneHref }}">{{ b.phone }}</a></li>{% endif %}
+          {% for e in b.emails %}<li>{{ icon("mail", 16) }}<a href="mailto:{{ e }}">{{ e }}</a></li>{% endfor %}
+        </ul>
+      </address>
+    </div>
+    {% endif %}
+  </div>
+  <div class="wrap foot-bottom">
+    <p>© {{ site.year }} {{ b.name or site.title }}{% if b.brand and b.name %}. {{ b.brand }} is a brand of {{ b.name }}.{% endif %}</p>
+    <ul class="foot-meta" aria-label="Legal and feeds">
+      {% for l in site.legal %}<li><a href="{{ l.url }}">{{ l.label }}</a></li>{% endfor %}
+      <li><a href="{{ site.url.rss }}">RSS</a></li>
+      <li><a href="{{ site.url.sitemap }}">Sitemap</a></li>
+    </ul>
+  </div>
+</footer>

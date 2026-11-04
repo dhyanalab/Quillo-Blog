@@ -1,0 +1,60 @@
+{% extends "admin/layout.njk" %}
+{% set title = t.plural %}
+{% set v = draft or item or {} %}
+{% set prefix = "category/" if kind == "categories" else "tag/" %}
+{% block content %}
+<div class="adm-head"><h1>{{ t.plural }}</h1></div>
+
+<div class="adm-cols adm-cols-2">
+  <section class="card">
+    <h2 class="box-title">{{ ("Edit " + t.label | lower) if item else ("New " + t.label | lower) }}</h2>
+    {% if errors %}<ul class="form-error" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+    <form method="post" action="{{ A }}/{{ kind }}{% if item %}/{{ item.id }}{% endif %}" class="form" data-autoslug>
+      <input type="hidden" name="_csrf" value="{{ csrf }}">
+      <label class="field"><span>Name</span><input name="name" value="{{ v.name }}" required maxlength="100" data-slug-source></label>
+      <label class="field"><span>URL slug</span><input name="slug" value="{{ v.slug }}" maxlength="80" spellcheck="false" data-slug-target{% if item %} data-touched="true"{% endif %}><small>{{ site.blogUrl }}/{{ prefix }}<b data-slug-echo>{{ v.slug or "…" }}</b>/</small></label>
+      <label class="field"><span>Description <small class="count" data-for="tx-desc" data-max="155"></small></span><textarea id="tx-desc" name="description" rows="2" maxlength="400" placeholder="Meta description for the {{ t.label | lower }} page">{{ v.description }}</textarea></label>
+      {% if kind != "tags" %}
+      <label class="field"><span>SEO title</span><input name="seo_title" value="{{ v.seo_title }}" maxlength="200" placeholder="Defaults to the name"></label>
+      <label class="field"><span>Intro (Markdown)</span><textarea name="intro_md" rows="6" placeholder="Shown above the list. A short paragraph that explains the topic helps the page rank.">{{ v.intro_md }}</textarea></label>
+      {% endif %}
+      {% if kind == "categories" %}
+      <div class="field-row">
+        <label class="field"><span>Parent</span><select name="parent_id"><option value="">None (top level)</option>{% for k in categories %}{% if not item or k.id != item.id %}<option value="{{ k.id }}"{% if v.parent_id == k.id %} selected{% endif %}>{{ k.name }}</option>{% endif %}{% endfor %}</select></label>
+        <label class="field"><span>Menu order</span><input type="number" name="sort" value="{{ v.sort or 0 }}" min="-999" max="999"></label>
+      </div>
+      <label class="check"><input type="checkbox" name="show_on_home" value="1"{% if v.show_on_home or not item and not draft %} checked{% endif %}> Show a section on the home page</label>
+      {% endif %}
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit">{{ "Save" if item else "Create" }}</button>
+        {% if item %}<a class="btn" href="{{ A }}/{{ kind }}">Cancel</a>{% endif %}
+      </div>
+    </form>
+    {% if item %}
+    <form method="post" action="{{ A }}/{{ kind }}/{{ item.id }}/delete" data-confirm="Delete “{{ item.name }}”? Posts keep their content but lose this {{ t.label | lower }}." class="danger-zone">
+      <input type="hidden" name="_csrf" value="{{ csrf }}"><button class="btn btn-small btn-danger" type="submit">Delete {{ t.label | lower }}</button>
+    </form>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h2 class="box-title">All {{ t.plural | lower }}</h2>
+    {% if items.length %}
+    <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">Name</th><th scope="col">URL</th><th scope="col" class="num">Live posts</th></tr></thead>
+      <tbody>
+      {% for x in items %}
+      <tr>
+        <td><a class="row-title" href="{{ A }}/{{ kind }}/{{ x.id }}">{% if x.parent_id %}— {% endif %}{{ x.name }}</a>{% if kind == "categories" and x.show_on_home %} <span class="badge">Home</span>{% endif %}</td>
+        <td class="meta">{% if x.post_count %}<a href="{{ site.base }}/{{ prefix }}{{ x.slug }}/" target="_blank" rel="noopener noreferrer">/{{ prefix }}{{ x.slug }}/</a>{% else %}/{{ prefix }}{{ x.slug }}/{% endif %}</td>
+        <td class="num">{{ x.post_count }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}<p class="meta">None yet.</p>{% endif %}
+  </section>
+</div>
+{% endblock %}

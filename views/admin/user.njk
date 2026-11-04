@@ -1,0 +1,136 @@
+{% extends "admin/layout.njk" %}
+{% from "admin/partials/links.njk" import linksEditor %}
+{% set self = target and target.id == user.id %}
+{% set title = "Add a person" if isNew else (target.name if not self else "Your profile") %}
+{% block content %}
+<div class="adm-head"><h1>{{ title }}</h1></div>
+
+{% if isNew %}
+<section class="card form-card">
+  {% if errors %}<ul class="form-error" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+  <form method="post" action="{{ A }}/users/new" class="form">
+    <input type="hidden" name="_csrf" value="{{ csrf }}">
+    <label class="field"><span>Name</span><input name="name" value="{{ draft.name }}" required maxlength="100"></label>
+    <label class="field"><span>Email</span><input name="email" type="email" value="{{ draft.email }}" required maxlength="200"></label>
+    <label class="field"><span>Job title</span><input name="job_title" value="{{ draft.job_title }}" maxlength="100" placeholder="Embedded engineer"></label>
+    <label class="field"><span>Role</span><select name="role">{% for r in roles %}{% if r != "owner" %}<option value="{{ r }}"{% if (draft.role or "author") == r %} selected{% endif %}>{{ roleLabels[r] }}</option>{% endif %}{% endfor %}</select></label>
+    <label class="field"><span>First password</span><input id="first-password" name="password" type="password" required minlength="{{ minPassword }}" maxlength="256" autocomplete="new-password"><small>Share it with them privately. They must choose their own password the first time they sign in, and this one stops working after 7 days.</small></label>
+    <p><button class="btn btn-small" type="button" data-reveal="first-password" aria-pressed="false">Show</button></p>
+    <div class="form-actions"><button class="btn btn-primary" type="submit">Add</button><a class="btn" href="{{ A }}/users">Cancel</a></div>
+  </form>
+</section>
+{% elif not self and not canManage %}
+{# Someone of the same or a higher role: shown, but not editable. #}
+<section class="card">
+  <h2 class="box-title">Profile</h2>
+  <p class="meta">You can’t change this account, because it has the same role as yours or a higher one. The owner can.</p>
+  <dl class="kv">
+    <dt>Name</dt><dd>{{ target.name }}</dd>
+    <dt>Role</dt><dd>{{ roleLabels[target.role] }}{% if target.status == "suspended" %} (suspended){% endif %}</dd>
+    <dt>Email</dt><dd>{{ target.email }}</dd>
+    {% if target.job_title %}<dt>Job title</dt><dd>{{ target.job_title }}</dd>{% endif %}
+    <dt>Two-step sign-in</dt><dd>{{ "On" if twoStep.enabled else "Off" }}</dd>
+  </dl>
+  <p><a class="btn" href="{{ A }}/users">{{ icon("left", 16) }} Back to staff</a></p>
+</section>
+{% else %}
+{% set d = draft or target %}
+{% if self and user.mustChange %}<p class="health-warn notice-box">{{ icon("alert", 16) }}<span>Your account was set up with a first password that someone else knows. Choose your own below to continue.</span></p>{% endif %}
+<div class="adm-cols adm-cols-2">
+  <section class="card">
+    <h2 class="box-title">Profile</h2>
+    <p class="meta">Shown in bylines, the author box and the author page. A real bio with first-hand experience helps readers and search engines trust the post.</p>
+    {% if errors %}<ul class="form-error" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+    <form method="post" action="{{ A }}/users/{{ target.id }}" class="form">
+      <input type="hidden" name="_csrf" value="{{ csrf }}">
+      <div class="field"><span class="label">Photo <small>square, at least 400×400</small></span>
+        <div class="picker" data-picker>
+          <input type="hidden" name="photo_id" value="{{ photo.id if photo else '' }}">
+          <img class="picker-img picker-round" src="{{ photo.url if photo else '' }}" alt=""{% if not photo %} hidden{% endif %}>
+          <div class="picker-btns"><button type="button" class="btn btn-small" data-pick>Choose</button><button type="button" class="btn btn-small" data-clear{% if not photo %} hidden{% endif %}>Remove</button></div>
+        </div>
+      </div>
+      <label class="field"><span>Name</span><input name="name" value="{{ d.name }}" required maxlength="100"></label>
+      <label class="field"><span>Profile URL</span><input name="slug" value="{{ d.slug }}" maxlength="80" spellcheck="false"><small>{{ site.blogUrl }}/authors/{{ target.slug }}/</small></label>
+      <label class="field"><span>Email</span><input name="email" type="email" value="{{ d.email }}" required maxlength="200"></label>
+      <label class="field"><span>{{ "Your current password" if self else "Your own password" }}</span><input name="{{ 'current_password' if self else 'actor_password' }}" type="password" maxlength="256" autocomplete="current-password"><small>Only needed when you change the email above{% if not self %}, suspend {{ target.name }} or give them a lower role{% endif %}. Changing the email signs {{ "you out of other devices" if self else (target.name ~ " out everywhere") }}.</small></label>
+      <label class="field"><span>Job title</span><input name="job_title" value="{{ d.job_title }}" maxlength="100" placeholder="Embedded engineer"></label>
+      <label class="field"><span>Bio</span><textarea name="bio" rows="4" maxlength="1000" placeholder="One or two sentences with first-hand credentials.">{{ d.bio }}</textarea></label>
+      <div class="field"><span class="label">Profile links <small>shown on your author page and under your posts</small></span>{{ linksEditor(linkRows, "Pick the network, then type your username or paste the full link.") }}</div>
+      {% if canManage and not self %}
+      <div class="field-row">
+        <label class="field"><span>Role</span><select name="role">{% for r in roles %}<option value="{{ r }}"{% if target.role == r %} selected{% endif %}>{{ roleLabels[r] }}</option>{% endfor %}</select></label>
+        <label class="field"><span>Status</span><select name="status"><option value="active"{% if target.status != "suspended" %} selected{% endif %}>Active</option><option value="suspended"{% if target.status == "suspended" %} selected{% endif %}>Suspended</option></select></label>
+      </div>
+      <p class="meta">Suspending someone, or changing their role, signs them out everywhere.</p>
+      {% endif %}
+      <div class="form-actions"><button class="btn btn-primary" type="submit">Save profile</button></div>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2 class="box-title">{{ "Change your password" if self else "Set a new password" }}</h2>
+    {% if passwordErrors %}<ul class="form-error" role="alert">{% for e in passwordErrors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+    <form method="post" action="{{ A }}/users/{{ target.id }}/password" class="form">
+      <input type="hidden" name="_csrf" value="{{ csrf }}">
+      {% if self %}<label class="field"><span>Current password</span><input name="current_password" type="password" required maxlength="256" autocomplete="current-password"></label>
+      {% else %}<label class="field"><span>Your own password</span><input name="actor_password" type="password" required maxlength="256" autocomplete="current-password"><small>To confirm it’s you setting {{ target.name }}’s password.</small></label>
+      {% if user.twoStep %}<label class="field"><span>Your code from the app, or a recovery code</span><input class="code-input" name="code" required autocomplete="one-time-code" maxlength="16" spellcheck="false"></label>{% endif %}{% endif %}
+      <label class="field"><span>New password</span><input name="password" type="password" required minlength="{{ minPassword }}" maxlength="256" autocomplete="new-password"><small>At least {{ minPassword }} characters, and not an easy one to guess. This signs {{ "out every other session" if self else (target.name ~ " out everywhere") }}.{% if not self %} It is a temporary password: {{ target.name }} must choose their own at the next sign-in, within 7 days.{% endif %}</small></label>
+      <label class="field"><span>Repeat new password</span><input name="password_confirm" type="password" required minlength="{{ minPassword }}" maxlength="256" autocomplete="new-password"></label>
+      <div class="form-actions"><button class="btn" type="submit">Change password</button></div>
+    </form>
+    {% if self %}
+    <form method="post" action="{{ A }}/account/sessions/end-others" class="form" data-confirm="Sign out of every other browser and device?">
+      <input type="hidden" name="_csrf" value="{{ csrf }}">
+      <p class="meta">Signed in somewhere you don’t use any more, or on a shared computer?</p>
+      <div class="form-actions"><button class="btn btn-small" type="submit">{{ icon("exit", 14) }} Sign out other devices</button></div>
+    </form>
+    {% if sessions and sessions.length %}
+    <h2 class="box-title">Where you are signed in</h2>
+    <ul class="adm-list">
+      {% for s in sessions %}
+      <li>
+        <span>{{ s.user_agent | truncate(70) or "Unknown device" }}{% if s.current %} <span class="badge badge-published">This device</span>{% endif %}<br><span class="meta">{{ s.ip }} · signed in {{ s.created_at | datetime(site.tz) }}{% if s.last_seen_at %} · last used {{ s.last_seen_at | datetime(site.tz) }}{% endif %}</span></span>
+        {% if not s.current %}<form method="post" action="{{ A }}/account/sessions/{{ s.handle }}/end" data-confirm="Sign out this device?"><input type="hidden" name="_csrf" value="{{ csrf }}"><button class="btn btn-small" type="submit">Sign out</button></form>{% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% endif %}
+    <div class="two-step-box">
+      <h2 class="box-title">{{ icon("key", 17) }} Two-step sign-in</h2>
+      {% if twoStepError %}<p class="form-error" role="alert">{{ twoStepError }}</p>{% endif %}
+      {% if self %}
+        {% if twoStep.enabled %}
+        <p><span class="badge badge-published">On</span> <span class="meta">Signing in needs a code from your authenticator app. {{ twoStep.codesLeft }} {{ twoStep.codesLeft | plural("recovery code") }} left.</span></p>
+        <p><a class="btn" href="{{ A }}/account/two-step">Manage</a></p>
+        {% else %}
+        <p><span class="badge badge-draft">Off</span> <span class="meta">Add a code from your phone to every sign-in, so a stolen password alone can’t get in.</span></p>
+        <p><a class="btn btn-primary" href="{{ A }}/account/two-step">Set up two-step sign-in</a></p>
+        {% endif %}
+      {% else %}
+        <p>{% if twoStep.enabled %}<span class="badge badge-published">On</span> <span class="meta">{{ target.name }} signs in with an authenticator app.</span>{% else %}<span class="badge badge-draft">Off</span> <span class="meta">{{ target.name }} signs in with a password only. They can turn two-step sign-in on from their profile.</span>{% endif %}</p>
+        {% if twoStep.enabled and canResetTwoStep %}
+        <form method="post" action="{{ A }}/users/{{ target.id }}/two-step/reset" class="form" data-confirm="Turn off two-step sign-in for {{ target.name }} and sign them out everywhere?">
+          <input type="hidden" name="_csrf" value="{{ csrf }}">
+          <p class="meta">Only if they lost their phone and their recovery codes. They can set it up again after signing in. This is written to the server log.</p>
+          <label class="field"><span>Your password</span><input name="password" type="password" required maxlength="256" autocomplete="current-password"></label>
+          {% if user.twoStep %}<label class="field"><span>Your code from the app, or a recovery code</span><input class="code-input" name="code" required autocomplete="one-time-code" maxlength="16" spellcheck="false"></label>{% endif %}
+          <div class="form-actions"><button class="btn btn-small btn-danger" type="submit">Turn off for {{ target.name }}</button></div>
+        </form>
+        {% endif %}
+      {% endif %}
+    </div>
+    {% if canManage and not self and target.role != "owner" %}
+    {% if deleteError %}<p class="form-error" role="alert">{{ deleteError }}</p>{% endif %}
+    <form method="post" action="{{ A }}/users/{{ target.id }}/delete" class="danger-zone form" data-confirm="Delete {{ target.name }}? Their posts move to you.">
+      <input type="hidden" name="_csrf" value="{{ csrf }}">
+      <label class="field"><span>Your own password</span><input name="actor_password" type="password" required maxlength="256" autocomplete="current-password"></label>
+      <button class="btn btn-small btn-danger" type="submit">Delete this person</button>
+    </form>
+    {% endif %}
+  </section>
+</div>
+{% endif %}
+{% endblock %}

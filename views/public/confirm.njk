@@ -1,0 +1,24 @@
+{% extends "public/layout.njk" %}
+{% set hideNewsletter = true %}
+{% block main %}
+<div class="wrap auth">
+  <section class="auth-card">
+    {% if done %}
+    <h1>You’re on the list</h1>
+    <p class="sub">Thanks for confirming. We’ll email you when a new project goes live. Every email has a one-click unsubscribe link.</p>
+    <a class="btn" href="{{ site.url.home }}">Back to the blog</a>
+    {% elif bad %}
+    <h1>This link has expired</h1>
+    <p class="sub">We couldn’t confirm that address. The link may be old or already used. You can subscribe again from any page on the blog.</p>
+    <a class="btn" href="{{ site.url.home }}">Back to the blog</a>
+    {% else %}
+    <h1>Confirm your subscription</h1>
+    <p class="sub">Press the button to start getting newsletters from {{ site.title }}.</p>
+    <form method="post" action="{{ action }}">
+      <button class="btn btn-primary" type="submit">Yes, subscribe me</button>
+    </form>
+    <p class="mt-18"><a href="{{ site.url.home }}">No thanks, back to the blog</a></p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

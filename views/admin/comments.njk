@@ -1,0 +1,63 @@
+{% extends "admin/layout.njk" %}
+{% set title = "Comments" %}
+{% block content %}
+<div class="adm-head">
+  <h1>Comments</h1>
+  <p>{% if moderation == "all" %}Every comment waits for your approval.{% elif moderation == "first" %}A reader’s first comment waits for approval; after that their comments go live at once.{% else %}Comments go live at once; hide or delete any that break the rules.{% endif %} Change this in <a href="{{ A }}/settings#comments">Settings</a>.</p>
+</div>
+
+<nav class="tabs" aria-label="Filter by status">
+  <a href="{{ A }}/comments"{% if not filters.status %} aria-current="page"{% endif %}>All <span class="meta">{{ counts.total or 0 }}</span></a>
+  <a href="{{ A }}/comments?status=pending"{% if filters.status == "pending" %} aria-current="page"{% endif %}>Waiting <span class="meta">{{ counts.pending or 0 }}</span></a>
+  <a href="{{ A }}/comments?status=published"{% if filters.status == "published" %} aria-current="page"{% endif %}>Live <span class="meta">{{ counts.published or 0 }}</span></a>
+  <a href="{{ A }}/comments?status=hidden"{% if filters.status == "hidden" %} aria-current="page"{% endif %}>Hidden <span class="meta">{{ counts.hidden or 0 }}</span></a>
+</nav>
+{% if filters.post %}<p class="meta">Showing comments on “{{ filters.post.title }}”. <a href="{{ A }}/comments">Show all</a></p>{% endif %}
+{% if filters.member %}<p class="meta">Showing comments by {{ filters.member.name }}. <a href="{{ A }}/comments">Show all</a></p>{% endif %}
+
+{% if rows.length %}
+<div class="table-wrap">
+<table class="table">
+  <thead><tr><th scope="col">Comment</th><th scope="col">Status</th><th scope="col">Actions</th></tr></thead>
+  <tbody>
+  {% for cm in rows %}
+  <tr>
+    <td>
+      <b>{{ cm.member_name or cm.staff_name or "Deleted account" }}</b>{% if cm.user_id %} <span class="badge">Team</span>{% endif %}{% if cm.member_email %} <span class="meta">{{ cm.member_email }}</span>{% endif %}
+      <p class="c-body">{{ cm.body }}</p>
+      <p class="c-post">On <a href="{{ cm.postUrl }}#comment-{{ cm.id }}" target="_blank" rel="noopener noreferrer">{{ cm.post_title }}</a> · {{ cm.created_at | datetime(site.tz) }}{% if cm.parent_id %} · reply{% endif %} · {{ cm.likes }} {{ cm.likes | plural("like") }}</p>
+      {% if cm.status == "published" or cm.status == "pending" %}
+      <form method="post" action="{{ A }}/comments/{{ cm.id }}/reply" class="reply-inline">
+        <input type="hidden" name="_csrf" value="{{ csrf }}"><input type="hidden" name="back" value="{{ back }}">
+        <label class="sr-only" for="reply-{{ cm.id }}">Reply to {{ cm.member_name }}</label>
+        <input id="reply-{{ cm.id }}" name="body" placeholder="Reply as {{ user.name }}…" maxlength="5000" required>
+        <button class="btn btn-small" type="submit">Reply</button>
+      </form>
+      {% endif %}
+    </td>
+    <td><span class="badge badge-{{ cm.status }}">{{ "Waiting" if cm.status == "pending" else ("Live" if cm.status == "published" else ("Removed" if cm.status == "deleted" else "Hidden")) }}</span></td>
+    <td>
+      <div class="acts">
+        {% if cm.status == "deleted" %}<span class="meta">Removed. Its replies stay.</span>{% endif %}
+        {% if cm.status == "pending" or cm.status == "hidden" %}<form method="post" action="{{ A }}/comments/{{ cm.id }}/approve"><input type="hidden" name="_csrf" value="{{ csrf }}"><input type="hidden" name="back" value="{{ back }}"><button class="btn btn-small btn-primary" type="submit">Approve</button></form>{% endif %}
+        {% if cm.status == "published" %}<form method="post" action="{{ A }}/comments/{{ cm.id }}/hide"><input type="hidden" name="_csrf" value="{{ csrf }}"><input type="hidden" name="back" value="{{ back }}"><button class="btn btn-small" type="submit">Hide</button></form>{% endif %}
+        {% if cm.status != "deleted" %}<form method="post" action="{{ A }}/comments/{{ cm.id }}/delete" data-confirm="Delete this comment{% if not cm.parent_id %} and its replies{% endif %}?"><input type="hidden" name="_csrf" value="{{ csrf }}"><input type="hidden" name="back" value="{{ back }}"><button class="btn btn-small btn-danger" type="submit">Delete</button></form>{% endif %}
+        {% if cm.member_id and can.settings() %}<a class="btn btn-small btn-ghost" href="{{ A }}/comments?member={{ cm.member_id }}">By this reader</a>{% endif %}
+      </div>
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% if pages > 1 %}
+<nav class="pager" aria-label="Pages">
+  {% if pageNo > 1 %}<a class="btn" href="{{ A }}/comments?page={{ pageNo - 1 }}{% if filters.status %}&amp;status={{ filters.status }}{% endif %}">Newer</a>{% endif %}
+  <span class="meta">Page {{ pageNo }} of {{ pages }}</span>
+  {% if pageNo < pages %}<a class="btn" href="{{ A }}/comments?page={{ pageNo + 1 }}{% if filters.status %}&amp;status={{ filters.status }}{% endif %}">Older</a>{% endif %}
+</nav>
+{% endif %}
+{% else %}
+<p class="card empty">No comments here.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,58 @@
+{% macro brandMark(size=34) %}{% if site.logo %}<img src="{{ site.url.media(site.logo.path) }}" alt="{{ site.title }}" height="{{ size }}" width="{{ (site.logo.width / site.logo.height * size) | round if site.logo.height else size * 4 }}">{% else %}<span class="brand-mark" aria-hidden="true">{{ icon("chip", 20) }}</span><span class="brand-word">{% if site.title.endsWith(" Blog") %}{{ site.title.slice(0, -5) }} <b>Blog</b>{% else %}{{ site.title }}{% endif %}</span>{% endif %}{% endmacro %}
+<header class="site-head">
+  <div class="wrap head-row">
+    <a class="brand" href="{{ site.homeUrl }}">{{ brandMark() }}</a>
+    <nav class="main-nav" id="main-nav" aria-label="Main">
+      <ul class="nav-list">
+        {% for item in site.nav %}
+        <li>
+          {% if item.children.length %}
+          <details class="dd">
+            <summary>{{ item.label }}{{ icon("down", 15) }}</summary>
+            <div class="mega"><div class="wrap"><div class="mega-in{% if not item.featured.length %} simple{% endif %}">
+              <div class="mega-col">
+                <p class="mega-label">{{ item.label }}</p>
+                {% for ch in item.children %}<a href="{{ ch.url }}">{{ ch.label }}</a>{% endfor %}
+                {% if item.url %}<a class="all" href="{{ item.url }}">All {{ item.label }}</a>{% endif %}
+              </div>
+              {% if item.featured.length %}
+              <div>
+                <p class="mega-label">Newest</p>
+                <div class="mega-feat">{% for f in item.featured %}<a class="mega-card" href="{{ f.url }}"><span class="thumb">{{ f.thumb | safe if f.thumb else "" }}</span><span>{{ f.title }}</span></a>{% endfor %}</div>
+              </div>
+              {% endif %}
+            </div></div></div>
+          </details>
+          {% else %}
+          <a href="{{ item.url }}"{% if currentUrl == item.url %} aria-current="page"{% endif %}>{{ item.label }}</a>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      <div class="mobile-extra">
+        {% if member %}<a class="btn" href="{{ site.url.account }}">{{ icon("user", 17) }} Your account</a>{% elif site.comments.enabled %}<a class="btn" href="{{ site.url.signin }}">Sign in</a>{% if site.comments.signup %}<a class="btn" href="{{ site.url.signup }}">Create account</a>{% endif %}{% endif %}
+        {% for cta in site.cta %}<a class="btn{% if cta.primary %} btn-primary{% endif %}" href="{{ cta.url }}">{{ cta.label }}</a>{% endfor %}
+      </div>
+    </nav>
+    <div class="head-tools">
+      <a class="icon-btn search-toggle" href="{{ site.url.search }}" aria-controls="search-bar" aria-expanded="false" title="Search">{{ icon("search", 18) }}<span class="sr-only">Search</span></a>
+      <button class="icon-btn theme-toggle" type="button" aria-pressed="false" title="Dark mode" hidden>{{ icon("moon", 18, "i-moon") }}{{ icon("sun", 18, "i-sun") }}<span class="sr-only">Dark mode</span></button>
+      {% if member %}
+      <a class="member-chip" href="{{ site.url.account }}" title="Your account"><span class="av">{{ member.name | initials }}</span><span class="sr-only">Your account: </span><span class="head-signin">{{ member.name.split(" ")[0] }}</span></a>
+      {% elif site.comments.enabled %}
+      <a class="head-link head-signin" href="{{ site.url.signin }}">Sign in</a>
+      {% endif %}
+      {% if site.newsletter %}<a class="btn btn-primary head-sub" href="#newsletter">Subscribe</a>{% endif %}
+      <button class="icon-btn menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" hidden>{{ icon("menu", 20) }}<span class="sr-only">Menu</span></button>
+    </div>
+  </div>
+  <div class="search-bar" id="search-bar" hidden>
+    <div class="wrap">
+      <form class="search-form" role="search" action="{{ site.url.search }}" method="get">
+        <label class="sr-only" for="head-q">Search the blog</label>
+        <input id="head-q" name="q" type="search" placeholder="Search projects, tutorials and news" autocomplete="off" maxlength="100">
+        <button class="btn btn-primary" type="submit">Search</button>
+      </form>
+    </div>
+  </div>
+</header>

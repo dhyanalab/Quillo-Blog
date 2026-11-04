@@ -1,0 +1,46 @@
+{% extends "public/layout.njk" %}
+{% set hideNewsletter = true %}
+{% block main %}
+<div class="wrap auth wide">
+  <div class="auth-card">
+    <h1>Your account</h1>
+    <p class="sub">Signed in as {{ member.email }}.</p>
+    {% if notice %}<p class="notice notice-ok" role="status">{{ notice }}</p>{% endif %}
+    {% if error %}<p class="notice notice-err" role="alert">{{ error }}</p>{% endif %}
+    <section aria-labelledby="acc-name">
+      <h2 id="acc-name">Name</h2>
+      <form method="post" action="{{ site.url.account }}name/">
+        <input type="hidden" name="_csrf" value="{{ memberCsrf }}">
+        <div class="field"><label for="acc-name-in">Shown next to your comments</label><input id="acc-name-in" name="name" value="{{ member.name }}" required maxlength="60" autocomplete="name"></div>
+        <button class="btn acc-btn" type="submit">Save name</button>
+      </form>
+    </section>
+    <section aria-labelledby="acc-pass">
+      <h2 id="acc-pass">Password</h2>
+      <form method="post" action="{{ site.url.account }}password/">
+        <input type="hidden" name="_csrf" value="{{ memberCsrf }}">
+        <input type="hidden" name="username" value="{{ member.email }}" autocomplete="username">
+        <div class="field"><label for="acc-cur">Current password</label><input id="acc-cur" type="password" name="current" required autocomplete="current-password" maxlength="256"></div>
+        <div class="field"><label for="acc-new">New password</label><input id="acc-new" type="password" name="password" required minlength="10" autocomplete="new-password" maxlength="256"><span class="hint">At least 10 characters.</span></div>
+        <button class="btn acc-btn" type="submit">Change password</button>
+      </form>
+    </section>
+    <section aria-labelledby="acc-out">
+      <h2 id="acc-out">Sign out</h2>
+      <form method="post" action="{{ site.url.signout }}">
+        <input type="hidden" name="_csrf" value="{{ memberCsrf }}">
+        <button class="btn acc-btn" type="submit">Sign out</button>
+      </form>
+    </section>
+    <section aria-labelledby="acc-del">
+      <h2 id="acc-del">Delete account</h2>
+      <p class="sub acc-note">This deletes your account and every comment you’ve written. It can’t be undone.</p>
+      <form method="post" action="{{ site.url.account }}delete/" class="confirm-form" data-confirm="Delete your account and all your comments?">
+        <input type="hidden" name="_csrf" value="{{ memberCsrf }}">
+        <div class="field"><label for="acc-del-pass">Your password</label><input id="acc-del-pass" type="password" name="password" required autocomplete="current-password" maxlength="256"></div>
+        <button class="btn btn-danger acc-btn-top" type="submit">Delete my account</button>
+      </form>
+    </section>
+  </div>
+</div>
+{% endblock %}

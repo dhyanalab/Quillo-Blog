@@ -1,0 +1,19 @@
+{% extends "admin/layout.njk" %}
+{% set title = "Two-step sign-in" %}
+{% block auth %}
+<section class="card auth-card">
+  <h1>Two-step sign-in</h1>
+  <p class="meta">Open your authenticator app and type the 6-digit code it shows for {{ site.title }}.</p>
+  {% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+  <form method="post" action="{{ A }}/login/verify" class="form">
+    <input type="hidden" name="_csrf" value="{{ token }}">
+    <label class="field"><span>Code</span><input class="code-input" name="code" required autocomplete="one-time-code" inputmode="numeric" maxlength="16" autofocus spellcheck="false" placeholder="123 456"></label>
+    <button class="btn btn-primary btn-wide" type="submit">Verify</button>
+  </form>
+  <details class="more-help">
+    <summary>Lost your phone?</summary>
+    <p class="meta">Type one of the recovery codes you saved when you turned two-step sign-in on (like K7Q2M-XW4TP) into the box above. Each code works once. No codes left? Ask the site owner to turn two-step sign-in off for your account.</p>
+  </details>
+  <p class="meta"><a href="{{ A }}/login">Start again</a></p>
+</section>
+{% endblock %}

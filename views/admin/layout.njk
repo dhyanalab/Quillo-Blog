@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{{ title or "Admin" }} · {{ site.title }}</title>
+<script>{{ themeScript | safe }}</script>
+<link rel="stylesheet" href="{{ A }}/static/admin.css?v={{ files['admin.css'].hash }}">
+{% block head %}{% endblock %}
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23C2410C'/%3E%3Crect x='10' y='10' width='12' height='12' rx='2' fill='none' stroke='white' stroke-width='2.2'/%3E%3Cpath d='M13 6v4M19 6v4M13 22v4M19 22v4M6 13h4M6 19h4M22 13h4M22 19h4' stroke='white' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body class="admin{% if fullscreen %} fullscreen{% endif %}" data-admin="{{ A }}" data-csrf="{{ csrf }}" data-media="{{ site.url.media('') }}">
+<a class="skip" href="#adm-content">Skip to content</a>
+{% macro navlink(key, href, label, iconName, badge="") %}<li><a href="{{ href }}"{% if nav == key %} aria-current="page"{% endif %}>{{ icon(iconName, 18) }}<span>{{ label }}</span>{% if badge %}<em>{{ badge }}</em>{% endif %}</a></li>{% endmacro %}
+{% if user and fullscreen %}
+<div id="adm-content">{% block full %}{% endblock %}</div>
+{% include "admin/partials/media-dialog.njk" %}
+{% elif user %}
+<div class="adm">
+  <aside class="adm-side" id="adm-side">
+    <a class="adm-brand" href="{{ A }}/"><span class="brand-mark" aria-hidden="true">{{ icon("chip", 17) }}</span><span>{{ site.title }}</span></a>
+    <nav aria-label="Admin">
+      <ul class="adm-nav">
+        {{ navlink("dashboard", A + "/", "Dashboard", "home") }}
+        <li><a href="{{ site.url.home }}" target="_blank" rel="noopener">{{ icon("ext", 18) }}<span>View site</span></a></li>
+      </ul>
+      <ul class="adm-nav">
+        {{ navlink("posts", A + "/posts", "Posts", "pen") }}
+        {% if nav == "posts" %}
+        <li class="sub"><a href="{{ A }}/posts?state=draft"{% if navState == "draft" %} aria-current="page"{% endif %}>Drafts</a></li>
+        <li class="sub"><a href="{{ A }}/posts?state=scheduled"{% if navState == "scheduled" %} aria-current="page"{% endif %}>Scheduled</a></li>
+        <li class="sub"><a href="{{ A }}/posts?state=published"{% if navState == "published" %} aria-current="page"{% endif %}>Published</a></li>
+        {% endif %}
+        {% if can.pages() %}{{ navlink("pages", A + "/pages", "Pages", "file") }}{% endif %}
+        {% if can.taxonomy() %}{{ navlink("categories", A + "/categories", "Categories", "folder") }}{{ navlink("tags", A + "/tags", "Tags", "tag") }}{% endif %}
+        {{ navlink("media", A + "/media", "Media", "image") }}
+      </ul>
+      {% if can.taxonomy() or can.settings() %}
+      <ul class="adm-nav">
+        {% if can.taxonomy() %}{{ navlink("comments", A + "/comments", "Comments", "msg", sideCounts.pendingComments if sideCounts.pendingComments else "") }}{% endif %}
+        {% if can.settings() %}{{ navlink("members", A + "/members", "Members", "users") }}{{ navlink("newsletter", A + "/newsletter", "Newsletter", "mail") }}{{ navlink("ads", A + "/ads", "Ads", "speaker") }}{% endif %}
+      </ul>
+      {% endif %}
+    </nav>
+    <div class="adm-side-foot">
+      {% if can.settings() %}
+      <ul class="adm-nav">
+        {{ navlink("menus", A + "/menus", "Menus", "menu") }}
+        {{ navlink("users", A + "/users", "Staff", "user") }}
+        {{ navlink("analytics", A + "/analytics", "Analytics & SEO", "chart") }}
+        {{ navlink("redirects", A + "/redirects", "Redirects", "route") }}
+        {{ navlink("settings", A + "/settings", "Settings", "gear") }}
+      </ul>
+      {% endif %}
+      <details class="adm-me">
+        <summary><span class="av">{{ user.name | initials }}</span><span class="adm-me-name"><b>{{ user.name }}</b><small>{{ roleLabels[user.role] }}</small></span>{{ icon("down", 16) }}</summary>
+        <div class="adm-me-menu">
+          <a href="{{ A }}/users/{{ user.id }}">{{ icon("user", 16) }} Your profile</a>
+          <button class="theme-toggle" type="button" aria-pressed="false" hidden>{{ icon("moon", 16, "i-moon") }}{{ icon("sun", 16, "i-sun") }} Dark mode</button>
+          <form method="post" action="{{ A }}/logout"><input type="hidden" name="_csrf" value="{{ csrf }}"><button type="submit">{{ icon("exit", 16) }} Sign out</button></form>
+        </div>
+      </details>
+      <p class="adm-version">{{ product.name }} {{ product.version }}</p>
+    </div>
+  </aside>
+  <div class="adm-main">
+    <header class="adm-mobile-top">
+      <button class="icon-btn adm-menu" type="button" aria-controls="adm-side" aria-expanded="false">{{ icon("menu", 20) }}<span class="sr-only">Menu</span></button>
+      <a class="adm-brand" href="{{ A }}/"><span class="brand-mark" aria-hidden="true">{{ icon("chip", 15) }}</span><span>{{ site.title }}</span></a>
+    </header>
+    <main class="adm-content" id="adm-content">
+      {% if flash %}<p class="flash" role="status">{{ icon("check", 16) }} {{ flash }}</p>{% endif %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% include "admin/partials/media-dialog.njk" %}
+{% else %}
+<main class="auth" id="adm-content">
+  <a class="adm-brand" href="{{ site.url.home }}"><span class="brand-mark" aria-hidden="true">{{ icon("chip", 18) }}</span><span>{{ site.title }}</span></a>
+  {% if flash %}<p class="flash" role="status">{{ flash }}</p>{% endif %}
+  {% block auth %}{% endblock %}
+</main>
+{% endif %}
+<script src="{{ A }}/static/admin.js?v={{ files['admin.js'].hash }}" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

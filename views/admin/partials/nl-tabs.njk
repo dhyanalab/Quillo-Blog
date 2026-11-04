@@ -1,0 +1,5 @@
+<nav class="tabs" aria-label="Newsletter">
+  <a href="{{ A }}/newsletter"{% if tab == "overview" %} aria-current="page"{% endif %}>Newsletters</a>
+  <a href="{{ A }}/newsletter/subscribers"{% if tab == "subscribers" %} aria-current="page"{% endif %}>Subscribers</a>
+  <a href="{{ A }}/newsletter/settings"{% if tab == "settings" %} aria-current="page"{% endif %}>Email settings{% if problems.length %} <span class="dot-warn" title="Not set up yet"></span>{% endif %}</a>
+</nav>

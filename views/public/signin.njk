@@ -1,0 +1,22 @@
+{% extends "public/layout.njk" %}
+{% set hideNewsletter = true %}
+{% block main %}
+<div class="wrap auth">
+  <section class="auth-card" aria-labelledby="auth-h">
+    <h1 id="auth-h">Sign in</h1>
+    <p class="sub">Sign in to comment and reply on {{ site.title }}.</p>
+    {% if error %}<p class="notice notice-err" role="alert">{{ error }}</p>{% endif %}
+    {% if notice %}<p class="notice notice-ok" role="status">{{ notice }}</p>{% endif %}
+    <form method="post" action="{{ site.url.signin }}">
+      <input type="hidden" name="_csrf" value="{{ formCsrf }}">
+      <input type="hidden" name="next" value="{{ next }}">
+      <div class="field"><label for="si-email">Email</label><input id="si-email" type="email" name="email" value="{{ email }}" required autocomplete="email" maxlength="200" autofocus></div>
+      <div class="field"><label for="si-pass">Password</label><input id="si-pass" type="password" name="password" required autocomplete="current-password" maxlength="256"></div>
+      <button class="btn btn-primary" type="submit">Sign in</button>
+    </form>
+    {% if signupOpen %}<p class="alt">New here? <a href="{{ site.url.signup }}{% if next %}?next={{ next | urlencode }}{% endif %}">Create a free account</a></p>{% endif %}
+    <p class="alt">Forgot your password? <a href="{{ site.url.home }}forgot/">Get a link to choose a new one</a>.</p>
+    <p class="alt">Signed up but can’t sign in yet? Open the email we sent you and confirm your address first.</p>
+  </section>
+</div>
+{% endblock %}

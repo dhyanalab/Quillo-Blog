@@ -1,0 +1,103 @@
+{% extends "admin/layout.njk" %}
+{% set title = "Two-step sign-in" %}
+{% block content %}
+<div class="adm-head">
+  <h1>Two-step sign-in</h1>
+  <div class="adm-head-actions"><a class="btn" href="{{ A }}/users/{{ user.id }}">{{ icon("left", 16) }} Your profile</a></div>
+  <p>Signing in needs your password and a code from an app on your phone. Someone who steals your password still can’t get in.</p>
+</div>
+{% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+{% if required %}<p class="health-warn notice-box">{{ icon("alert", 16) }}<span>This site requires two-step sign-in. Set it up here to carry on; until then you can only use this page, your profile and Sign out.</span></p>{% endif %}
+{% if recoveryReset %}<p class="health-warn notice-box">{{ icon("alert", 16) }}<span>Your old recovery codes were removed because they used an older, weaker format. Create new ones now.</span></p>{% endif %}
+
+{% if codes %}
+{# Shown once, right after turning it on or asking for new codes. #}
+<section class="card two-codes">
+  {% if justEnabled %}<p class="flash" role="status">{{ icon("check", 16) }} Two-step sign-in is on. Your other sessions were signed out.</p>{% endif %}
+  <h2 class="box-title">{{ icon("key", 17) }} Save your recovery codes now</h2>
+  <p>If you lose your phone, each of these codes lets you sign in once instead of the app code. <b>This is the only time they’re shown.</b> Print them, or save them in your password manager.</p>
+  <ol class="recovery-list">{% for code in codes %}<li><code>{{ code }}</code></li>{% endfor %}</ol>
+  <div class="form-actions">
+    <button class="btn" type="button" data-copy="{{ codesText }}">{{ icon("copy", 16) }} Copy all</button>
+    <a class="btn" download="{{ site.title | replace(' ', '-') }}-recovery-codes.txt" href="data:text/plain;charset=utf-8,{{ codesFile | urlencode }}">{{ icon("dl", 16) }} Download</a>
+    <a class="btn btn-primary" href="{{ A }}/account/two-step">I’ve saved them</a>
+  </div>
+</section>
+
+{% elif not state.enabled and not setup %}
+<section class="card two-setup">
+  <h2 class="box-title">Set up your authenticator app</h2>
+  <p>You’ll scan a QR code with an app on your phone (Google Authenticator, Microsoft Authenticator, Zoho OneAuth, Authy or 1Password), then type the code it shows.</p>
+  <form method="post" action="{{ A }}/account/two-step/start" class="form">
+    <input type="hidden" name="_csrf" value="{{ csrf }}">
+    <div class="form-actions"><button class="btn btn-primary" type="submit">{{ icon("key", 16) }} Start setup</button></div>
+  </form>
+</section>
+
+{% elif not state.enabled %}
+<section class="card two-setup">
+  <h2 class="box-title">Set up your authenticator app</h2>
+  <ol class="setup-steps">
+    <li>
+      <b>Install an authenticator app on your phone</b>, if you don’t have one: Google Authenticator, Microsoft Authenticator, Zoho OneAuth, Authy or 1Password all work.
+    </li>
+    <li>
+      <b>Add this site in the app</b>: tap the + button and scan this QR code.
+      <div class="qr-row">
+        <div class="qr" aria-label="QR code for your authenticator app" role="img">{{ setup.qr | safe }}</div>
+        <div class="qr-key">
+          <p class="meta">Can’t scan it? Choose “Enter a setup key” in the app and type:</p>
+          <p><code class="setup-key">{{ setup.secret }}</code> <button class="btn btn-small" type="button" data-copy="{{ setup.secret | replace(' ', '') }}">Copy</button></p>
+          <p class="meta">Account: {{ user.email }} · Type: time-based</p>
+        </div>
+      </div>
+    </li>
+    <li>
+      <b>Type the 6-digit code</b> the app now shows, and your password, to turn it on.
+      <form method="post" action="{{ A }}/account/two-step/enable" class="form two-form">
+        <input type="hidden" name="_csrf" value="{{ csrf }}">
+        <div class="field-row">
+          <label class="field"><span>Code from the app</span><input class="code-input" name="code" required autocomplete="one-time-code" inputmode="numeric" maxlength="7" placeholder="123456" spellcheck="false"></label>
+          <label class="field"><span>Your password</span><input name="password" type="password" required maxlength="256" autocomplete="current-password"></label>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" type="submit">{{ icon("check", 16) }} Turn on two-step sign-in</button></div>
+      </form>
+    </li>
+  </ol>
+  <p class="meta">The code changes every 30 seconds. If it’s rejected, check that your phone’s clock is set automatically.</p>
+</section>
+
+{% else %}
+<section class="card master">
+  <div>
+    <h2>Two-step sign-in is on</h2>
+    <p class="meta">Since {{ state.enabledAt | date(site.tz) }}. {{ state.codesLeft }} {{ state.codesLeft | plural("recovery code") }} left.</p>
+  </div>
+  <span class="badge badge-published">{{ icon("check", 14) }} On</span>
+</section>
+{% if state.codesLeft <= 3 %}<p class="health-warn notice-box">{{ icon("alert", 16) }}<span>Only {{ state.codesLeft }} {{ state.codesLeft | plural("recovery code") }} left. Get new ones below so you don’t get locked out.</span></p>{% endif %}
+
+<div class="adm-cols adm-cols-2">
+  <section class="card">
+    <h2 class="box-title">{{ icon("key", 17) }} New recovery codes</h2>
+    <p class="meta">Replaces all your recovery codes with 10 new ones. The old ones stop working.</p>
+    <form method="post" action="{{ A }}/account/two-step/codes" class="form">
+      <input type="hidden" name="_csrf" value="{{ csrf }}">
+      <label class="field"><span>Code from the app</span><input class="code-input" name="code" required autocomplete="one-time-code" inputmode="numeric" maxlength="7" spellcheck="false"></label>
+      <label class="field"><span>Your password</span><input name="password" type="password" required maxlength="256" autocomplete="current-password"></label>
+      <div class="form-actions"><button class="btn" type="submit">Get new codes</button></div>
+    </form>
+  </section>
+  <section class="card">
+    <h2 class="box-title">{{ icon("ban", 17) }} Turn off two-step sign-in</h2>
+    <p class="meta">Your account will need only your password again. Your other sessions are signed out.</p>
+    <form method="post" action="{{ A }}/account/two-step/disable" class="form" data-confirm="Turn off two-step sign-in?">
+      <input type="hidden" name="_csrf" value="{{ csrf }}">
+      <label class="field"><span>Code from the app, or a recovery code</span><input class="code-input" name="code" required autocomplete="one-time-code" maxlength="16" spellcheck="false"></label>
+      <label class="field"><span>Your password</span><input name="password" type="password" required maxlength="256" autocomplete="current-password"></label>
+      <div class="form-actions"><button class="btn btn-danger" type="submit">Turn off</button></div>
+    </form>
+  </section>
+</div>
+{% endif %}
+{% endblock %}

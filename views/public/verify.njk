@@ -1,0 +1,22 @@
+{% extends "public/layout.njk" %}
+{% set hideNewsletter = true %}
+{% block main %}
+<div class="wrap auth">
+  <section class="auth-card" aria-labelledby="auth-h">
+    <h1 id="auth-h">Choose your password</h1>
+    {% if error %}<p class="notice notice-err" role="alert">{{ error }}</p>{% endif %}
+    {% if expired %}
+    <p class="alt"><a href="{{ site.url.signup }}">Create your account again</a> to get a new link.</p>
+    {% else %}
+    <p class="sub">One last step for <b>{{ pending.name }}</b> ({{ pending.email }}). Choose a password to finish creating your account on {{ site.title }}.</p>
+    <form method="post" action="{{ action }}">
+      <input type="hidden" name="_csrf" value="{{ formCsrf }}">
+      <div class="field"><label for="vf-pass">Password</label><input id="vf-pass" type="password" name="password" required minlength="10" autocomplete="new-password" maxlength="256" autofocus><span class="hint">At least 10 characters. A few words in a row works well.</span></div>
+      <div class="field"><label for="vf-conf">Type it again</label><input id="vf-conf" type="password" name="confirm" required minlength="10" autocomplete="new-password" maxlength="256"></div>
+      <button class="btn btn-primary" type="submit">Create my account</button>
+    </form>
+    {% endif %}
+    <p class="alt">Already confirmed? <a href="{{ site.url.signin }}">Sign in</a></p>
+  </section>
+</div>
+{% endblock %}

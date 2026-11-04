@@ -1,0 +1,11 @@
+# Cloudflare Tunnel: add the two lines for your blog to the tunnel's config file (often /etc/cloudflared/config.yml),
+# ABOVE the last "- service: http_status:404" line, then:
+#   sudo cloudflared --config /etc/cloudflared/config.yml tunnel ingress validate
+#   cloudflared tunnel route dns <tunnel-name-or-id> blog.example.com
+#   sudo systemctl restart cloudflared
+tunnel: <tunnel-id>
+credentials-file: /etc/cloudflared/<tunnel-id>.json
+ingress:
+  - hostname: blog.example.com
+    service: http://127.0.0.1:4100
+  - service: http_status:404

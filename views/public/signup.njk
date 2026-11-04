@@ -1,0 +1,31 @@
+{% extends "public/layout.njk" %}
+{% set hideNewsletter = true %}
+{% block main %}
+<div class="wrap auth">
+  <section class="auth-card" aria-labelledby="auth-h">
+    {% if sent %}
+    <h1 id="auth-h">Check your inbox</h1>
+    <p class="notice notice-ok" role="status">Check your inbox to finish signing up.</p>
+    <p class="sub">If the email doesn’t arrive in a few minutes, look in your spam folder. The link works once.</p>
+    {% else %}
+    <h1 id="auth-h">Create your account</h1>
+    <p class="sub">It’s free. You’ll be able to comment, reply and like comments.</p>
+    {% if error %}<p class="notice notice-err" role="alert">{{ error }}</p>{% endif %}
+    {% if closed %}
+    <p class="notice notice-info">{{ closed }}</p>
+    {% else %}
+    <form method="post" action="{{ site.url.signup }}">
+      <input type="hidden" name="_csrf" value="{{ formCsrf }}">
+      <input type="hidden" name="next" value="{{ next }}">
+      <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="field"><label for="su-name">Name</label><input id="su-name" name="name" value="{{ name }}" required autocomplete="name" maxlength="60"><span class="hint">Shown next to your comments.</span></div>
+      <div class="field"><label for="su-email">Email</label><input id="su-email" type="email" name="email" value="{{ email }}" required autocomplete="email" maxlength="200"><span class="hint">Never shown to anyone. We’ll email you a link to confirm it and choose your password.</span></div>
+      {% if site.newsletter %}<label class="check"><input type="checkbox" name="newsletter" value="1"{% if newsletter %} checked{% endif %}> Email me when new projects go live</label>{% endif %}
+      <button class="btn btn-primary" type="submit">Create account</button>
+    </form>
+    {% endif %}
+    {% endif %}
+    <p class="alt">Already have an account? <a href="{{ site.url.signin }}{% if next %}?next={{ next | urlencode }}{% endif %}">Sign in</a></p>
+  </section>
+</div>
+{% endblock %}

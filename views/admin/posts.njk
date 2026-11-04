@@ -1,0 +1,66 @@
+{% extends "admin/layout.njk" %}
+{% set noun = "page" if type == "page" else "post" %}
+{% set base = A + ("/pages" if type == "page" else "/posts") %}
+{% set title = "Pages" if type == "page" else "Posts" %}
+{% block content %}
+<div class="adm-head">
+  <h1>{{ title }}</h1>
+  <div class="adm-head-actions">
+    <form class="filters" method="get" action="{{ base }}">
+      {% if filters.state %}<input type="hidden" name="state" value="{{ filters.state }}">{% endif %}
+      <label class="sr-only" for="pq">Search titles</label>
+      <input id="pq" type="search" name="q" value="{{ filters.q }}" placeholder="Search titles">
+      {% if type == "post" %}
+      <label class="sr-only" for="pc">Category</label>
+      <select id="pc" name="category" data-autosubmit><option value="">All categories</option>{% for k in categories %}<option value="{{ k.id }}"{% if filters.category == k.id %} selected{% endif %}>{{ k.name }}</option>{% endfor %}</select>
+      {% if can.allPosts() %}
+      <label class="sr-only" for="pa">Author</label>
+      <select id="pa" name="author" data-autosubmit><option value="">All authors</option>{% for u in users %}<option value="{{ u.id }}"{% if filters.author == u.id | string %} selected{% endif %}>{{ u.name }}</option>{% endfor %}</select>
+      {% endif %}
+      {% endif %}
+    </form>
+    <a class="btn btn-primary" href="{{ base }}/new">{{ icon("plus", 16) }} New {{ noun }}</a>
+  </div>
+</div>
+
+<nav class="tabs" aria-label="Filter by status">
+  <a href="{{ base }}"{% if not filters.state %} aria-current="page"{% endif %}>All <span class="meta">{{ counts.total or 0 }}</span></a>
+  <a href="{{ base }}?state=draft"{% if filters.state == "draft" %} aria-current="page"{% endif %}>Drafts <span class="meta">{{ counts.draft or 0 }}</span></a>
+  <a href="{{ base }}?state=scheduled"{% if filters.state == "scheduled" %} aria-current="page"{% endif %}>Scheduled <span class="meta">{{ counts.scheduled or 0 }}</span></a>
+  <a href="{{ base }}?state=published"{% if filters.state == "published" %} aria-current="page"{% endif %}>Published <span class="meta">{{ counts.published or 0 }}</span></a>
+</nav>
+
+{% if rows.length %}
+<ul class="plist">
+  {% for p in rows %}
+  <li>
+    <div>
+      <a class="p-title" href="{{ base }}/{{ p.id }}">{{ p.title or "(Untitled)" }}</a>
+      <p class="p-meta">
+        {% if p.author %}<span>By {{ p.author.name }}</span>{% endif %}
+        {% if p.category %}<span>in {{ p.category.name }}</span>{% endif %}
+        <span>·</span>
+        <span>{% if p.state == "draft" %}Edited {{ p.modified_at | datetime(site.tz) }}{% elif p.state == "scheduled" %}Goes live {{ p.published_at | datetime(site.tz) }}{% else %}{{ p.published_at | date(site.tz) }}{% endif %}</span>
+        {% if p.featured %}<span class="badge">Editor’s Choice</span>{% endif %}
+        {% if p.liveUrl %}<a href="{{ p.liveUrl }}" target="_blank" rel="noopener noreferrer">View</a>{% endif %}
+      </p>
+    </div>
+    <span class="p-status {{ p.state }}">{{ p.state | capitalize }}</span>
+    <span class="p-views">{% if type == "post" and p.state == "published" %}{{ p.views }} {{ p.views | plural("view") }}{% endif %}
+    {% if can.deletePost(p) %}
+    <form style="position:relative;z-index:1;margin-top:6px" method="post" action="{{ base }}/{{ p.id }}/delete" data-confirm="Delete “{{ p.title or '(Untitled)' }}” for good?{% if p.state != 'draft' %} Its address will tell search engines it’s gone.{% endif %}"><input type="hidden" name="_csrf" value="{{ csrf }}"><button class="btn btn-small btn-danger" type="submit">Delete</button></form>
+    {% endif %}</span>
+  </li>
+  {% endfor %}
+</ul>
+{% if pages > 1 %}
+<nav class="pager" aria-label="Pages">
+  {% if pageNo > 1 %}<a class="btn" href="{{ base }}?page={{ pageNo - 1 }}{% if filters.state %}&amp;state={{ filters.state }}{% endif %}{% if filters.q %}&amp;q={{ filters.q | urlencode }}{% endif %}{% if filters.category %}&amp;category={{ filters.category }}{% endif %}{% if filters.author %}&amp;author={{ filters.author }}{% endif %}">Newer</a>{% endif %}
+  <span class="meta">Page {{ pageNo }} of {{ pages }}</span>
+  {% if pageNo < pages %}<a class="btn" href="{{ base }}?page={{ pageNo + 1 }}{% if filters.state %}&amp;state={{ filters.state }}{% endif %}{% if filters.q %}&amp;q={{ filters.q | urlencode }}{% endif %}{% if filters.category %}&amp;category={{ filters.category }}{% endif %}{% if filters.author %}&amp;author={{ filters.author }}{% endif %}">Older</a>{% endif %}
+</nav>
+{% endif %}
+{% else %}
+<section class="card empty"><p>No {{ noun }}s here yet.</p><p style="margin-top:12px"><a class="btn btn-primary" href="{{ base }}/new">Write the first {{ noun }}</a></p></section>
+{% endif %}
+{% endblock %}

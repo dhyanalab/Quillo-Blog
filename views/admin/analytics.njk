@@ -1,0 +1,121 @@
+{% extends "admin/layout.njk" %}
+{% set title = "Analytics & SEO" %}
+{% block content %}
+<div class="adm-head">
+  <h1>Analytics &amp; SEO</h1>
+  <p>Everything that connects your blog to visitor numbers and search engines, in one place. Follow the steps in each box, paste what the service gives you, and click Save.</p>
+</div>
+{% if errors %}<ul class="form-error" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+{% if localhost %}<p class="health-warn notice-box">{{ icon("alert", 16) }}<span>Your Site URL is still <b>{{ blogUrl }}</b>. Google, Bing and the analytics services can only reach the blog once it’s live on its real domain. Set the real address in <a href="{{ A }}/settings">Settings</a> first; you can still fill this page in now.</span></p>{% endif %}
+
+<ul class="conn" role="list">
+  <li class="card conn-item{% if live %} is-on{% endif %}">{{ icon("check" if live else "minus", 18) }}<span><b>Visitor numbers</b><small>{{ ("On, with " + live.name) if live else "Not set up" }}</small></span></li>
+  <li class="card conn-item{% if s.google_verification %} is-on{% endif %}">{{ icon("check" if s.google_verification else "minus", 18) }}<span><b>Google Search Console</b><small>{{ "Code added" if s.google_verification else "Not connected" }}</small></span></li>
+  <li class="card conn-item{% if s.bing_verification %} is-on{% endif %}">{{ icon("check" if s.bing_verification else "minus", 18) }}<span><b>Bing Webmaster Tools</b><small>{{ "Code added" if s.bing_verification else "Not connected, or imported from Google" }}</small></span></li>
+  <li class="card conn-item{% if s.indexnow_enabled %} is-on{% endif %}">{{ icon("check" if s.indexnow_enabled else "minus", 18) }}<span><b>IndexNow</b><small>{{ "On" if s.indexnow_enabled else "Off" }}</small></span></li>
+</ul>
+
+{% if not canAnalytics %}<p class="notice-box">{{ icon("info", 16) }}<span>Only the owner can change the visitor-numbers service. You can still change everything else on this page.</span></p>{% endif %}
+<form class="form settings" method="post" action="{{ A }}/analytics">
+  {% set off = " disabled" if not canAnalytics else "" %}
+  <input type="hidden" name="_csrf" value="{{ csrf }}">
+
+  <section class="card" id="visitors">
+    <h2 class="box-title">{{ icon("chart", 18) }} Visitor numbers, without cookies</h2>
+    <p class="meta">See how many people visit, which posts they read and where they come from. Both services below count visits without cookies and without storing anything personal, so your blog needs no cookie banner.</p>
+    <fieldset class="field choice-cards"><legend class="sr-only">Analytics service</legend>
+      <label class="choice"><input type="radio" name="analytics_provider" value="none"{% if s.analytics_provider == "none" %} checked{% endif %}{{ off }}><span><b>Off</b><small>No visitor numbers.</small></span></label>
+      <label class="choice"><input type="radio" name="analytics_provider" value="umami"{% if s.analytics_provider == "umami" %} checked{% endif %}{{ off }}><span><b>Umami</b><small>Free for up to 100,000 page views a month. Simple dashboard.</small></span></label>
+      <label class="choice"><input type="radio" name="analytics_provider" value="plausible"{% if s.analytics_provider == "plausible" %} checked{% endif %}{{ off }}><span><b>Plausible</b><small>Paid, from about $9 a month after a 30-day free trial. Polished reports.</small></span></label>
+    </fieldset>
+
+    <div data-when="analytics_provider=umami"{% if s.analytics_provider != "umami" %} hidden{% endif %}>
+      <ol class="steps">
+        <li>Open <a href="{{ providers.umami.signup }}" target="_blank" rel="noopener noreferrer">cloud.umami.is</a> and create a free account.</li>
+        <li>Go to <b>Settings &gt; Websites &gt; Add website</b>. Name: {{ site.title }}. Domain: <b>{{ siteHost }}</b>. Click Save.</li>
+        <li>Click <b>Edit</b> next to the website, open <b>Tracking code</b> and click Copy.</li>
+        <li>Paste it in the box below and click <b>Save</b> at the bottom of this page.</li>
+      </ol>
+    </div>
+    <div data-when="analytics_provider=plausible"{% if s.analytics_provider != "plausible" %} hidden{% endif %}>
+      <ol class="steps">
+        <li>Open <a href="{{ providers.plausible.signup }}" target="_blank" rel="noopener noreferrer">plausible.io</a> and start the free trial.</li>
+        <li>Add your website with the domain <b>{{ siteHost }}</b>.</li>
+        <li>Plausible shows a tracking code (a few lines starting with &lt;script). Click Copy.</li>
+        <li>Paste it in the box below and click <b>Save</b> at the bottom of this page.</li>
+      </ol>
+    </div>
+
+    <div data-when="analytics_provider=umami|plausible"{% if s.analytics_provider == "none" %} hidden{% endif %}>
+      <label class="field"><span>Paste the tracking code here</span><textarea name="analytics_code" rows="3" spellcheck="false"{{ off }} placeholder="<script defer src=&quot;https://…&quot; …></script>"></textarea><small>{% if live %}Working now: {{ live.name }}{% if s.analytics_id %}, {{ s.analytics_id }}{% endif %}. Paste a new code only to change it.{% else %}The blog reads the code and fills in the details below for you.{% endif %}</small></label>
+      <label class="field"><span>Your dashboard link <small>optional</small></span><input name="analytics_dashboard" value="{{ s.analytics_dashboard }}" placeholder="https://…"{{ off }}><small>The page where you read your numbers. A button for it appears on this page and on the dashboard.</small></label>
+      {% if s.analytics_dashboard %}<p><a class="btn" href="{{ s.analytics_dashboard }}" target="_blank" rel="noopener noreferrer">{{ icon("ext", 16) }} Open your visitor numbers</a></p>{% endif %}
+      <details class="more">
+        <summary>Details the code fills in</summary>
+        <label class="field"><span>Script address</span><input name="analytics_script" value="{{ s.analytics_script }}" placeholder="Filled in from the code"{{ off }}></label>
+        <label class="field"><span>Site ID or domain</span><input name="analytics_id" value="{{ s.analytics_id }}" placeholder="Umami: the website ID. Plausible: {{ siteHost }}"{{ off }}></label>
+        <label class="field"><span>Data address <small>Umami on your own server only</small></span><input name="analytics_host" value="{{ s.analytics_host }}"{{ off }}></label>
+        <label class="check"><input type="checkbox" name="confirm_host" value="1"{{ off }}> Yes, a server address here that isn’t Plausible’s or Umami’s own is mine</label>
+      </details>
+    </div>
+  </section>
+
+  <section class="card" id="google">
+    <h2 class="box-title">{{ brand("googlesearchconsole", 18) }} Google Search Console</h2>
+    <p class="meta">Shows which searches bring people to your blog, and tells you when Google finds a problem with a page.</p>
+    <ol class="steps">
+      <li>Open <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer">Google Search Console</a> and sign in with your business Google account.</li>
+      <li>Click <b>Add property</b>, choose <b>URL prefix</b>, type <b>{{ blogUrl }}</b> and click Continue.</li>
+      <li>Under <b>Other verification methods</b>, open <b>HTML tag</b> and click Copy.</li>
+      <li>Paste it below, click <b>Save</b> at the bottom of this page, then click <b>Verify</b> in Search Console.</li>
+      <li>In Search Console, open <b>Sitemaps</b>, type <b>sitemap.xml</b> and click Submit.</li>
+    </ol>
+    <label class="field"><span>Google verification code</span><input name="google_verification" value="{{ s.google_verification }}" spellcheck="false" placeholder="Paste the whole <meta …> tag, or just the code"></label>
+    <p class="meta">Your sitemap: <a href="{{ sitemapUrl }}" target="_blank" rel="noopener noreferrer">{{ sitemapUrl }}</a> <button class="btn btn-small" type="button" data-copy="{{ sitemapUrl }}">Copy</button></p>
+  </section>
+
+  <section class="card" id="bing">
+    <h2 class="box-title">{{ icon("search", 18) }} Bing Webmaster Tools</h2>
+    <p class="meta">Bing also feeds results to Yahoo, DuckDuckGo and several AI search tools.</p>
+    <ol class="steps">
+      <li>Open <a href="https://www.bing.com/webmasters" target="_blank" rel="noopener noreferrer">Bing Webmaster Tools</a> and sign in.</li>
+      <li><b>Easiest:</b> once Google says “Ownership verified”, choose <b>Import from Google Search Console</b>. Bing copies your site and sitemap, and you have nothing to paste here.</li>
+      <li><b>Or by hand:</b> choose <b>Add your site manually</b>, type <b>{{ blogUrl }}</b>, pick <b>HTML Meta Tag</b>, copy it, paste it below, click Save, then click Verify in Bing. Then submit your sitemap under <b>Sitemaps</b>.</li>
+    </ol>
+    <label class="field"><span>Bing verification code <small>only for the “by hand” way</small></span><input name="bing_verification" value="{{ s.bing_verification }}" spellcheck="false" placeholder="Paste the whole <meta …> tag, or just the code"></label>
+  </section>
+
+  <section class="card" id="indexnow">
+    <h2 class="box-title">{{ icon("send", 18) }} IndexNow: tell search engines about changes</h2>
+    <label class="check"><input type="checkbox" name="indexnow_enabled" value="1"{% if s.indexnow_enabled %} checked{% endif %}><span>Tell Bing, Yandex, Seznam and Naver straight away when you publish, update or remove a post<br><small class="meta">Nothing to set up. Google doesn’t use IndexNow; it reads your sitemap instead.</small></span></label>
+    <p class="meta">Your key file: <a href="{{ keyUrl }}" target="_blank" rel="noopener noreferrer">{{ keyUrl }}</a></p>
+  </section>
+
+  <section class="card" id="ai">
+    <h2 class="box-title">{{ icon("chip", 18) }} AI crawlers</h2>
+    <fieldset class="field"><legend>Crawlers that collect pages to train AI models (GPTBot, ClaudeBot, Google-Extended, CCBot, Applebot-Extended, meta-externalagent)</legend>
+      <label class="check"><input type="radio" name="ai_training" value="allow"{% if s.ai_training != "block" %} checked{% endif %}><span>Allow<br><small class="meta">AI assistants learn about {{ s.brand_name or s.org_name }} and can recommend your projects.</small></span></label>
+      <label class="check"><input type="radio" name="ai_training" value="block"{% if s.ai_training == "block" %} checked{% endif %}><span>Block<br><small class="meta">Asks them to stay away (through robots.txt). Most respect it.</small></span></label>
+    </fieldset>
+    <p class="meta">Search crawlers (Googlebot, Bingbot) and AI search tools that link back to you (ChatGPT search, Perplexity, Claude) are always allowed. <a href="{{ robotsUrl }}" target="_blank" rel="noopener noreferrer">See your robots.txt</a></p>
+  </section>
+
+  <details class="card ads-guide" id="other"{% if s.yandex_verification or s.pinterest_verification or s.facebook_verification %} open{% endif %}>
+    <summary><h2 class="box-title">{{ icon("plus", 17) }} Other services <small class="meta">optional</small></h2></summary>
+    <p class="meta">Only if one of these asks you to prove you own the site with a “meta tag”. Paste the tag or its code.</p>
+    <div class="field-row">
+      <label class="field"><span>Yandex Webmaster</span><input name="yandex_verification" value="{{ s.yandex_verification }}" spellcheck="false"></label>
+      <label class="field"><span>Pinterest (claim website)</span><input name="pinterest_verification" value="{{ s.pinterest_verification }}" spellcheck="false"></label>
+      <label class="field"><span>Facebook / Meta (domain verification)</span><input name="facebook_verification" value="{{ s.facebook_verification }}" spellcheck="false"></label>
+    </div>
+  </details>
+
+  <div class="form-actions sticky-actions"><button class="btn btn-primary" type="submit">Save</button></div>
+</form>
+
+<form class="card tool-row" method="post" action="{{ A }}/analytics/indexnow" data-confirm="Send every public page to IndexNow now?">
+  <input type="hidden" name="_csrf" value="{{ csrf }}">
+  <div><b>Send every page to IndexNow now</b><p class="meta">Use once after the blog goes live, or after moving to a new domain. Skipped while the Site URL is localhost.</p></div>
+  <button class="btn" type="submit">{{ icon("send", 16) }} Send all pages</button>
+</form>
+{% endblock %}
