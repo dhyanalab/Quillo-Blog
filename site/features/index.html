@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Features | Quillo</title>
+<meta name="description" content="Everything a blog needs, built into Quillo: a friendly editor, reader comments, a newsletter, sponsor banners, search and AI answers, makers' tools, team roles and strong security.">
+<link rel="canonical" href="https://quillo.dhyanalab.in/features/">
+<meta name="theme-color" content="#FBF8F3">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/fonts/source-serif-4-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/inter-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/quillo.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Quillo">
+<meta property="og:title" content="Features | Quillo">
+<meta property="og:description" content="Everything a blog needs, built into Quillo: a friendly editor, reader comments, a newsletter, sponsor banners, search and AI answers, makers' tools, team roles and strong security.">
+<meta property="og:url" content="https://quillo.dhyanalab.in/features/">
+<meta property="og:image" content="https://quillo.dhyanalab.in/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+<svg class="sprite" aria-hidden="true">
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
+  <symbol id="i-palette" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 2a10 10 0 0 0 0 20c.93 0 1.65-.75 1.65-1.69 0-.44-.18-.84-.44-1.13-.29-.29-.44-.65-.44-1.12a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.55-2.5 5.55-5.55C21.97 6.01 17.46 2 12 2z"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.1a4 4 0 0 1 0 7.8M21 21v-2a4 4 0 0 0-3-3.9"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></symbol>
+  <symbol id="i-speaker" viewBox="0 0 24 24"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a5 5 0 0 1 0 6M19 6.5a8.5 8.5 0 0 1 0 11"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-chip" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></symbol>
+  <symbol id="i-eyeoff" viewBox="0 0 24 24"><path d="M9.9 4.2A10 10 0 0 1 12 4c7 0 10 8 10 8a18 18 0 0 1-2.2 3.3M6.6 6.6A18 18 0 0 0 2 12s3 8 10 8a9.7 9.7 0 0 0 5.4-1.6"/><path d="M2 2l20 20M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0-5-5m5 5 5-5M5 21h14"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+  <symbol id="i-buoy" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="m4.9 4.9 4.3 4.3M14.8 14.8l4.3 4.3M14.8 9.2l4.3-4.3M4.9 19.1l4.3-4.3"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+  <symbol id="i-msg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-cube" viewBox="0 0 24 24"><path d="m21 8-9-5-9 5v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/></symbol>
+  <symbol id="i-server" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></symbol>
+  <symbol id="i-bowl" viewBox="0 0 24 24"><path d="M3 11h18a9 9 0 0 1-18 0z"/><path d="M8 7c0-2 2-2 2-4M13 7c0-2 2-2 2-4"/></symbol>
+  <symbol id="i-news" viewBox="0 0 24 24"><path d="M4 5h13v14a1 1 0 0 0 1 1H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v9a2 2 0 0 1-2 2M8 9h5M8 13h5M8 17h3"/></symbol>
+  <symbol id="i-shop" viewBox="0 0 24 24"><path d="M4 9h16l-1 11H5z"/><path d="M8 9V7a4 4 0 0 1 8 0v2"/></symbol>
+  <symbol id="i-github" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></symbol>
+</svg>
+
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <div class="wrap top-row">
+    <a class="brand" href="/"><img src="/favicon.svg" alt="" width="34" height="34">Quillo</a>
+    <nav class="nav" aria-label="Main">
+      <a href="/features/" aria-current="page">Features</a>
+      <a href="/designs/">Designs</a>
+      <a href="/pricing/">Pricing</a>
+      <a href="/get-started/">Get started</a>
+    </nav>
+    <div class="top-end">
+      <a class="gh" href="https://github.com/dhyanalab/Quillo-Blog"><svg class="i"><use href="#i-github"/></svg> GitHub</a>
+      <a class="btn btn-primary btn-sm" href="/get-started/">Download free</a>
+      <details class="menu">
+        <summary aria-label="Menu"><svg class="i"><use href="#i-menu"/></svg></summary>
+        <nav class="menu-panel" aria-label="Menu">
+          <a href="/">Home</a>
+          <a href="/features/" aria-current="page">Features</a>
+          <a href="/designs/">Designs</a>
+          <a href="/pricing/">Pricing</a>
+          <a href="/get-started/">Get started</a>
+          <a href="https://github.com/dhyanalab/Quillo-Blog">GitHub</a>
+          <a class="btn btn-primary" href="/get-started/">Download free</a>
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+<section class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Features</p>
+    <h1>Everything a blog needs. <em>Built in.</em></h1>
+    <p class="lede">One install gives you the editor, the readers, the newsletter and the money side, all working together and all on your own server.</p>
+    <nav class="chips" aria-label="On this page">
+      <a href="#writing">Writing</a><a href="#readers">Readers</a><a href="#newsletter">Newsletter</a><a href="#sponsors">Sponsors</a><a href="#search">Search</a><a href="#makers">Makers</a><a href="#team">Team and security</a><a href="#running">Running it</a>
+    </nav>
+  </div>
+</section>
+
+<section class="section tight feature-list">
+  <div class="wrap">
+    <div class="feature" id="writing">
+      <div class="feature-text">
+        <p class="eyebrow">Writing</p>
+        <h2>An editor you’ll enjoy.</h2>
+        <p class="lede">Write on a page that looks like the finished post. Switch to Markdown when you want to.</p>
+        <ul class="ticks">
+          <li><span><b>Saves as you type</b>, and keeps every version so you can go back.</span></li>
+          <li><span><b>Publish now or later</b>: pick a date and it goes live by itself.</span></li>
+          <li><span><b>Pictures, tables, callouts and FAQ</b> sections from one menu.</span></li>
+          <li><span><b>Checks before publishing</b> catch broken links and pictures without a description.</span></li>
+        </ul>
+      </div>
+      <div class="panel" aria-hidden="true">
+        <div class="ui">
+          <div class="ed-bar"><b class="on">B</b><b><em>I</em></b><b>H2</b><b>“ ”</b><b>⌁</b><b>▦</b><em>Saved</em></div>
+          <div class="ed-body">
+            <p class="ed-title">How I tested five soil sensors</p>
+            <p class="ed-text">Cheap sensors drift. Over a month in the same pot, two of the five gave readings that <mark>wandered by a third</mark>, while the capacitive ones held steady<span class="caret"></span></p>
+            <div class="callout"><b>Tip</b> Seal the top of the sensor with nail varnish.</div>
+          </div>
+          <div class="ed-foot"><span>Preview</span><span class="go">Schedule</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature flip" id="readers">
+      <div class="feature-text">
+        <p class="eyebrow">Readers</p>
+        <h2>Comments that stay friendly.</h2>
+        <p class="lede">Readers make a free account to comment, reply and like. You decide what appears.</p>
+        <ul class="ticks">
+          <li><span><b>Email check</b> on every new account, so fake ones stay out.</span></li>
+          <li><span><b>Approve, hide or block</b> from the admin, and reply as the team.</span></li>
+          <li><span><b>An account page</b> where readers manage their details.</span></li>
+          <li><span><b>Turn comments off</b> for one post or the whole blog.</span></li>
+        </ul>
+      </div>
+      <div class="panel" aria-hidden="true">
+        <div class="ui">
+          <div class="ui-h"><b>3 comments</b><span>Newest first</span></div>
+          <div class="ui-pad">
+            <div class="cm"><span class="av">PS</span><div><p class="cm-h"><b>Priya S</b> 2 days ago</p><p>Worked first time. I raised the sensor by 3 cm because my overflow pipe sits close to the top.</p><p class="cm-a"><span>♥ 4</span><span>Reply</span></p></div></div>
+            <div class="cm reply"><span class="av e">AR</span><div><p class="cm-h"><b>Asha Rao</b> <span class="badge em">Author</span></p><p>Good tip, thank you. I’ll add it to the post.</p><p class="cm-a"><span>♥ 2</span></p></div></div>
+            <div class="cm"><span class="av">RM</span><div><p class="cm-h"><b>Rahul M</b> 5 hours ago</p><p>Could this run from a single battery cell?</p><p class="cm-a"><span>♥ 1</span><span>Reply</span></p></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature" id="newsletter">
+      <div class="feature-text">
+        <p class="eyebrow">Newsletter</p>
+        <h2>Your list, your email.</h2>
+        <p class="lede">Readers subscribe in two steps, and newsletters go out through your own email account.</p>
+        <ul class="ticks">
+          <li><span><b>Double opt-in</b>: people confirm before they’re added.</span></li>
+          <li><span><b>Send a test</b> to yourself first, then send to everyone.</span></li>
+          <li><span><b>One-click unsubscribe</b> in every email.</span></li>
+          <li><span><b>A suppression list</b> that remembers who left, even after a restore.</span></li>
+        </ul>
+      </div>
+      <div class="panel" aria-hidden="true">
+        <div class="ui mail">
+          <div class="mail-h"><b>New on Maker Notes: a solar weather station</b><span>From Maker Notes · to you</span></div>
+          <div class="mail-b">
+            <span class="kick">This week</span>
+            <h4>A solar weather station for the garden</h4>
+            <p>Three weekends, one cheap sensor, and readings every minute on sunlight alone.</p>
+            <span>Read the post</span>
+          </div>
+          <div class="mail-f">You subscribed on makernotes.blog · Unsubscribe in one click</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature flip" id="sponsors">
+      <div class="feature-text">
+        <p class="eyebrow">Sponsors</p>
+        <h2>Sell your own banners.</h2>
+        <p class="lede">Earn from sponsors directly, without handing your readers to an ad network.</p>
+        <ul class="ticks">
+          <li><span><b>Nine places</b> across the blog, from the top of the home page to the end of a post.</span></li>
+          <li><span><b>Clearly labelled</b> “Sponsored”, and counted without cookies.</span></li>
+          <li><span><b>Start and end dates</b>, with views and clicks for each banner.</span></li>
+          <li><span><b>An Advertise page</b> that fills itself in from your settings.</span></li>
+        </ul>
+      </div>
+      <div class="panel" aria-hidden="true">
+        <div class="ui ui-pad">
+          <div class="lines"><i></i><i></i><i></i></div>
+          <div class="ad">
+            <div class="ad-box"><b>Sensors for your next build</b><span>Shop now</span></div>
+            <small>Sponsored</small>
+          </div>
+          <div class="lines"><i></i><i></i></div>
+          <div class="ad-stats"><span><b>12,480</b> views</span><span><b>316</b> clicks</span><span><b>2.5%</b> click rate</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature" id="search">
+      <div class="feature-text">
+        <p class="eyebrow">Search and AI answers</p>
+        <h2>Easy to find. Good to share.</h2>
+        <p class="lede">Quillo does the behind-the-scenes work that search engines, AI answers and social apps look for.</p>
+        <ul class="ticks">
+          <li><span><b>Structured data</b> for posts, authors and lists, and a sitemap and RSS.</span></li>
+          <li><span><b>A share picture</b> made for every post, with its title on it.</span></li>
+          <li><span><b>Quick answers</b> at the top of a post, written for search and AI.</span></li>
+          <li><span><b>IndexNow</b> tells search engines the moment you publish.</span></li>
+          <li><span><b>Visitor counts without cookies</b>, with Plausible or Umami if you want them.</span></li>
+        </ul>
+      </div>
+      <div class="panel" aria-hidden="true">
+        <div class="ui">
+          <div class="serp">
+            <small>makernotes.blog › projects</small>
+            <b>A solar weather station for the garden</b>
+            <p>Build a weather station that runs on sunlight alone, with wiring, code and downloads…</p>
+            <div class="qa"><b>Quick answer:</b> a small solar panel and a sleep timer keep it running day and night.</div>
+          </div>
+          <div class="share-card"><span class="sc-img"></span><div><small>makernotes.blog</small><b>A solar weather station for the garden</b></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature flip" id="makers">
+      <div class="feature-text">
+        <p class="eyebrow">Makers’ tools</p>
+        <h2>Code and files, done properly.</h2>
+        <p class="lede">For project blogs: switch these on in Settings, and leave them off if you don’t need them.</p>
+        <ul class="ticks">
+          <li><span><b>Source code boxes</b> with copy, download and a ZIP of every file.</span></li>
+          <li><span><b>Download buttons</b> for PDF, STL and ZIP files, with sizes.</span></li>
+          <li><span><b>A GitHub button</b> that stands apart from everything else.</span></li>
+          <li><span><b>“Tested with”</b> notes, so readers know what worked.</span></li>
+        </ul>
+      </div>
+      <div class="panel" aria-hidden="true">
+        <div class="ui">
+          <div class="code">
+            <div class="code-tabs"><span class="on">station.ino</span><span>config.h</span></div>
+<pre><span class="c">// Read the wind speed every minute</span>
+<span class="k">const int</span> SENSOR = <span class="n">34</span>;
+
+<span class="k">void</span> <span class="f">loop</span>() {
+  <span class="k">float</span> wind = <span class="f">readWind</span>(SENSOR);
+  <span class="f">send</span>(<span class="s">"wind"</span>, wind);
+  <span class="f">sleepFor</span>(<span class="n">60</span>);
+}</pre>
+            <div class="code-foot"><span>Arduino</span><span>9 lines · Copy · Download</span></div>
+          </div>
+          <div class="dl"><span class="ico"><svg class="i"><use href="#i-cube"/></svg></span><span><b>Sensor mount</b><small>STL · 1.2 MB</small></span><span class="go">Download</span></div>
+          <div class="dl"><span class="ico sea"><svg class="i"><use href="#i-file"/></svg></span><span><b>Wiring diagram</b><small>PDF · 380 KB</small></span><span class="go">Download</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature" id="team">
+      <div class="feature-text">
+        <p class="eyebrow">Team and security</p>
+        <h2>Safe for you and your team.</h2>
+        <p class="lede">Give people the access they need and no more. Quillo has had three security reviews, with fixes after each.</p>
+        <ul class="ticks">
+          <li><span><b>Five roles</b>: owner, administrator, editor, author and contributor.</span></li>
+          <li><span><b>Two-step sign-in</b> with recovery codes and trusted browsers.</span></li>
+          <li><span><b>Strict browser protections</b> on every page, and encrypted secrets.</span></li>
+          <li><span><b>Limits on sign-in tries</b>, and a record of every change.</span></li>
+        </ul>
+      </div>
+      <div class="panel" aria-hidden="true">
+        <div class="ui">
+          <div class="ui-h"><b>Staff</b><span>4 people</span></div>
+          <ul class="people">
+            <li><span class="av">AR</span><b>Asha Rao</b><svg class="i shield"><use href="#i-shield"/></svg><span class="badge em">Owner</span></li>
+            <li><span class="av">KN</span><b>Karthik N</b><svg class="i shield"><use href="#i-shield"/></svg><span class="badge sea">Editor</span></li>
+            <li><span class="av">MJ</span><b>Meera J</b><svg class="i shield"><use href="#i-shield"/></svg><span class="badge">Author</span></li>
+            <li><span class="av">VS</span><b>Vikram S</b><span class="badge">Contributor</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature flip" id="running">
+      <div class="feature-text">
+        <p class="eyebrow">Running it</p>
+        <h2>Small, quiet and yours.</h2>
+        <p class="lede">Quillo is one program and one folder. It runs happily on a Raspberry Pi.</p>
+        <ul class="ticks">
+          <li><span><b>No database server</b>: everything is kept in one file, using Node’s own SQLite.</span></li>
+          <li><span><b>One command</b> installs it as a service that starts by itself.</span></li>
+          <li><span><b>Your own domain</b> through a free Cloudflare Tunnel, with no router changes.</span></li>
+          <li><span><b>Safe updates</b>: it saves a copy of your blog before changing anything.</span></li>
+        </ul>
+      </div>
+      <div class="panel" aria-hidden="true">
+        <div class="term">
+          <div class="term-bar"><i></i><i></i><i></i></div>
+<pre><span class="p">$</span> bash deploy/install.sh https://blog.example.com
+<span class="o">Installing packages…</span>
+<span class="o">Settings written to /etc/quillo.env</span>
+<span class="g">✓ Quillo 1.0.0 is running</span>
+<span class="o">Setup link:</span> https://blog.example.com/admin/setup</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-wrap">
+  <div class="wrap">
+    <div class="cta-card dark">
+      <h2>All of it, <em>free</em>.</h2>
+      <p class="lede">Every feature on this page comes with the free download. Pay only if you want our help.</p>
+      <div class="actions center">
+        <a class="btn btn-primary" href="/get-started/"><svg class="i"><use href="#i-download"/></svg> Download free</a>
+        <a class="btn btn-cream" href="/pricing/">See services</a>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+<footer class="foot">
+  <div class="wrap foot-grid">
+    <div class="foot-about">
+      <a class="brand" href="/"><img src="/favicon.svg" alt="" width="34" height="34">Quillo</a>
+      <p>The blog platform you own. Free and open source, made by Dhyana Engineering Solutions in Coimbatore, India.</p>
+      <a class="foot-mail" href="mailto:info@dhyanalab.in"><svg class="i"><use href="#i-mail"/></svg> info@dhyanalab.in</a>
+    </div>
+    <div>
+      <h4>Product</h4>
+      <ul>
+        <li><a href="/features/">Features</a></li>
+        <li><a href="/designs/">Designs</a></li>
+        <li><a href="/pricing/">Pricing</a></li>
+        <li><a href="/get-started/">Get started</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Resources</h4>
+      <ul>
+        <li><a href="https://github.com/dhyanalab/Quillo-Blog">Source code</a></li>
+        <li><a href="https://github.com/dhyanalab/Quillo-Blog/releases">Releases</a></li>
+        <li><a href="https://github.com/dhyanalab/Quillo-Blog/blob/main/CHANGELOG.md">What’s new</a></li>
+        <li><a href="https://github.com/dhyanalab/Quillo-Blog/blob/main/docs/admin-guide.md">Admin guide</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <ul>
+        <li><a href="https://dhyanalab.in/">Dhyana Engineering Solutions</a></li>
+        <li><a href="https://github.com/dhyanalab/Quillo-Blog/blob/main/LICENSING.md">Licence</a></li>
+        <li><a href="https://github.com/dhyanalab/Quillo-Blog/blob/main/SECURITY.md">Security</a></li>
+        <li><a href="mailto:info@dhyanalab.in">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="wrap foot-bottom">
+    <p>© 2026 Dhyana Engineering Solutions. Quillo is open source under the GNU AGPL.</p>
+    <p>This site uses no cookies and no trackers.</p>
+  </div>
+</footer>
+
+</body>
+</html>

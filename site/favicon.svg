@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Quillo">
+  <rect width="128" height="128" rx="30" fill="#C2410C"/>
+  <!-- A quill: the vane sweeps up to the right, the shaft runs down to the nib. -->
+  <path d="M98 22C72 24 50 38 40 62c-5 12-7 24-7 34l8-6c3-12 9-23 18-32-6 9-10 19-12 30 20-6 35-20 42-38 4-10 5-19 1-28z" fill="#fff"/>
+  <path d="M41 90 30 106" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+  <path d="M60 58c-8 8-14 19-17 31" stroke="#C2410C" stroke-width="3" stroke-linecap="round" fill="none"/>
+</svg>

@@ -4,6 +4,12 @@ All notable changes to Quillo are listed here. Versions follow [Semantic Version
 
 ## [Unreleased]
 
+### Project
+
+- The Quillo website is live at [quillo.dhyanalab.in](https://quillo.dhyanalab.in). It has 5 pages: Home, Features, Designs, Pricing and Get started.
+  - Its sources are in `site-src/`, and `npm run build:site` writes the pages to `site/`, the folder that goes online.
+  - It's static: no cookies, no trackers, no scripts, and self-hosted fonts.
+
 ## [1.0.0] - 2026-11-04
 
 The first stable release. Every blog owner can now choose their blog's look in the admin.

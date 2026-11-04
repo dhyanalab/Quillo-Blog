@@ -37,6 +37,7 @@ Requires Node 22.13 or newer (it uses the built-in `node:sqlite`).
 | `npm run verify -- http://localhost:4100/` | Opens every page in Edge at phone and desktop widths, light and dark. Checks sideways scrolling, contrast, focus rings and third-party requests, and saves screenshots to `test/output/`. To include the admin screens, set `BLOG_ADMIN_EMAIL` and `BLOG_ADMIN_PASSWORD` in the environment (never on the command line), plus `BLOG_ADMIN_CODE` (the current 6-digit code) for an account with two-step sign-in. Only runs against this computer unless you add `--allow-remote`. |
 | `npm run flow -- http://localhost:4100/` | Drives the editor in a real browser: write, add a picture, source code and a PDF, publish, unpublish, delete. It signs in as an admin and publishes a real post, so use a practice site. Sign-in details come from `BLOG_ADMIN_EMAIL`, `BLOG_ADMIN_PASSWORD` and (for two-step) `BLOG_ADMIN_CODE`. Only runs against this computer unless you add `--allow-remote`. |
 | `npm run build:editor` | Rebuilds `assets/vendor/toastui-editor.*` after upgrading the editor package. |
+| `npm run build:site` | Builds the Quillo website (quillo.dhyanalab.in) from `site-src/` into `site/`. Upload the `site` folder to Cloudflare Pages to publish it. |
 | `npm run build:icons` | Copies the social network logos from Simple Icons into `src/web/brand-paths.js` (after adding a network in `src/web/networks.js`). |
 
 The `user` tool never changes the database layout: if the blog's code is newer than the database it stops and asks you to start the blog once (it saves a copy first), or to add `--migrate` while the blog is stopped. Everything it changes is also written to `<DATA_DIR>/audit.log` (the same file the admin writes to).
@@ -61,6 +62,8 @@ src/product.js          the software's name and version (from VERSION), shown in
 src/design.js           the Admin > Design catalogue: every option, the ready-made templates and the colour themes
 deploy/                 systemd service, install script, Cloudflare Tunnel example, and the guide to putting a blog online
 design/picker/          the design picker the current look was chosen with (open index.html in a browser)
+site-src/               the Quillo website: pages and shared parts (npm run build:site)
+site/                   the built website, the folder that goes online (static: no scripts, no cookies)
 ```
 
 ## Design

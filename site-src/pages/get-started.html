@@ -1,0 +1,126 @@
+<!--
+title: Get started
+description: Install Quillo on a Raspberry Pi or a small server, put it on your own domain, and create your blog. What you need, the steps, updates and answers to common questions.
+nav: get-started
+path: /get-started/
+-->
+<section class="page-head">
+  <div class="wrap">
+    <p class="eyebrow">Get started</p>
+    <h1>From download to <em>first post</em>.</h1>
+    <p class="lede">Here’s everything, step by step. If any of it looks like too much, we’re happy to do it for you.</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="https://github.com/dhyanalab/Quillo-Blog/releases/latest"><svg class="i"><use href="#i-download"/></svg> Download Quillo 1.0</a>
+      <a class="btn btn-line" href="mailto:info@dhyanalab.in?subject=Quillo%20setup">Ask us to set it up</a>
+    </div>
+  </div>
+</section>
+
+<section class="section tight">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">What you need</p>
+      <h2>Less than you’d think.</h2>
+    </div>
+    <div class="needs">
+      <article class="card"><span class="ico"><svg class="i"><use href="#i-server"/></svg></span><h3>A computer that stays on</h3><p>A Raspberry Pi 4 or 5, a small rented server, or a machine at your office. Linux is the easiest home.</p></article>
+      <article class="card"><span class="ico sea"><svg class="i"><use href="#i-code"/></svg></span><h3>Node 22.13 or newer</h3><p>Quillo is a Node program. It uses Node’s own SQLite, so there’s no database server to install.</p></article>
+      <article class="card"><span class="ico leaf"><svg class="i"><use href="#i-globe"/></svg></span><h3>A domain name</h3><p>Optional, but nicer. A free Cloudflare Tunnel connects it, with no router changes and HTTPS included.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="section paper-2" id="install">
+  <div class="wrap narrow">
+    <div class="head">
+      <p class="eyebrow">The steps</p>
+      <h2>Four steps to <em>a live blog</em>.</h2>
+      <p>Commands are for Linux. Copy each line, paste it into the machine’s terminal, and press Enter.</p>
+    </div>
+    <ol class="install">
+      <li class="inst">
+        <div>
+          <h3>Get Quillo</h3>
+          <p>Download the code and install its packages.</p>
+          <div class="term"><div class="term-bar"><i></i><i></i><i></i></div><pre><span class="p">$</span> git clone https://github.com/dhyanalab/Quillo-Blog.git quillo
+<span class="p">$</span> cd quillo
+<span class="p">$</span> npm ci</pre></div>
+          <p>Prefer a file? Download the ZIP from the <a href="https://github.com/dhyanalab/Quillo-Blog/releases/latest">latest release</a> and unpack it.</p>
+        </div>
+      </li>
+      <li class="inst">
+        <div>
+          <h3>Try it on your computer</h3>
+          <p>Optional, but a good way to look around first.</p>
+          <div class="term"><div class="term-bar"><i></i><i></i><i></i></div><pre><span class="p">$</span> npm run dev
+<span class="g">Blog:  http://localhost:4100/</span>
+<span class="g">Admin: http://localhost:4100/admin/</span></pre></div>
+          <p>Want practice posts? <code>npm run seed -- --dev</code> adds some, and <code>npm run seed -- --remove</code> takes them away again.</p>
+        </div>
+      </li>
+      <li class="inst" id="online">
+        <div>
+          <h3>Install it as a service</h3>
+          <p>On the machine that will run the blog, one command sets Quillo up to start by itself and restart if it ever stops.</p>
+          <div class="term"><div class="term-bar"><i></i><i></i><i></i></div><pre><span class="p">$</span> bash deploy/install.sh https://blog.example.com
+<span class="g">✓ Quillo is running</span>
+<span class="o">Setup link and setup token shown here</span></pre></div>
+          <p>Then connect your domain with a Cloudflare Tunnel: add a public hostname for your blog that points to <code>127.0.0.1:4100</code>. The <a href="https://github.com/dhyanalab/Quillo-Blog/blob/main/deploy/README.md">deployment guide</a> shows every click.</p>
+        </div>
+      </li>
+      <li class="inst" id="setup">
+        <div>
+          <h3>Name your blog</h3>
+          <p>Open <code>/admin/setup</code> on your blog’s address and paste the setup token. Give your blog a name, a description and a time zone, and create the owner account.</p>
+          <p>Then turn on two-step sign-in, choose a look on the Design page, and write your first post.</p>
+        </div>
+      </li>
+    </ol>
+    <div class="card note"><span class="ico"><svg class="i"><use href="#i-shield"/></svg></span><div><h3>Updating</h3><p>Stop the blog, put the new code in place and run <code>npm ci</code> again. Quillo saves a copy of your blog before it updates anything, and keeps your <code>data</code> folder as it is.</p></div></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">Guides</p>
+      <h2>Read more.</h2>
+    </div>
+    <div class="docs">
+      <a class="doc" href="https://github.com/dhyanalab/Quillo-Blog/blob/main/docs/admin-guide.md"><b>Admin guide</b><span>Writing, design, menus, comments, banners and the newsletter.</span></a>
+      <a class="doc" href="https://github.com/dhyanalab/Quillo-Blog/blob/main/deploy/README.md"><b>Putting it online</b><span>A Raspberry Pi or server with a Cloudflare Tunnel, in four steps.</span></a>
+      <a class="doc" href="https://github.com/dhyanalab/Quillo-Blog/blob/main/docs/deployment.md"><b>Deployment</b><span>Other web servers, backups and restoring.</span></a>
+      <a class="doc" href="https://github.com/dhyanalab/Quillo-Blog/blob/main/docs/configuration.md"><b>Configuration</b><span>Every server setting, explained.</span></a>
+    </div>
+  </div>
+</section>
+
+<section class="section paper-2" id="faq">
+  <div class="wrap narrow">
+    <div class="head">
+      <p class="eyebrow">Questions</p>
+      <h2>Good to know.</h2>
+    </div>
+    <div class="faq">
+      <details><summary>Do I need to know how to code?</summary><p>No. Everything in the admin is point and click, in plain words. Installing takes a few commands, which this page lists, or we can do it for you.</p></details>
+      <details><summary>Will it run on a Raspberry Pi?</summary><p>Yes. Quillo is light, and a Raspberry Pi 4 or 5 runs it well.</p></details>
+      <details><summary>How do I back up my blog?</summary><p>Everything lives in one <code>data</code> folder: your posts, pictures, readers and settings. Copy that folder, and keep the secret key file somewhere safe and separate. The deployment guide explains how.</p></details>
+      <details><summary>Can I run more than one blog?</summary><p>Yes. Each blog is its own install with its own folder and address, so one blog never affects another.</p></details>
+      <details><summary>Can it carry only my brand?</summary><p>Yes. Your name, logo, colours, fonts and layouts are your choice, and the small “Powered by Quillo” line is optional.</p></details>
+      <details><summary>Something went wrong. Who can help?</summary><p>Write to <a href="mailto:info@dhyanalab.in">info@dhyanalab.in</a>. For a security problem, please write with “Quillo security” in the subject instead of opening a public issue.</p></details>
+    </div>
+  </div>
+</section>
+
+<section class="cta-wrap">
+  <div class="wrap">
+    <div class="cta-card dark">
+      <h2>Rather not do <em>the technical part</em>?</h2>
+      <p class="lede">Tell us where you’d like your blog to live. We’ll set it up, connect your domain, and hand you the keys.</p>
+      <div class="actions center">
+        <a class="btn btn-primary" href="mailto:info@dhyanalab.in?subject=Quillo%20setup">Ask us to set it up</a>
+        <a class="btn btn-cream" href="/pricing/">See services</a>
+      </div>
+    </div>
+  </div>
+</section>

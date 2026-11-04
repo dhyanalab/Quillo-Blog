@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://quillo.dhyanalab.in/sitemap.xml
