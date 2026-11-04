@@ -1,7 +1,6 @@
 {% macro brandMark(size=34) %}{% if site.logo %}<img src="{{ site.url.media(site.logo.path) }}" alt="{{ site.title }}" height="{{ size }}" width="{{ (site.logo.width / site.logo.height * size) | round if site.logo.height else size * 4 }}">{% else %}{{ brandMarkHtml(site, 20) }}<span class="brand-word">{% if site.title.endsWith(" Blog") %}{{ site.title.slice(0, -5) }} <b>Blog</b>{% else %}{{ site.title }}{% endif %}</span>{% endif %}{% endmacro %}
-<header class="site-head">
-  <div class="wrap head-row">
-    <a class="brand" href="{{ site.homeUrl }}">{{ brandMark() }}</a>
+{# The menu: the same in every header style. #}
+{% macro mainNav() %}
     <nav class="main-nav" id="main-nav" aria-label="Main">
       <ul class="nav-list">
         {% for item in site.nav %}
@@ -34,18 +33,9 @@
         {% for cta in site.cta %}<a class="btn{% if cta.primary %} btn-primary{% endif %}" href="{{ cta.url }}">{{ cta.label }}</a>{% endfor %}
       </div>
     </nav>
-    <div class="head-tools">
-      <a class="icon-btn search-toggle" href="{{ site.url.search }}" aria-controls="search-bar" aria-expanded="false" title="Search">{{ icon("search", 18) }}<span class="sr-only">Search</span></a>
-      {% if site.design.mode != "light" %}<button class="icon-btn theme-toggle" type="button" aria-pressed="false" title="Dark mode" hidden>{{ icon("moon", 18, "i-moon") }}{{ icon("sun", 18, "i-sun") }}<span class="sr-only">Dark mode</span></button>{% endif %}
-      {% if member %}
-      <a class="member-chip" href="{{ site.url.account }}" title="Your account"><span class="av">{{ member.name | initials }}</span><span class="sr-only">Your account: </span><span class="head-signin">{{ member.name.split(" ")[0] }}</span></a>
-      {% elif site.comments.enabled %}
-      <a class="head-link head-signin" href="{{ site.url.signin }}">Sign in</a>
-      {% endif %}
-      {% if site.newsletter %}<a class="btn btn-primary head-sub" href="#newsletter">Subscribe</a>{% endif %}
-      <button class="icon-btn menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" hidden>{{ icon("menu", 20) }}<span class="sr-only">Menu</span></button>
-    </div>
-  </div>
+{% endmacro %}
+{% macro themeToggle() %}{% if site.design.mode != "light" %}<button class="icon-btn theme-toggle" type="button" aria-pressed="false" title="Dark mode" hidden>{{ icon("moon", 18, "i-moon") }}{{ icon("sun", 18, "i-sun") }}<span class="sr-only">Dark mode</span></button>{% endif %}{% endmacro %}
+{% macro searchBar() %}
   <div class="search-bar" id="search-bar" hidden>
     <div class="wrap">
       <form class="search-form" role="search" action="{{ site.url.search }}" method="get">
@@ -55,4 +45,57 @@
       </form>
     </div>
   </div>
+{% endmacro %}
+{% if site.design.header == "tworow" %}
+{# Two rows, news style: a thin strip with the tagline, social links and Sign in; the name with a large search box; then the menu. #}
+<header class="site-head head-2">
+  <div class="head-strip">
+    <div class="wrap strip-row">
+      <p class="strip-tag">{{ site.description }}</p>
+      <div class="strip-end">
+        {% if site.social.length %}<ul class="strip-social" aria-label="Follow {{ site.title }}">{% for s in site.social %}<li><a href="{{ s.url }}" rel="me noopener" target="_blank" title="{{ s.label }}">{{ netIcon(s.key, 15) }}<span class="sr-only">{{ s.label }}</span></a></li>{% endfor %}</ul>{% endif %}
+        {% if member %}<a href="{{ site.url.account }}">Your account</a>{% elif site.comments.enabled %}<a href="{{ site.url.signin }}">Sign in</a>{% if site.comments.signup %}<a href="{{ site.url.signup }}">Create account</a>{% endif %}{% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="wrap head-row head-mid">
+    <a class="brand" href="{{ site.homeUrl }}">{{ brandMark(40) }}</a>
+    <form class="head-search" role="search" action="{{ site.url.search }}" method="get">
+      {{ icon("search", 17) }}
+      <label class="sr-only" for="head-q2">Search the blog</label>
+      <input id="head-q2" name="q" type="search" placeholder="Search the {{ site.noun.many }}" autocomplete="off" maxlength="100">
+    </form>
+    <div class="head-tools">
+      <a class="icon-btn search-toggle" href="{{ site.url.search }}" aria-controls="search-bar" aria-expanded="false" title="Search">{{ icon("search", 18) }}<span class="sr-only">Search</span></a>
+      {{ themeToggle() }}
+      {% if site.newsletter %}<a class="btn btn-primary head-sub" href="#newsletter">Subscribe</a>{% endif %}
+      <button class="icon-btn menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" hidden>{{ icon("menu", 20) }}<span class="sr-only">Menu</span></button>
+    </div>
+  </div>
+  <div class="head-nav">
+    <div class="wrap">
+{{ mainNav() }}
+    </div>
+  </div>
+{{ searchBar() }}
 </header>
+{% else %}
+<header class="site-head">
+  <div class="wrap head-row">
+    <a class="brand" href="{{ site.homeUrl }}">{{ brandMark() }}</a>
+{{ mainNav() }}
+    <div class="head-tools">
+      <a class="icon-btn search-toggle" href="{{ site.url.search }}" aria-controls="search-bar" aria-expanded="false" title="Search">{{ icon("search", 18) }}<span class="sr-only">Search</span></a>
+      {{ themeToggle() }}
+      {% if member %}
+      <a class="member-chip" href="{{ site.url.account }}" title="Your account"><span class="av">{{ member.name | initials }}</span><span class="sr-only">Your account: </span><span class="head-signin">{{ member.name.split(" ")[0] }}</span></a>
+      {% elif site.comments.enabled %}
+      <a class="head-link head-signin" href="{{ site.url.signin }}">Sign in</a>
+      {% endif %}
+      {% if site.newsletter %}<a class="btn btn-primary head-sub" href="#newsletter">Subscribe</a>{% endif %}
+      <button class="icon-btn menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav" hidden>{{ icon("menu", 20) }}<span class="sr-only">Menu</span></button>
+    </div>
+  </div>
+{{ searchBar() }}
+</header>
+{% endif %}

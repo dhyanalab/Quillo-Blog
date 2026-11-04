@@ -111,6 +111,51 @@
     }
   }
 
+  // Source code as tabs (Admin > Design "Tabbed panel" and "Dark editor"): one file shows at a time; long files show their
+  // first lines with a "Show all" button. Without this script every file shows in full, one under another.
+  for (const box of document.querySelectorAll(".src-tabs")) {
+    const tabs = [...box.querySelectorAll('[role="tab"]')];
+    const panels = tabs.map((t) => document.getElementById(t.getAttribute("aria-controls")));
+    if (!tabs.length || panels.some((p) => !p)) continue;
+    const select = (i, focus) => {
+      tabs.forEach((t, j) => {
+        t.setAttribute("aria-selected", String(i === j));
+        t.tabIndex = i === j ? 0 : -1;
+        panels[j].hidden = i !== j;
+      });
+      if (focus) tabs[i].focus();
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener("click", () => select(i, false));
+      t.addEventListener("keydown", (e) => {
+        const step = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+        if (step) select((i + step + tabs.length) % tabs.length, true);
+        else if (e.key === "Home") select(0, true);
+        else if (e.key === "End") select(tabs.length - 1, true);
+        else return;
+        e.preventDefault();
+      });
+    });
+    box.querySelector(".src-tabbar").hidden = false;
+    box.classList.add("tabbed");
+    select(0, false);
+    for (const pre of box.querySelectorAll("pre")) {
+      const lines = (pre.textContent.match(/\n/g) || []).length + 1;
+      if (lines <= 24) continue;
+      pre.classList.add("clip");
+      const more = document.createElement("button");
+      more.type = "button";
+      more.className = "src-more";
+      more.textContent = `Show all ${lines} lines`;
+      more.addEventListener("click", () => {
+        pre.classList.remove("clip");
+        more.remove();
+        pre.focus();
+      });
+      pre.after(more);
+    }
+  }
+
   // Confirm before deleting a comment or an account.
   for (const form of document.querySelectorAll("form.confirm-form")) {
     form.addEventListener("submit", (e) => {

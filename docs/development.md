@@ -52,29 +52,45 @@ src/render/             Markdown, code highlighting and ZIPs, publishing checks,
 src/web/                Hono app: public routes, reader accounts and comments, admin, security, caching, view models
 src/services/           scheduler, IndexNow, the mailer (nodemailer) and the newsletter sender
 views/public, views/admin   Nunjucks templates
-assets/css              tokens.css (Copper & Slate), base, site, article, admin, editor
-assets/js               site.js (inline on public pages), admin.js, editor.js
+assets/css              tokens.css (Copper & Slate, the original look), base, site, article, admin, editor
+assets/js               site.js (inline on public pages), admin.js, editor.js, design.js (Admin > Design)
 assets/vendor           the bundled Toast UI editor (npm run build:editor)
 scripts/                seed, user tools, browser checks, editor bundle
 test/                   end-to-end tests (app.test.js runs the blog under /blog, site.test.js at the root)
-src/product.js          the software's name and version (from package.json), shown in the admin
+src/product.js          the software's name and version (from VERSION), shown in the admin
+src/design.js           the Admin > Design catalogue: every option, the ready-made templates and the colour themes
 deploy/                 systemd service, install script, Cloudflare Tunnel example, and the guide to putting a blog online
 design/picker/          the design picker the current look was chosen with (open index.html in a browser)
 ```
 
 ## Design
 
+Owners choose the look on Admin > Design. The original look (and the first option of every group) is:
+
 - **Colours:** Copper & Slate. Slate greys with a copper accent (#C2410C) and teal as the second colour, in light and dark. A switch in the header lets readers choose.
-- **Fonts:** Inter for text, JetBrains Mono for code, both self-hosted.
+- **Fonts:** Inter for text and JetBrains Mono for code.
 - **Layout:**
-  - clean header bar with menu panels
-  - big story and sidebar home page
-  - picture-first articles with a contents and share rail
-  - brand-coloured share buttons
-  - code in a file list with colours
-  - large download buttons and striped tables sized to their content
-  - an open comment thread
+  - a clean header bar with menu panels;
+  - a big story and sidebar home page;
+  - picture-first articles with a contents and share rail.
+- **Article parts:**
+  - brand-coloured share buttons;
+  - code in a file list with colours;
+  - large download buttons;
+  - striped tables sized to their content;
+  - an open comment thread.
 - **Admin:** laid out like Ghost, with your brand colour for the selected item and the main buttons.
+
+How it works:
+
+- **The catalogue:** `src/design.js` lists every group and option (`DESIGN_GROUPS`), the ready-made templates (`DESIGN_PRESETS`) and the colour values (`PALETTES`). The setting `design` holds one option id per group. Unknown or missing values fall back to the first option.
+- **Pages:** every page carries the choices as attributes on `<html>`, such as `data-d-palette="teal"` and `data-d-share="outline"`.
+  - **Colours and fonts** are CSS variables. `themeCss()` builds a block per theme and font pair, after `tokens.css`.
+  - **Styles** (share, tables, comments, code colours, header colour, admin look) are rules under `:root[data-d-…]` in the stylesheets.
+  - **Layouts** (two-row header, home pages, article pages, one Share button, code tabs, downloads) are branches in `header.njk`, `home.njk` and `post.njk`. Groups marked `markup: true` change the HTML.
+- **Fonts:** self-hosted from `@fontsource`. `src/render/fonts.js` lists every family and weight. Pages preload only the chosen pair's body text and headings.
+- **The preview:** `/admin/design/preview` draws the home page or an article with the choices in its address. It's the only admin page another admin page may frame (the `framing` option in `securityHeaders`).
+- **Adding an option:** add it to its group in `src/design.js`. Then add its CSS rule or template branch, and a test in `test/design.test.js`. Keep the first option the original look, so existing blogs never change by themselves.
 - **No raw HTML:** raw HTML in Markdown is turned off, so a post or comment can never run a script on the site or in the admin.
 
 ## Licenses

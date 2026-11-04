@@ -39,9 +39,12 @@
 
   // ---------- The writing area ----------
   const dark = () => (document.documentElement.dataset.theme ? document.documentElement.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches);
-  let mode = "wysiwyg";
+  // Admin > Design: "switch" (Visual with a Markdown switch, remembering each person's last choice), "visual" (Visual only)
+  // or "markdown" (Markdown with the finished post beside it).
+  const style = document.documentElement.dataset.dEditor || "switch";
+  let mode = style === "markdown" ? "markdown" : "wysiwyg";
   try {
-    if (["wysiwyg", "markdown"].includes(localStorage.getItem("ed-mode"))) mode = localStorage.getItem("ed-mode");
+    if (style === "switch" && ["wysiwyg", "markdown"].includes(localStorage.getItem("ed-mode"))) mode = localStorage.getItem("ed-mode");
   } catch {}
 
   async function uploadImage(blob) {
@@ -141,7 +144,7 @@
       el: editArea,
       initialValue: initialMd,
       initialEditType,
-      previewStyle: "tab",
+      previewStyle: style === "markdown" ? "vertical" : "tab",
       hideModeSwitch: true,
       height: "auto",
       minHeight: "460px",
@@ -212,7 +215,7 @@
     }
     mode = m;
     for (const b of modeBtns) b.setAttribute("aria-pressed", String(b.dataset.mode === m));
-    if (!remember) return;
+    if (!remember || style !== "switch") return;
     try {
       localStorage.setItem("ed-mode", m);
     } catch {}

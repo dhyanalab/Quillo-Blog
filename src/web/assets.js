@@ -63,6 +63,8 @@ export function createAssets({ basePath, production }) {
       "editor.js": { body: editorJs, type: "text/javascript; charset=utf-8" },
       "menus.js": { body: menusJs, type: "text/javascript; charset=utf-8" },
       "design.js": { body: designJs, type: "text/javascript; charset=utf-8" },
+      // The public script as a file, for the Admin > Design preview (the admin's security rules run no inline public script).
+      "site.js": { body: siteJs, type: "text/javascript; charset=utf-8" },
     };
     for (const f of Object.values(files)) f.hash = sha(f.body, "sha1", "hex").slice(0, 10);
     Object.assign(files, vendorFiles());

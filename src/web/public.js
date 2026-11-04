@@ -189,6 +189,8 @@ export function publicRoutes(app, ctx) {
     return c.body(body, 200, headers);
   });
 
+  const designOf = (c) => (c.get("design") ? siteDesign(c.get("design")) : ctx.site().design);
+
   function render(c, template, data) {
     const a = assets.get();
     const m = c.get("member");
@@ -201,7 +203,8 @@ export function publicRoutes(app, ctx) {
       member: m ? { id: m.member.id, name: m.member.name, email: m.member.email } : null,
       // Pages that carry a secret in their address (verify, reset) show no banners: nothing on them may load from or tell anyone else.
       memberCsrf: m?.session.csrf || "", currentUrl: c.req.path, slots: c.get("noSlots") ? {} : renderSlots(store, ctx.site()),
-      noAnalytics: Boolean(c.get("noAnalytics")), designPreview: Boolean(c.get("designPreview")), ...data,
+      noAnalytics: Boolean(c.get("noAnalytics")), designPreview: Boolean(c.get("designPreview")),
+      previewScript: c.get("designPreview") ? `${base}/admin/static/site.js?v=${a.files["site.js"].hash}` : "", ...data,
     });
   }
 
@@ -986,6 +989,8 @@ export function publicRoutes(app, ctx) {
     if (post.type === "page") return html(c, ...pageView(post, view));
     const related = store.posts.related(post, 3).map(pr.card);
     const data = { meta: view.meta, post: view, related, newsletterSource: view.url, bodyParts: splitForSlot(view.html) };
+    // "Classic with sidebar" shows the News, Most read and newsletter boxes beside the article.
+    if (designOf(c).article === "classic") data.side = pr.sidebar({ excludeIds: [post.id] });
     // It also shows these readers' names, so a rename drops it too.
     if (view.commentsOn) {
       data.thread = store.comments.thread(post.id);
@@ -1025,14 +1030,21 @@ export function publicRoutes(app, ctx) {
     // The admin's security rules don't run the site's own script, and the frame needs none of it.
     c.set("designPreview", true);
     const pr = presenter();
-    // The newest full article (News items are short), or the newest post of any kind.
-    const newsIds = pr.site.newsCat ? [pr.site.newsCat.id] : [];
-    const [newest] = page === "post" ? [...store.posts.listPublic({ limit: 1, excludeCategoryIds: newsIds }), ...store.posts.listPublic({ limit: 1 })] : [];
-    const post = newest && store.posts.getPublicBySlug(newest.slug);
+    // Of the 30 newest posts, the one that shows the most of the article's parts (source code, downloads, a table, a picture,
+    // a contents list); News items are usually short, so they come last.
+    const newsId = pr.site.newsCat?.id;
+    const score = (r) => {
+      const body = r.body_md || "";
+      return (r.source_files?.length ? 8 : 0) + (r.downloads?.github || r.downloads?.files?.length ? 4 : 0) + (/^\|.*\|\s*$/m.test(body) ? 2 : 0)
+        + (r.feature_image_id ? 2 : 0) + ((body.match(/^## /gm) || []).length > 1 ? 1 : 0) - (newsId && r.category_id === newsId ? 10 : 0);
+    };
+    const best = page === "post" ? store.posts.listPublic({ limit: 30 }).reduce((a, r) => (!a || score(r) > score(a) ? r : a), null) : null;
+    const post = best && store.posts.getPublicBySlug(best.slug);
     if (!post) return homePage(c);
     const view = pr.full(post);
     const thread = view.commentsOn ? store.comments.thread(post.id) : { comments: [], count: 0 };
-    return html(c, "public/post.njk", { meta: view.meta, post: view, related: store.posts.related(post, 3).map(pr.card), bodyParts: splitForSlot(view.html), thread, liked: new Set() });
+    const side = designOf(c).article === "classic" ? pr.sidebar({ excludeIds: [post.id] }) : undefined;
+    return html(c, "public/post.njk", { meta: view.meta, post: view, related: store.posts.related(post, 3).map(pr.card), bodyParts: splitForSlot(view.html), thread, liked: new Set(), side });
   };
 
   // About, Contact, Advertise and legal pages have their own layouts, filled from categories, Settings and the

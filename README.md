@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="CHANGELOG.md"><img alt="Version" src="https://img.shields.io/badge/version-0.10.0-C2410C"></a>
+  <a href="CHANGELOG.md"><img alt="Version" src="https://img.shields.io/badge/version-1.0.0-C2410C"></a>
   <a href="LICENSING.md"><img alt="Licence: AGPL-3.0" src="https://img.shields.io/badge/licence-AGPL--3.0-0F766E"></a>
   <a href="docs/development.md"><img alt="Node 22.13 or newer" src="https://img.shields.io/badge/node-%E2%89%A5%2022.13-339933"></a>
   <a href="SECURITY.md"><img alt="Security policy" src="https://img.shields.io/badge/security-policy-475569"></a>
@@ -48,6 +48,7 @@ Quillo gives you a magazine-quality blog that you own outright. Run it on a Rasp
 | --- | --- |
 | **Writing** | A visual editor with a Markdown switch. Autosave, revisions, scheduling, a media library, tables, callouts, FAQ sections, and publishing checks that catch broken links and missing alt text. |
 | **Your brand** | First-run setup names your blog. Then choose your logo (or initials), region, time zone, menus, footer, and what you call a post: recipe, project, story. |
+| **Design** | Choose your look in the admin with a live preview: 6 colour themes, 5 font pairs, light and dark, 3 headers, 3 home pages, 3 article pages, and styles for share buttons, source code, downloads, tables and comments. Start from 5 ready-made templates or save your own. |
 | **Readers** | Free reader accounts with email verification, moderated comments with replies and likes, and a reader account page. |
 | **Newsletter** | Double opt-in subscriptions, newsletters sent through your own email service, one-click unsubscribe, and a suppression list that survives restores. |
 | **Earning** | First-party sponsor banners in nine places, labelled and counted without cookies. An Advertise page fills itself in from your settings. |
@@ -66,6 +67,10 @@ Quillo gives you a magazine-quality blog that you own outright. Run it on a Rasp
   <tr>
     <td><img src="docs/assets/screenshots/source-code.png" alt="A source code box with two files, copy and download buttons"><br><sub>Optional source-code box with copy, download and ZIP</sub></td>
     <td align="center"><img src="docs/assets/screenshots/phone.png" alt="An article on a phone" width="260"><br><sub>Every page works on a phone, in light and dark</sub></td>
+  </tr>
+  <tr>
+    <td><img src="docs/assets/screenshots/admin-design.png" alt="Admin, Design: templates on the left, a live preview of an article on the right"><br><sub>Admin &gt; Design: pick a look with a live preview</sub></td>
+    <td><img src="docs/assets/screenshots/templates.png" alt="Five home pages, one for each ready-made template"><br><sub>Five ready-made templates, or save your own</sub></td>
   </tr>
 </table>
 
@@ -113,8 +118,9 @@ The install script sets Quillo up as a service that starts at boot and restarts 
 
 ## Roadmap
 
-- **1.0.0: Design page.** Choose your blog's look in the admin with a live preview. It offers colour themes, font pairs, light and dark, headers, home and article layouts, and the styles of share buttons, code boxes, downloads, tables and comments.
-- See [CHANGELOG.md](CHANGELOG.md) for what's already done.
+- **1.0.0 (now):** the Design page. Every owner chooses their own look, with a live preview and templates.
+- **Next:** premium design packs, as one of the paid extras.
+- See [CHANGELOG.md](CHANGELOG.md) for everything that's done.
 
 ## Licence
 

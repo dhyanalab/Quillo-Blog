@@ -1,6 +1,97 @@
 {% extends "public/layout.njk" %}
 {% from "public/partials/macros.njk" import hcard, row, card, sidebar, avatar %}
+{% macro catRows() %}
+  {% if sections.length %}
+  <div class="cat-rows">
+    {% for s in sections %}
+    <section aria-labelledby="cat-{{ s.category.slug }}">
+      <div class="sec-h"><h2 id="cat-{{ s.category.slug }}">{{ s.category.name }}</h2><a href="{{ s.category.url }}">View all</a></div>
+      <div class="grid{{ s.posts.length }}">{% for p in s.posts %}{{ card(p, "(max-width: 640px) calc(100vw - 32px), (max-width: 1080px) 45vw, 280px") }}{% endfor %}</div>
+    </section>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endmacro %}
+{# A large story card with its picture on top (Magazine and Newsroom). #}
+{% macro leadCard(p, h=3) %}
+<article class="lead">
+  <a class="thumb" href="{{ p.url }}" tabindex="-1" aria-hidden="true">{{ p.thumb("(max-width: 1080px) calc(100vw - 40px), 720px", true) | safe }}</a>
+  {% if p.category %}<a class="kicker" href="{{ p.category.url }}">{{ p.category.name }}</a>{% endif %}
+  <h{{ h }} class="lead-title"><a href="{{ p.url }}">{{ p.title }}</a></h{{ h }}>
+  {% if p.excerpt %}<p class="desc">{{ p.excerpt }}</p>{% endif %}
+  <p class="meta">{% if p.author %}{{ avatar(p.author, 24) }}<span>{{ p.author.name }}</span><span class="dot"></span>{% endif %}<time datetime="{{ p.published }}">{{ p.publishedDisplay }}</time><span class="dot"></span>{{ p.readMinutes }} min read</p>
+</article>
+{% endmacro %}
+{% macro emptyNote() %}<p class="empty">No posts yet. They’ll appear here as soon as the first one is published.</p>{% endmacro %}
 {% block main %}
+{% if site.design.home == "magazine" %}
+{# Magazine: Editor's Choice at the top, then the latest posts as cards beside the sidebar, then the category rows. #}
+<div class="wrap home home-mag">
+  <h1 class="sr-only">{{ site.title }}: {{ site.description }}</h1>
+  {% if story %}
+  <section class="mag-top" aria-labelledby="ec-h">
+    <div class="sec-h"><h2 id="ec-h">Editor’s Choice</h2></div>
+    <div class="mag-ec">
+      {{ leadCard(story) }}
+      {% if picks.length %}<div class="picks">{% for p in picks %}{{ hcard(p) }}{% endfor %}</div>{% endif %}
+    </div>
+  </section>
+  {% endif %}
+  <div class="home-body">
+    <section aria-labelledby="latest-h">
+      <div class="sec-h"><h2 id="latest-h">Latest</h2><a href="{{ site.url.latest }}">View all</a></div>
+      {% if latest.length %}
+      <div class="grid2 mag-latest">{% for p in latest %}{{ card(p, "(max-width: 640px) calc(100vw - 32px), 400px", 3, true) }}{% endfor %}</div>
+      {% if moreUrl %}<p class="more-link"><a class="btn" href="{{ moreUrl }}">More posts</a></p>{% endif %}
+      {% elif not story %}{{ emptyNote() }}{% endif %}
+    </section>
+    {{ sidebar(side, site, true, slots.sidebar) }}
+  </div>
+  {% if slots.home_mid %}<div class="kx-row">{{ slots.home_mid | safe }}</div>{% endif %}
+  {{ catRows() }}
+</div>
+{% elif site.design.home == "newsroom" %}
+{# Newsroom: three columns (a news timeline, the main story, Editor's Choice ranked), then more of the latest, then the category rows. #}
+{% set tl = side.news if side.news.length else side.popular %}
+<div class="wrap home home-nr">
+  <h1 class="sr-only">{{ site.title }}: {{ site.description }}</h1>
+  {% if story %}
+  <div class="nr-top{% if not tl.length %} no-tl{% endif %}{% if not picks.length %} no-picks{% endif %}">
+    {% if tl.length %}
+    <section class="nr-tl" aria-labelledby="tl-h">
+      <div class="sec-h"><h2 id="tl-h">{{ "Latest news" if side.news.length else "Most read" }}</h2>{% if side.news.length and side.newsUrl %}<a href="{{ side.newsUrl }}">All news</a>{% endif %}</div>
+      <ol class="timeline">{% for n in tl %}<li>{% if n.publishedDisplay %}<time datetime="{{ n.published }}">{{ n.publishedDisplay }}</time>{% endif %}<a href="{{ n.url }}">{{ n.title }}</a></li>{% endfor %}</ol>
+    </section>
+    {% endif %}
+    <div class="nr-main">
+      {{ leadCard(story, 2) }}
+      {% if latest.length %}<div class="grid2 nr-pair">{% for p in latest.slice(0, 2) %}{{ card(p, "(max-width: 640px) calc(100vw - 32px), 340px") }}{% endfor %}</div>{% endif %}
+    </div>
+    {% if picks.length %}
+    <section class="nr-picks" aria-labelledby="picks-h">
+      <div class="sec-h"><h2 id="picks-h">Editor’s Choice</h2></div>
+      <a class="thumb" href="{{ picks[0].url }}" tabindex="-1" aria-hidden="true">{{ picks[0].thumb("290px") | safe }}</a>
+      <ol class="rank">{% for p in picks %}<li><div><a href="{{ p.url }}">{{ p.title }}</a><p class="meta">{% if p.category %}{{ p.category.name }}<span class="dot"></span>{% endif %}<time datetime="{{ p.published }}">{{ p.publishedDisplay }}</time></p></div></li>{% endfor %}</ol>
+      {{ slots.sidebar | safe }}
+    </section>
+    {% endif %}
+  </div>
+  {% endif %}
+  {% if latest.length > 2 or not story %}
+  <section class="nr-more" aria-labelledby="latest-h">
+    <div class="sec-h"><h2 id="latest-h">Latest</h2><a href="{{ site.url.latest }}">View all</a></div>
+    {% if latest.length > 2 %}
+    <div class="grid4">{% for p in latest.slice(2) %}{{ card(p, "(max-width: 640px) calc(100vw - 32px), (max-width: 1080px) 45vw, 280px") }}{% endfor %}</div>
+    {% if moreUrl %}<p class="more-link"><a class="btn" href="{{ moreUrl }}">More posts</a></p>{% endif %}
+    {% elif latest.length %}
+    <div class="grid4">{% for p in latest %}{{ card(p, "(max-width: 640px) calc(100vw - 32px), (max-width: 1080px) 45vw, 280px") }}{% endfor %}</div>
+    {% else %}{{ emptyNote() }}{% endif %}
+  </section>
+  {% endif %}
+  {% if slots.home_mid %}<div class="kx-row">{{ slots.home_mid | safe }}</div>{% endif %}
+  {{ catRows() }}
+</div>
+{% else %}
 <div class="wrap home">
   <h1 class="sr-only">{{ site.title }}: {{ site.description }}</h1>
 
@@ -31,22 +122,14 @@
       <div class="rows">{% for p in latest %}{{ row(p) }}{% endfor %}</div>
       {% if moreUrl %}<p class="more-link"><a class="btn" href="{{ moreUrl }}">More posts</a></p>{% endif %}
       {% elif not story %}
-      <p class="empty">No posts yet. They’ll appear here as soon as the first one is published.</p>
+      {{ emptyNote() }}
       {% endif %}
     </section>
     {{ sidebar(side, site, true, slots.sidebar) }}
   </div>
   {% if slots.home_mid %}<div class="kx-row">{{ slots.home_mid | safe }}</div>{% endif %}
 
-  {% if sections.length %}
-  <div class="cat-rows">
-    {% for s in sections %}
-    <section aria-labelledby="cat-{{ s.category.slug }}">
-      <div class="sec-h"><h2 id="cat-{{ s.category.slug }}">{{ s.category.name }}</h2><a href="{{ s.category.url }}">View all</a></div>
-      <div class="grid{{ s.posts.length }}">{% for p in s.posts %}{{ card(p, "(max-width: 640px) calc(100vw - 32px), (max-width: 1080px) 45vw, 280px") }}{% endfor %}</div>
-    </section>
-    {% endfor %}
-  </div>
-  {% endif %}
+  {{ catRows() }}
 </div>
+{% endif %}
 {% endblock %}

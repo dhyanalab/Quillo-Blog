@@ -1,23 +1,60 @@
 {% extends "admin/layout.njk" %}
+{% macro swatch(s) %}<span class="d-sw-one" aria-hidden="true" style="background:{{ s[0] }}"><i style="background:{{ s[2] }}"></i><i style="background:{{ s[3] }}"></i><i style="background:{{ s[4] }}"></i></span>{% endmacro %}
 {% block content %}
 <div class="adm-head">
   <h1>Design</h1>
-  <p>Choose how your blog looks. The preview shows your real home page and newest post. Readers see nothing new until you press Save.</p>
+  <p>Choose how your blog looks. The preview shows your real home page and an article. Readers see nothing new until you press Save.</p>
 </div>
+{% if errors %}<ul class="form-error" role="alert">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+
+{# Deleting a saved template is its own small form, outside the main one (forms can't be nested). #}
+<form id="tpl-delete" method="post" action="{{ A }}/design/templates/delete" class="confirm-form" data-confirm="Delete this template? Your blog keeps its current look.">
+  <input type="hidden" name="_csrf" value="{{ csrf }}">
+</form>
 
 <form class="design" method="post" action="{{ A }}/design" id="design-form">
   <input type="hidden" name="_csrf" value="{{ csrf }}">
   <div class="design-grid">
     <div class="design-options">
-      {% for g in groups %}{% if g.ready %}
+      <section class="card" aria-labelledby="dg-templates">
+        <h2 class="box-title" id="dg-templates">Templates</h2>
+        <p class="meta d-intro">Start from a ready-made look, then change anything you like below.</p>
+        <div class="d-tpls">
+          {% for t in presets %}
+          <div class="d-tpl">
+            {{ swatch(t.swatches) }}
+            <span class="d-tpl-text"><strong>{{ t.name }}</strong><small>{{ t.desc }}</small></span>
+            <button type="button" class="btn btn-sm" data-template="{{ t.json }}" hidden>Use</button>
+          </div>
+          {% endfor %}
+        </div>
+        <h3 class="d-sub">Your templates</h3>
+        {% if mine.length %}
+        <div class="d-tpls">
+          {% for t in mine %}
+          <div class="d-tpl">
+            {{ swatch(t.swatches) }}
+            <span class="d-tpl-text"><strong>{{ t.name }}</strong><small>{{ t.desc }}</small></span>
+            <span class="d-tpl-acts"><button type="button" class="btn btn-sm" data-template="{{ t.json }}" hidden>Use</button><button type="submit" class="btn btn-sm btn-ghost" form="tpl-delete" name="name" value="{{ t.name }}" title="Delete {{ t.name }}">{{ icon("trash", 15) }}<span class="sr-only">Delete {{ t.name }}</span></button></span>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="meta">None yet. When you like a combination, save it under “Save as a template” at the bottom, so you can switch back to it later.</p>
+        {% endif %}
+      </section>
+
+      {% for s in sections %}
+      <h2 class="d-section">{{ s.label }}</h2>
+      {% for g in s.groups %}
       <section class="card" aria-labelledby="dg-{{ g.key }}">
-        <h2 class="box-title" id="dg-{{ g.key }}">{{ g.label }}</h2>
-        <div class="d-opts d-opts-{{ g.key }}" role="radiogroup" aria-labelledby="dg-{{ g.key }}">
+        <h3 class="box-title" id="dg-{{ g.key }}">{{ g.label }}</h3>
+        <div class="d-opts d-opts-{{ g.key }}" role="radiogroup" aria-labelledby="dg-{{ g.key }}" data-group="{{ g.key }}"{% if g.markup %} data-markup="1"{% endif %}{% if g.page %} data-page="{{ g.page }}"{% endif %}>
           {% for o in g.options %}
           <label class="d-opt">
             <input type="radio" name="{{ g.key }}" value="{{ o.id }}" data-default="{{ 'yes' if o.id == defaults[g.key] else '' }}"{% if current[g.key] == o.id %} checked{% endif %}>
             <span class="d-card">
-              {% if o.swatches %}<span class="d-sw" aria-hidden="true">{% for s in [o.swatches.light, o.swatches.dark] %}<span style="background:{{ s[0] }}"><i style="background:{{ s[2] }}"></i><i style="background:{{ s[3] }}"></i><i style="background:{{ s[4] }}"></i></span>{% endfor %}</span>{% endif %}
+              {% if o.swatches %}<span class="d-sw" aria-hidden="true">{% for sw in [o.swatches.light, o.swatches.dark] %}<span style="background:{{ sw[0] }}"><i style="background:{{ sw[2] }}"></i><i style="background:{{ sw[3] }}"></i><i style="background:{{ sw[4] }}"></i></span>{% endfor %}</span>{% endif %}
               {% if o.fonts %}<span class="d-font" aria-hidden="true"><b style="font-family:'{{ o.fonts.head }}'">Aa</b><span style="font-family:'{{ o.fonts.text or o.fonts.body }}'">Reading text</span><code style="font-family:'{{ o.fonts.mono }}'">code()</code></span>{% endif %}
               <strong>{{ o.name }}{% if o.id == defaults[g.key] %} <em class="d-tag">Original</em>{% endif %}</strong>
               {% if o.desc %}<small>{{ o.desc }}</small>{% endif %}
@@ -26,10 +63,25 @@
           {% endfor %}
         </div>
       </section>
-      {% endif %}{% endfor %}
-      <section class="card d-soon" aria-labelledby="dg-soon">
+      {% endfor %}
+      {% endfor %}
+
+      {% if soon.length %}
+      <section class="card" aria-labelledby="dg-soon">
         <h2 class="box-title" id="dg-soon">More choices on the way</h2>
         <p class="meta">Coming in the next updates, each with its own options: {{ soon | join(", ") }}.</p>
+      </section>
+      {% endif %}
+
+      <section class="card" aria-labelledby="dg-save-tpl">
+        <h2 class="box-title" id="dg-save-tpl">Save as a template</h2>
+        <p class="meta d-intro">Keep these choices under a name, so you can switch back to them later. This doesn’t change your blog. Admin look and Post editor aren’t part of templates.</p>
+        <div class="d-tpl-save">
+          <label class="sr-only" for="template-name">Template name</label>
+          <input id="template-name" name="template_name" type="text" maxlength="{{ maxName }}" placeholder="For example: Festival look" value="{{ templateName or '' }}">
+          <button class="btn" type="submit" formaction="{{ A }}/design/templates">Save template</button>
+        </div>
+        <p class="meta">You can keep up to {{ maxTemplates }}. Saving with a name you already used replaces that template.</p>
       </section>
     </div>
 
@@ -49,9 +101,9 @@
         </div>
       </div>
       <div class="dp-frame" id="design-box">
-        <iframe id="design-frame" title="Preview of your blog with these choices" src="{{ A }}/design/preview?page=home&amp;palette={{ current.palette }}&amp;fonts={{ current.fonts }}&amp;mode={{ current.mode }}"></iframe>
+        <iframe id="design-frame" title="Preview of your blog with these choices" src="{{ A }}/design/preview?page=home{% for k, v in current %}&amp;{{ k }}={{ v }}{% endfor %}"></iframe>
       </div>
-      <p class="meta dp-note">Links in the preview don’t open. Use View site to browse your blog.</p>
+      <p class="meta dp-note">Links in the preview don’t open. Use View site to browse your blog. The admin look changes this page as you pick it.</p>
     </div>
   </div>
 

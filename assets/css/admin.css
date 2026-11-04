@@ -374,3 +374,46 @@ details.more[open]>summary{margin-bottom:4px}
 .dp-note{font-size:13px}
 @media (max-width:1100px){.design-grid{grid-template-columns:minmax(0,1fr)}.design-preview{position:static;order:-1}.dp-frame{height:65vh}}
 @media (max-width:560px){.d-opts-palette{grid-template-columns:minmax(0,1fr)}}
+
+/* Admin look (Admin > Design): a light grey sidebar with black buttons, or a dark sidebar. The rules above are "Your brand colour". */
+:root[data-d-admin="light"] .adm-side{background:var(--sf2)}
+:root[data-d-admin="light"] .adm-nav a:hover,:root[data-d-admin="light"] .adm-me>summary:hover{background:var(--sf3)}
+:root[data-d-admin="light"] .adm-nav a[aria-current="page"]{background:var(--sf);color:var(--ink);box-shadow:0 1px 2px rgba(16,24,40,.06),inset 0 0 0 1px var(--line)}
+:root[data-d-admin="light"] .adm-nav li.sub a[aria-current="page"]{background:none;box-shadow:none;color:var(--ink)}
+:root[data-d-admin="light"] .adm-nav em{background:var(--ink);color:var(--sf)}
+:root[data-d-admin="light"] body.admin .btn-primary{background:var(--ink);border-color:var(--ink);color:var(--sf)}
+:root[data-d-admin="light"] body.admin .btn-primary:hover{background:var(--ink-2);border-color:var(--ink-2);color:var(--sf)}
+:root[data-d-admin="dark"] .adm-side{background:var(--hd-bg);border-right-color:var(--hd-line)}
+:root[data-d-admin="dark"] .adm-side .adm-brand,:root[data-d-admin="dark"] .adm-side .adm-brand:hover{color:var(--hd-ink)}
+:root[data-d-admin="dark"] .adm-side .adm-brand .brand-mark{background:var(--hd-mark);color:var(--hd-mark-ink)}
+:root[data-d-admin="dark"] .adm-nav a{color:var(--hd-ink-2)}
+:root[data-d-admin="dark"] .adm-nav a:hover{background:rgba(255,255,255,.07);color:#fff}
+:root[data-d-admin="dark"] .adm-nav a[aria-current="page"]{background:rgba(255,255,255,.11);color:#fff}
+:root[data-d-admin="dark"] .adm-nav li.sub a{color:var(--hd-ink-2)}
+:root[data-d-admin="dark"] .adm-nav li.sub a[aria-current="page"]{background:none;color:var(--hd-ac)}
+:root[data-d-admin="dark"] .adm-nav em{background:var(--hd-mark);color:var(--hd-mark-ink)}
+:root[data-d-admin="dark"] .adm-version{color:var(--hd-ink-2)}
+:root[data-d-admin="dark"] .adm-me>summary{color:var(--hd-ink)}
+:root[data-d-admin="dark"] .adm-me>summary:hover{background:rgba(255,255,255,.07)}
+:root[data-d-admin="dark"] .adm-me-name small{color:var(--hd-ink-2)}
+
+/* Editor (Admin > Design): Visual only and Markdown and preview have no switch. */
+:root[data-d-editor="visual"] .ed-switch,:root[data-d-editor="markdown"] .ed-switch{display:none}
+
+/* Admin > Design: templates and section headings. */
+.d-section{font-size:13px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);margin:14px 0 -4px 4px}
+.d-intro{margin:-6px 0 14px}
+.d-sub{font-size:14px;margin:18px 0 10px}
+.d-tpls{display:grid;gap:8px}
+.d-tpl{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--sf)}
+.d-sw-one{display:flex;align-items:center;gap:4px;flex:none;padding:7px 8px;border-radius:7px;box-shadow:inset 0 0 0 1px var(--line)}
+.d-sw-one i{width:12px;height:12px;border-radius:50%;box-shadow:0 0 0 1px rgba(128,128,128,.3)}
+.d-sw-one i:first-child{width:24px;border-radius:999px}
+.d-tpl-text{display:flex;flex-direction:column;min-width:0;flex:1;line-height:1.35}
+.d-tpl-text strong{font-size:14.5px;color:var(--ink)}
+.d-tpl-text small{color:var(--ink-2);font-size:12.5px}
+.d-tpl-acts{display:flex;gap:4px;flex:none}
+.d-tpl .btn{flex:none}
+.d-tpl-save{display:flex;gap:10px;margin-bottom:8px}
+.d-tpl-save input{flex:1;min-width:0}
+@media (max-width:560px){.d-tpl{flex-wrap:wrap}.d-tpl-save{flex-wrap:wrap}}

@@ -244,3 +244,135 @@ span.av.av-28{width:28px!important;height:28px!important}
 span.av.av-42{width:42px!important;height:42px!important}
 span.av.av-72{width:72px!important;height:72px!important}
 span.av.av-96{width:96px!important;height:96px!important}
+
+/* ---------- Admin > Design: other article layouts and styles. The rules above are the original look. ---------- */
+
+/* Title block above the picture (Classic and Centred). */
+.post-head{padding-top:30px}
+.post-head h1{font-size:42px;line-height:1.14;letter-spacing:-.025em;max-width:920px;margin:14px 0 20px}
+.post-head .byline .av{background:var(--ac-soft);color:var(--ac-text)}
+.post-head .byline a{color:var(--ink)}
+.post-head .byline a:hover{color:var(--ac-text)}
+.post-head .byline .when{color:var(--ink-3)}
+.byline-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;padding-bottom:24px;border-bottom:1px solid var(--line);margin-bottom:28px}
+.post-figure{margin:0 0 28px}
+.post-figure+.hero-cap{margin:-18px 0 24px}
+.post-figure img{display:block;width:100%;height:auto;max-height:620px;object-fit:cover;border-radius:var(--r-lg)}
+.post-cols{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:48px;padding-bottom:24px}
+.post-cols .post-main{max-width:none}
+.post-side{display:flex;flex-direction:column;gap:24px;min-width:0}
+.side-toc:empty{display:none}
+.post-centred .post-head{max-width:760px;margin:0 auto}
+.post-centred .post-head .byline{margin-bottom:28px}
+.post-centred .post-figure{max-width:1040px;margin:0 auto 34px}
+.centred-body{display:grid;grid-template-columns:64px minmax(0,720px) 64px;justify-content:center;gap:28px;padding-bottom:24px}
+.share-rail{position:sticky;top:96px;align-self:start;padding-top:4px}
+.toc-in{margin:-8px 0 32px}
+@media (max-width:1000px){
+  .post-cols{grid-template-columns:minmax(0,1fr);gap:32px}
+  .centred-body{grid-template-columns:minmax(0,1fr);gap:16px}
+  .share-rail{position:static;order:2}
+}
+@media (max-width:640px){.post-head h1{font-size:29px}.post-figure img{border-radius:var(--r)}}
+
+/* Share buttons in a column (Centred reading). */
+.share.share-v{flex-direction:column;align-items:center}
+@media (max-width:1000px){.share.share-v{flex-direction:row}}
+
+/* Share: outline icons that take the network's colour on hover. */
+:root[data-d-share="outline"] .share a,:root[data-d-share="outline"] .share button{border-radius:50%;background:var(--sf);color:var(--ink-2);box-shadow:inset 0 0 0 1px var(--line-2)}
+:root[data-d-share="outline"] .share a:hover,:root[data-d-share="outline"] .share button:hover{background:var(--brand);color:#fff;box-shadow:none;filter:none}
+:root[data-d-share="outline"] .share .s-copy:hover{background:var(--sf2);color:var(--ink)}
+/* Share: quiet grey icons, no borders. */
+:root[data-d-share="quiet"] .share{gap:4px}
+:root[data-d-share="quiet"] .share a,:root[data-d-share="quiet"] .share button{width:36px;height:36px;background:none;color:var(--ink-3);box-shadow:none;border-radius:8px}
+:root[data-d-share="quiet"] .share a:hover,:root[data-d-share="quiet"] .share button:hover{color:var(--ink);background:var(--sf2);filter:none;transform:none}
+/* Share: one button with a menu. */
+.share-one{position:relative;display:inline-block}
+.share-one>summary{list-style:none;cursor:pointer}
+.share-one>summary::-webkit-details-marker{display:none}
+.share-menu{position:absolute;z-index:30;top:calc(100% + 6px);left:0;min-width:200px;padding:6px;border-radius:12px;background:var(--sf);border:1px solid var(--line);box-shadow:var(--shadow-lg);display:grid;gap:2px}
+.post-classic .share-menu{left:auto;right:0}
+.share-menu a,.share-menu button{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;border:0;background:none;font:inherit;font-size:14.5px;font-weight:600;color:var(--ink);text-decoration:none;cursor:pointer;text-align:left}
+.share-menu a:hover,.share-menu button:hover{background:var(--sf2);color:var(--ink)}
+.share-menu .s-wa svg{color:#1F9D55}
+.share-menu .s-in svg{color:#0A66C2}
+.share-menu .s-fb svg{color:#1877F2}
+.share-menu .s-copy.done{background:var(--ok-soft)}
+
+/* Source code: tabbed panel and dark editor. Without the site script every file shows in turn. */
+.src-top{display:flex;flex-wrap:wrap;gap:8px}
+.src-tabs{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--sf)}
+.src-tabbar{display:flex;overflow-x:auto;border-bottom:1px solid var(--line);background:var(--sf2)}
+.src-tabbar button{flex:none;border:0;background:none;padding:11px 18px;font-family:var(--mono);font-size:13.5px;font-weight:600;color:var(--ink-3);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1px}
+.src-tabbar button:hover{color:var(--ink)}
+.src-tabbar button[aria-selected="true"]{color:var(--ink);background:var(--sf);border-bottom-color:var(--ac)}
+.src-panel+.src-panel{border-top:1px solid var(--line)}
+.src-tabs.tabbed .src-panel+.src-panel{border-top:0}
+.src-panel-h{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:10px 16px}
+.src-tabs.tabbed .src-panel-h .src-name{display:none}
+.src-panel pre{margin:0;padding:14px 18px;overflow:auto;font-size:14px;line-height:1.65;color:var(--code-ink);tab-size:2;background:var(--code-bg);border-top:1px solid var(--code-line);max-height:640px}
+.src-panel pre.clip{max-height:27.5em;overflow:hidden;-webkit-mask-image:linear-gradient(180deg,#000 75%,transparent);mask-image:linear-gradient(180deg,#000 75%,transparent)}
+.src-more{display:block;width:100%;border:0;border-top:1px solid var(--code-line);background:var(--code-bg);color:var(--ac-text);font:inherit;font-size:14px;font-weight:600;padding:10px;cursor:pointer}
+.src-more:hover{text-decoration:underline}
+.src-dark{--code-bg:#0D1117;--code-ink:#E6EDF3;--code-line:#21262D;--sx-k:#FF7B72;--sx-s:#A5D6FF;--sx-n:#79C0FF;--sx-c:#8B949E;--sx-f:#D2A8FF;--sx-t:#FFA657;--sx-a:#7EE787;background:#0D1117;border-color:#21262D;color:#E6EDF3}
+.src-dark .src-tabbar{background:#161B22;border-color:#21262D}
+.src-dark .src-tabbar button{color:#8B949E}
+.src-dark .src-tabbar button:hover,.src-dark .src-tabbar button[aria-selected="true"]{color:#E6EDF3;background:#0D1117}
+.src-dark .src-panel+.src-panel{border-color:#21262D}
+.src-dark .src-panel-h{background:#0D1117}
+.src-dark .src-name{color:#E6EDF3}
+.src-dark .src-info{color:#8B949E}
+.src-dark .file-act{background:#161B22;border-color:#30363D;color:#C9D1D9}
+.src-dark .file-act:hover{color:#fff;border-color:#8B949E}
+.src-dark .src-more{color:#79C0FF}
+.src-status{display:flex;justify-content:space-between;gap:12px;padding:6px 14px;background:#161B22;border-top:1px solid #21262D;color:#8B949E;font-family:var(--mono);font-size:12px}
+
+/* Code colours: plain, one colour with comments dimmed. */
+:root[data-d-syntax="plain"] .hljs *{color:inherit;font-style:normal}
+:root[data-d-syntax="plain"] .hljs .hljs-comment,:root[data-d-syntax="plain"] .hljs .hljs-quote{color:var(--sx-c);font-style:italic}
+
+/* Downloads: a GitHub card and one card per file. */
+.gh-card{display:flex;align-items:center;gap:16px;padding:18px 20px;border-radius:14px;background:#24292F;color:#fff;text-decoration:none;margin-bottom:12px;transition:filter .15s}
+.gh-card:hover{color:#fff;filter:brightness(1.15)}
+.gh-text{display:flex;flex-direction:column;min-width:0;line-height:1.35}
+.gh-text b{font-family:var(--mono);font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gh-text small{color:rgba(255,255,255,.75);font-size:13px}
+.gh-go{margin-left:auto;display:inline-flex;align-items:center;gap:6px;flex:none;padding:7px 12px;border-radius:8px;background:#fff;color:#24292F;font-weight:700;font-size:13.5px}
+.dl-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.dl-card{display:flex;align-items:center;gap:12px;padding:14px;border-radius:14px;background:var(--sf);border:1px solid var(--line)}
+.dl-ic{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;background:var(--ac-soft);color:var(--ac-text);flex:none}
+.dl-text{display:flex;flex-direction:column;min-width:0;line-height:1.35;flex:1}
+.dl-text b{font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dl-text small{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+.dl-card .btn{flex:none}
+@media (max-width:640px){.gh-card{flex-wrap:wrap}.gh-go{margin-left:46px}}
+/* Downloads: a compact file table. */
+.dl-table{border:1px solid var(--line);border-radius:14px;background:var(--sf);padding:18px 20px}
+.dl-table .block-h{margin-bottom:6px}
+.dl-tr{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:14px;padding:12px 4px;border-top:1px solid var(--line);color:var(--ink);text-decoration:none}
+.dl-tr:hover{color:var(--ac-text)}
+.dl-tr b{font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dl-badge{min-width:44px;text-align:center;padding:3px 8px;border-radius:6px;background:var(--sf2);font-family:var(--mono);font-size:11.5px;font-weight:600;color:var(--ink-2);text-transform:uppercase}
+.dl-sz{font-family:var(--mono);font-size:12.5px;color:var(--ink-3)}
+.dl-go{display:grid;place-items:center;width:34px;height:34px;border-radius:8px;box-shadow:inset 0 0 0 1px var(--line);color:var(--ac-text)}
+
+/* Tables: clean lines. */
+:root[data-d-tables="lines"] .tbl-wrap table{border-radius:0;box-shadow:none;overflow:visible}
+:root[data-d-tables="lines"] .tbl-wrap th{background:none;border-bottom:2px solid var(--ink);padding:10px 18px 10px 0}
+:root[data-d-tables="lines"] .tbl-wrap td{border-bottom:1px solid var(--line);padding:10px 18px 10px 0}
+:root[data-d-tables="lines"] .tbl-wrap tbody tr:nth-child(even) td{background:none}
+/* Tables: every cell outlined, with a coloured header. */
+:root[data-d-tables="boxed"] .tbl-wrap table{border-radius:0;box-shadow:none;overflow:visible}
+:root[data-d-tables="boxed"] .tbl-wrap th,:root[data-d-tables="boxed"] .tbl-wrap td{border:1px solid var(--line-2)}
+:root[data-d-tables="boxed"] .tbl-wrap th{background:var(--ac-soft);color:var(--ac-text)}
+:root[data-d-tables="boxed"] .tbl-wrap tbody tr:nth-child(even) td{background:none}
+
+/* Comments: each comment in its own card. */
+:root[data-d-comments="cards"] .thread{display:grid;gap:12px}
+:root[data-d-comments="cards"] .thread>li+li{border-top:0}
+:root[data-d-comments="cards"] .thread>li{background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:4px 18px}
+:root[data-d-comments="cards"] .replies{border-left:0;padding-left:0;margin:0 0 12px 54px;display:grid;gap:8px}
+:root[data-d-comments="cards"] .replies>li{background:var(--sf2);border-radius:12px;padding:0 14px}
+:root[data-d-comments="cards"] .gate,:root[data-d-comments="cards"] .compose{background:var(--sf);border:1px solid var(--line);border-radius:14px;padding:18px}
+@media (max-width:640px){:root[data-d-comments="cards"] .replies{margin-left:18px}}

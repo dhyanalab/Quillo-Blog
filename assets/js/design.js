@@ -1,6 +1,6 @@
-// Admin > Design: shows the chosen look in the preview frame straight away. The frame holds a page from this admin
-// (same origin), so palette, fonts and light/dark are switched on its <html> without reloading; picking Home or Article
-// loads that page with the current choices.
+// Admin > Design: shows the chosen look in the preview frame straight away. The frame holds a page from this admin (same
+// origin). Colours, fonts and the other style choices are switched on its <html> at once; choices that change the page's
+// layout (header, home page, article page, share buttons, code box, downloads) reload it. The admin look changes this page.
 (() => {
   const form = document.getElementById("design-form");
   const frame = document.getElementById("design-frame");
@@ -8,7 +8,11 @@
   const box = document.getElementById("design-box");
   const unsaved = document.getElementById("design-unsaved");
   const A = document.body.dataset.admin;
+  const root = document.documentElement;
   const state = { page: "home", look: matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light", device: "desktop" };
+  const groups = [...form.querySelectorAll("[data-group]")];
+  // The groups readers see (the admin's own look and editor aren't part of the preview).
+  const publicKeys = groups.filter((g) => g.dataset.page !== "admin").map((g) => g.dataset.group);
 
   const choices = () => {
     const out = {};
@@ -27,13 +31,13 @@
   };
 
   function apply() {
+    const c = choices();
+    root.dataset.dAdmin = c.admin;
+    root.dataset.dEditor = c.editor;
     const d = doc();
     if (!d) return;
-    const c = choices();
     const html = d.documentElement;
-    html.dataset.dPalette = c.palette;
-    html.dataset.dFonts = c.fonts;
-    html.dataset.dMode = c.mode;
+    for (const k of publicKeys) html.setAttribute(`data-d-${k}`, c[k]);
     html.dataset.theme = c.mode === "light" ? "light" : state.look;
   }
 
@@ -48,19 +52,23 @@
   }
 
   function press(attr, value) {
-    for (const b of document.querySelectorAll(`[data-${attr}]`)) b.setAttribute("aria-pressed", String(b.dataset[attr] === value));
+    for (const b of document.querySelectorAll(`.dp-bar [data-${attr}]`)) b.setAttribute("aria-pressed", String(b.dataset[attr] === value));
   }
 
   function sync() {
     const c = choices();
     const lightOnly = c.mode === "light";
-    for (const b of document.querySelectorAll("[data-look]")) b.disabled = lightOnly && b.dataset.look === "dark";
+    for (const b of document.querySelectorAll(".dp-bar [data-look]")) b.disabled = lightOnly && b.dataset.look === "dark";
     press("look", lightOnly ? "light" : state.look);
+    press("page", state.page);
     unsaved.hidden = JSON.stringify(c) === saved;
   }
 
   function load() {
-    frame.src = `${A}/design/preview?${new URLSearchParams({ page: state.page, ...choices() })}`;
+    const c = choices();
+    const q = new URLSearchParams({ page: state.page });
+    for (const k of publicKeys) q.set(k, c[k]);
+    frame.src = `${A}/design/preview?${q}`;
   }
 
   frame.addEventListener("load", () => {
@@ -75,25 +83,52 @@
     d.addEventListener("submit", (e) => e.preventDefault(), true);
   });
 
-  form.addEventListener("change", () => {
-    apply();
+  // A change shows on the page that has it: article parts on the article, home layouts on the home page.
+  form.addEventListener("change", (e) => {
+    const group = e.target.closest("[data-group]");
+    if (!group) return;
+    const page = group.dataset.page;
+    const reload = group.dataset.markup === "1" || ((page === "home" || page === "post") && page !== state.page);
+    if (page === "home" || page === "post") state.page = page;
     sync();
+    if (reload) load();
+    else apply();
   });
-  for (const b of document.querySelectorAll("[data-page]")) {
+
+  // Templates fill in the choices they hold; anything they leave out (admin look, editor) stays as it is.
+  for (const b of document.querySelectorAll("[data-template]")) {
+    b.hidden = false;
     b.addEventListener("click", () => {
-      state.page = b.dataset.page;
-      press("page", state.page);
+      let t;
+      try {
+        t = JSON.parse(b.dataset.template);
+      } catch {
+        return;
+      }
+      for (const [k, v] of Object.entries(t)) {
+        const input = form.querySelector(`input[type=radio][name="${CSS.escape(k)}"][value="${CSS.escape(v)}"]`);
+        if (input) input.checked = true;
+      }
+      sync();
       load();
     });
   }
-  for (const b of document.querySelectorAll("[data-look]")) {
+
+  for (const b of document.querySelectorAll(".dp-bar [data-page]")) {
+    b.addEventListener("click", () => {
+      state.page = b.dataset.page;
+      sync();
+      load();
+    });
+  }
+  for (const b of document.querySelectorAll(".dp-bar [data-look]")) {
     b.addEventListener("click", () => {
       state.look = b.dataset.look;
       apply();
       sync();
     });
   }
-  for (const b of document.querySelectorAll("[data-device]")) {
+  for (const b of document.querySelectorAll(".dp-bar [data-device]")) {
     b.addEventListener("click", () => {
       state.device = b.dataset.device;
       press("device", state.device);
@@ -102,8 +137,8 @@
   }
   document.getElementById("design-original")?.addEventListener("click", () => {
     for (const input of form.querySelectorAll("input[type=radio][data-default=yes]")) input.checked = true;
-    apply();
     sync();
+    load();
   });
 
   let leaving = false;

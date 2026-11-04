@@ -4,26 +4,38 @@ All notable changes to Quillo are listed here. Versions follow [Semantic Version
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-04
+
+The first stable release. Every blog owner can now choose their blog's look in the admin.
+
+### Added
+
+- **Admin > Design**: choose how the blog looks, with a live preview of your real home page and an article. The preview switches between light and dark, and between computer and phone sizes. Nothing changes for readers until you press Save, and "Back to the original look" undoes everything.
+  - **Colours:** 6 themes: Copper & Slate (the original), Classic Blue, Forest Green, Ocean Teal, Signal Red, and Graphite & Yellow. Each has a light and a dark version, and every one is checked for readable text.
+  - **Fonts:** 5 pairs, all self-hosted: Inter (the original), IBM Plex, Plus Jakarta Sans, Manrope with a Source Serif reading text, and Outfit with Nunito. Pages preload only the chosen pair.
+  - **Light and dark:** follow each reader's device with a switch (the original), or Light only.
+  - **Header:** a clean bar (the original), two rows in news style with a large search box, or a dark bar.
+  - **Home page:** big story and sidebar (the original), Magazine, or a three-column Newsroom.
+  - **Article page:** picture first (the original), classic with a sidebar, or a centred reading column.
+  - **Article parts:**
+    - share buttons: brand colours (the original), outline icons, one Share button with a menu, or quiet icons;
+    - source code: a file list (the original), a tabbed panel, or a dark editor. Long files show their first lines with Show all;
+    - code colours: coloured or plain;
+    - downloads: big buttons (the original), a GitHub card with file cards, or a file table;
+    - tables: striped (the original), clean lines, or a boxed grid;
+    - comments: an open thread (the original) or comment cards.
+  - **Admin:** the admin's own look (your brand colour, light grey, or a dark sidebar) and the post editor (Visual with a Markdown switch, Visual only, or Markdown with a preview beside it).
+  - **Templates:** 5 ready-made looks (Original, Newsroom, Magazine, Long reads and Workshop). You can also save your own combinations under a name, up to 20, and switch back to them later.
+
+### Changed
+
+Existing blogs keep their look exactly: every default is the original choice. A screenshot comparison of 12 public pages at two widths, in light and dark, found no changed pixels.
+
 ### Project
 
 - A `VERSION` file is now the single place the version is kept. `npm run set-version -- x.y.z` updates package.json, the lockfile and the README badge to match, and a test checks they agree.
 - The README is now a product page, with a logo, badges, screenshots and quick start. The detailed guides moved to `docs/`: admin guide, configuration, deployment and development.
 - `.gitignore` now also covers keys and certificates, packaged copies of a blog (which can hold its database and key), editor and tool folders, and test output.
-
-### Added
-
-- Admin > Design: choose how the blog looks, with a live preview of your real home page and newest article. The preview switches between light and dark, and between computer and phone sizes. Nothing changes for readers until you press Save.
-  - 6 colour themes: Copper & Slate (the original), Classic Blue, Forest Green, Ocean Teal, Signal Red, and Graphite & Yellow. Each has a light and a dark version, checked for readable text.
-  - 5 font pairs, all self-hosted: Inter (the original), IBM Plex, Plus Jakarta Sans, Manrope with a Source Serif reading text, and Outfit with Nunito.
-  - Light and dark: follow each reader's device with a switch (the original), or Light only.
-  - The admin follows the chosen colours and fonts.
-- The rest of the 1.0.0 choices are listed on the page as coming next: header, home page, article page, share buttons, source code box, code colours, downloads, tables, comments, admin look and editor.
-
-Existing blogs keep their look exactly: the defaults are the original choices. A screenshot comparison of 12 public pages at two widths, in light and dark, found no changed pixels.
-
-Planned for 1.0.0:
-
-- The remaining Design choices: 3 headers, 3 home pages and 3 article pages. Share buttons, source code, downloads, tables and comments each get their own styles. Saved combinations become named templates.
 
 ## [0.10.0] - 2026-11-04
 
@@ -87,6 +99,7 @@ Three security audits, with fixes after each:
 - Request body limits that depend on sign-in.
 - Every dependency pinned exactly, with DOMPurify 3.4.17, and `npm audit` clean.
 
-[Unreleased]: #
-[0.10.0]: #
-[0.9.0]: #
+[Unreleased]: https://github.com/dhyanalab/Quillo-Blog/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/dhyanalab/Quillo-Blog/compare/v0.10.0...v1.0.0
+[0.10.0]: https://github.com/dhyanalab/Quillo-Blog/compare/v0.9.0...v0.10.0
+[0.9.0]: https://github.com/dhyanalab/Quillo-Blog/releases/tag/v0.9.0

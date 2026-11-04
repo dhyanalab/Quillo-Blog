@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ site.lang }}" data-base="{{ site.base }}" data-d-palette="{{ site.design.palette }}" data-d-fonts="{{ site.design.fonts }}" data-d-mode="{{ site.design.mode }}"{% if site.design.mode == "light" %} data-theme="light"{% endif %}>
+<html lang="{{ site.lang }}" data-base="{{ site.base }}"{% for k in site.design.publicKeys %} data-d-{{ k }}="{{ site.design[k] }}"{% endfor %}{% if site.design.mode == "light" %} data-theme="light"{% endif %}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -73,6 +73,6 @@
 {% if slots.footer %}<div class="wrap kx-row kx-row-foot">{{ slots.footer | safe }}</div>{% endif %}
 {% include "public/partials/footer.njk" %}
 <p class="sr-only" aria-live="polite" id="live"></p>
-{% if not designPreview %}<script>{{ siteJs | safe }}</script>{% endif %}
+{% if designPreview %}<script src="{{ previewScript }}" defer></script>{% else %}<script>{{ siteJs | safe }}</script>{% endif %}
 </body>
 </html>

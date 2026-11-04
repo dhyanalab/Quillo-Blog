@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { transaction } from "../db.js";
 import { isSealed, secretsOrPlain } from "./sql.js";
-import { DESIGN_DEFAULTS, isDesign } from "../design.js";
+import { DESIGN_DEFAULTS, isDesign, isTemplateList } from "../design.js";
 
 // Every site setting with its default. Admin > Settings edits these; values are stored as JSON.
 export const SETTING_DEFAULTS = {
@@ -26,6 +26,8 @@ export const SETTING_DEFAULTS = {
   post_noun_plural: "posts",
   // The look chosen on Admin > Design: one option per group in src/design.js. The defaults are the original look.
   design: { ...DESIGN_DEFAULTS },
+  // Templates the owner saved on Admin > Design: [{ name, design }].
+  design_templates: [],
   default_og_image_id: null,
   home_url: "",
   // The business behind the blog: shown in the footer and on legal pages, and given to search engines.
@@ -131,6 +133,7 @@ function fits(key, value) {
   if (key === "post_features") return Array.isArray(value) && value.every((f) => POST_FEATURES.includes(f));
   if (key === "ads_pitch") return Array.isArray(value) && value.length <= 3 && value.every((p) => p && typeof p.title === "string" && typeof p.text === "string" && typeof p.icon === "string");
   if (key === "design") return isDesign(value);
+  if (key === "design_templates") return isTemplateList(value);
   if (key === "ads_who") return Array.isArray(value) && value.length <= 10 && value.every((w) => typeof w === "string");
   if (Array.isArray(def)) return Array.isArray(value);
   if (typeof def === "number") return typeof value === "number" && Number.isFinite(value);

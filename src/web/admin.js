@@ -18,7 +18,7 @@ import { nameKey } from "./members.js";
 import { BRAND_MARKS, LOCALES, POST_FEATURES, SETTING_DEFAULTS, SOCIAL_KEYS } from "../store/settings.js";
 import { MIN_PASSWORD } from "./password.js";
 import { THEME_SCRIPT } from "./assets.js";
-import { cleanDesign, DESIGN_DEFAULTS, DESIGN_GROUPS, FONT_PAIRS, paletteSwatches } from "../design.js";
+import { cleanDesign, DESIGN_DEFAULTS, DESIGN_GROUPS, DESIGN_PRESETS, DESIGN_SECTIONS, FONT_PAIRS, MAX_TEMPLATE_NAME, MAX_TEMPLATES, paletteSwatches, templateOf } from "../design.js";
 import { HTTPException } from "hono/http-exception";
 import { clearAppCookie, clientIp, isAdminPath, readCookie, safeEq, sameOrigin, setAppCookie, takeClient } from "./security.js";
 import { cleanText, csvCell, hasControlChars, isEmail, isSafeLocalPath, isTimeZone, passwordProblem, TIME_ZONES, zoneName } from "./validate.js";
@@ -59,6 +59,7 @@ const FLASH = {
   saved: "Saved.", created: "Created.", deleted: "Deleted.", uploaded: "Uploaded.", password: "Password changed.",
   loggedout: "You are signed out.", pinged: "Sent every public URL to IndexNow.", restored: "Revision restored.",
   paused: "Banner switched off.", resumed: "Banner switched on.", menus: "Menus saved.", design: "Design saved. Your blog shows it now.",
+  template: "Template saved. It’s under Templates whenever you want it. Your blog hasn’t changed.", templatedeleted: "Template deleted.",
   adson: "Ads are on.", adsoff: "Ads are off. No banners or empty boxes show anywhere on the blog.",
   placeon: "Place switched on.", placeoff: "Place switched off. Nothing shows there now.",
   analytics: "Saved. Changes show on the blog straight away.",
@@ -1634,27 +1635,62 @@ export function adminRoutes(app, ctx) {
   // ---------- Design ----------
 
   // The look of the blog, chosen from the design catalogue (src/design.js) with a live preview of the real home page and
-  // newest post. Groups that aren't ready yet are listed but can't be chosen.
+  // an article. Ready-made templates and the owner's own saved templates fill in the choices; nothing changes until Save.
   const designFrom = (values) => cleanDesign(Object.fromEntries(DESIGN_GROUPS.map((g) => [g.key, values[g.key]])));
-  const designPage = (c) => {
+  const optionName = (key, id) => DESIGN_GROUPS.find((g) => g.key === key)?.options.find((o) => o.id === id)?.name || id;
+  // A one-line summary of a template: its colours, fonts and home page.
+  const templateSummary = (d) => [optionName("palette", d.palette), optionName("fonts", d.fonts), `${optionName("home", d.home)} home page`].join(" · ");
+  const savedTemplates = () => {
+    const list = store.settings.get("design_templates");
+    return Array.isArray(list) ? list : [];
+  };
+  const designPage = (c, extra = {}, status = 200) => {
     c.set("framing", "host");
-    const current = cleanDesign(store.settings.get("design"));
-    const groups = DESIGN_GROUPS.map((g) => ({
+    const current = { ...cleanDesign(store.settings.get("design")), ...(extra.current || {}) };
+    const groups = DESIGN_GROUPS.filter((g) => g.ready).map((g) => ({
       ...g,
       options: g.options.map((o) => ({ ...o, swatches: g.key === "palette" ? { light: paletteSwatches(o.id, "light"), dark: paletteSwatches(o.id, "dark") } : null, fonts: g.key === "fonts" ? FONT_PAIRS[o.id] : null })),
     }));
+    const sections = DESIGN_SECTIONS.map((s) => ({ ...s, groups: groups.filter((g) => g.section === s.key) })).filter((s) => s.groups.length);
+    const card = (t) => ({ ...t, json: JSON.stringify(templateOf(t.design)), swatches: paletteSwatches(t.design.palette, "light") });
+    const presets = DESIGN_PRESETS.map(card);
+    const mine = savedTemplates().map((t) => card({ name: t.name, desc: templateSummary(cleanDesign(t.design)), design: cleanDesign(t.design) }));
     const soon = DESIGN_GROUPS.filter((g) => !g.ready).map((g) => g.label);
-    return page(c, "design.njk", { title: "Design", nav: "design", wide: true, groups, current, defaults: DESIGN_DEFAULTS, soon });
+    return page(c, "design.njk", { title: "Design", nav: "design", wide: true, sections, current, defaults: DESIGN_DEFAULTS, presets, mine, maxTemplates: MAX_TEMPLATES, maxName: MAX_TEMPLATE_NAME, soon, ...extra, current }, status);
   };
   app.get(`${A}/design`, (c) => (can.settings(c.get("user")) ? designPage(c) : deny(c)));
   app.post(`${A}/design`, async (c) => {
     if (!can.settings(c.get("user"))) return deny(c);
     const body = await form(c);
     const saved = cleanDesign(store.settings.get("design"));
-    // Only the groups the site can show are taken from the form; the others keep their saved (default) choice.
+    // Only the groups the site can show are taken from the form; any others keep their saved (default) choice.
     const chosen = designFrom(Object.fromEntries(DESIGN_GROUPS.map((g) => [g.key, g.ready ? body[g.key] : saved[g.key]])));
     store.settings.set({ design: chosen });
     return c.redirect(`${A}/design?ok=design`);
+  });
+  // Saves the choices on the page as a named template (a template with the same name is replaced). Doesn't change the blog.
+  app.post(`${A}/design/templates`, async (c) => {
+    if (!can.settings(c.get("user"))) return deny(c);
+    const body = await form(c);
+    const tried = designFrom(body);
+    const name = cleanText(body.template_name, MAX_TEMPLATE_NAME + 1).trim();
+    const list = savedTemplates();
+    const same = list.findIndex((t) => t.name.toLowerCase() === name.toLowerCase());
+    const errors = [];
+    if (!name) errors.push("Give the template a name, such as “Festival look”.");
+    else if (name.length > MAX_TEMPLATE_NAME) errors.push(`Use a name of ${MAX_TEMPLATE_NAME} characters or fewer.`);
+    else if (same < 0 && list.length >= MAX_TEMPLATES) errors.push(`You can keep ${MAX_TEMPLATES} templates. Delete one you no longer need first.`);
+    if (errors.length) return designPage(c, { errors, current: tried, templateName: name }, 400);
+    const entry = { name, design: templateOf(tried) };
+    store.settings.set({ design_templates: same < 0 ? [...list, entry] : list.map((t, i) => (i === same ? entry : t)) });
+    return c.redirect(`${A}/design?ok=template`);
+  });
+  app.post(`${A}/design/templates/delete`, async (c) => {
+    if (!can.settings(c.get("user"))) return deny(c);
+    const body = await form(c);
+    const name = String(body.name ?? "");
+    store.settings.set({ design_templates: savedTemplates().filter((t) => t.name !== name) });
+    return c.redirect(`${A}/design?ok=templatedeleted`);
   });
   // The page shown inside the preview frame: the real home page or newest post, drawn with the choices in the address.
   app.get(`${A}/design/preview`, (c) => {

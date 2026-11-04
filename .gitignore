@@ -50,6 +50,7 @@ coverage/
 tmp/
 *.tmp
 _site/
+dist/
 
 # Logs (the blog's audit.log and command-line.log live in data/)
 *.log

@@ -62,7 +62,28 @@ Nothing is sent to any outside service. The QR code is drawn on the server ([uqr
 - **Turning comments off**: per post in the editor, or for the whole site in Settings.
 - **Caching**: pages for signed-in readers are never cached or shared. Everyone else gets cached pages.
 
+## Design
+
+The admin's **Design** screen sets how the blog looks. Administrators and the owner can use it.
+
+- **The preview** on the right shows your real home page and an article, the one with the most parts (code, downloads, a table). Switch it between **Home page** and **Article**, **Light** and **Dark**, and **Computer** and **Phone** sizes. Links in the preview don't open.
+- **Nothing changes for readers until you press Save design.** **Back to the original look** sets every choice back to the first one (marked "Original").
+- **Colours and type:** 6 colour themes (each with a light and a dark version), 5 font pairs, and Light and dark or Light only.
+- **Page layouts:**
+  - **Header:** clean bar, two rows in news style, or dark bar.
+  - **Home page:** big story and sidebar, Magazine, or Newsroom.
+  - **Article page:** picture first, classic with sidebar, or centred reading.
+- **Article parts:** share buttons, the source code box, code colours, downloads, tables and comments, each with its own styles.
+- **Admin:** the admin's own look and the post editor. These change the admin for everyone on your team.
+- **Templates:**
+  - Pick **Use** on a ready-made template to fill in its choices, then change anything you like.
+  - To keep a combination, type a name under **Save as a template**. Saving doesn't change your blog.
+  - You can keep up to 20. Saving with a name you already used replaces that template.
+  - Templates don't include the admin look or the editor.
+
 ## The home page
+
+The layout is chosen in **Design**. Whichever layout you pick, it is filled in the same way:
 
 - **Big story and Editor's Choice:** the posts marked **Editor's Choice**, newest first. Recent posts fill any gap.
 - **Latest:** every post except news, with a sidebar.

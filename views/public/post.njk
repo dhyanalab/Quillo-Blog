@@ -1,13 +1,9 @@
 {% extends "public/layout.njk" %}
-{% from "public/partials/macros.njk" import crumbs, card, avatar %}
-{% block main %}
-{% set p = post %}
-<article class="post" aria-labelledby="post-title">
-  <header class="post-hero{% if not p.heroHtml %} no-img{% endif %}">
-    {{ p.heroHtml | safe }}
-    <div class="wrap">
-      {{ crumbs(p.crumbs) }}
-      <h1 id="post-title">{{ p.title }}</h1>
+{% from "public/partials/macros.njk" import crumbs, card, avatar, sidebar %}
+
+{# ---------- Pieces every article layout uses (Admin > Design picks the layout and the style of each piece). ---------- #}
+
+{% macro byline(p) %}
       <div class="byline">
         {% if p.author %}{{ avatar(p.author, 42) }}{% endif %}
         <div>
@@ -15,31 +11,113 @@
           <span class="when">{% if p.state != "published" and preview %}{{ "Scheduled" if p.state == "scheduled" else "Draft" }} · {% endif %}Updated <time datetime="{{ p.updatedIso }}">{{ p.updatedDisplay }}</time> · {{ p.readMinutes }} min read</span>
         </div>
       </div>
-    </div>
-  </header>
+{% endmacro %}
 
-  <div class="wrap post-grid">
-    <aside class="rail" aria-label="On this page">
+{% macro toc(p) %}
       {% if p.toc.length > 1 %}
       <details class="toc" open>
         <summary>On this page {{ icon("down", 16) }}</summary>
         <ol>{% for h in p.toc %}<li><a href="#{{ h.id }}">{{ h.text }}</a></li>{% endfor %}</ol>
       </details>
       {% endif %}
-      <div>
-        <span class="rail-label">Share</span>
-        <div class="share">
+{% endmacro %}
+
+{# Share buttons: brand-coloured squares, outline or quiet icons (the same links, styled by Admin > Design), or one Share button with a menu. #}
+{% macro share(p, extra="") %}
+{% if site.design.share == "one" %}
+        <details class="share-one">
+          <summary class="btn btn-sm">{{ icon("share", 16) }} Share</summary>
+          <div class="share-menu">
+            <a class="s-wa" href="https://wa.me/?text={{ (p.title + ' ' + p.shareUrl) | urlencode }}" target="_blank" rel="noopener">{{ brand("whatsapp", 17) }} WhatsApp</a>
+            <a class="s-x" href="https://x.com/intent/post?url={{ p.shareUrl | urlencode }}&amp;text={{ p.title | urlencode }}" target="_blank" rel="noopener">{{ brand("x", 15) }} X</a>
+            <a class="s-in" href="https://www.linkedin.com/sharing/share-offsite/?url={{ p.shareUrl | urlencode }}" target="_blank" rel="noopener">{{ brand("linkedin", 16) }} LinkedIn</a>
+            <a class="s-fb" href="https://www.facebook.com/sharer/sharer.php?u={{ p.shareUrl | urlencode }}" target="_blank" rel="noopener">{{ brand("facebook", 17) }} Facebook</a>
+            <button class="s-copy copy-link" type="button" data-url="{{ p.shareUrl }}" hidden>{{ icon("link", 17) }} Copy link</button>
+          </div>
+        </details>
+{% else %}
+        <div class="share{{ extra }}">
           <a class="s-wa" href="https://wa.me/?text={{ (p.title + ' ' + p.shareUrl) | urlencode }}" target="_blank" rel="noopener" title="Share on WhatsApp">{{ brand("whatsapp", 18) }}<span class="sr-only">Share on WhatsApp</span></a>
           <a class="s-x" href="https://x.com/intent/post?url={{ p.shareUrl | urlencode }}&amp;text={{ p.title | urlencode }}" target="_blank" rel="noopener" title="Share on X">{{ brand("x", 16) }}<span class="sr-only">Share on X</span></a>
           <a class="s-in" href="https://www.linkedin.com/sharing/share-offsite/?url={{ p.shareUrl | urlencode }}" target="_blank" rel="noopener" title="Share on LinkedIn">{{ brand("linkedin", 17) }}<span class="sr-only">Share on LinkedIn</span></a>
           <a class="s-fb" href="https://www.facebook.com/sharer/sharer.php?u={{ p.shareUrl | urlencode }}" target="_blank" rel="noopener" title="Share on Facebook">{{ brand("facebook", 18) }}<span class="sr-only">Share on Facebook</span></a>
           <button class="s-copy copy-link" type="button" data-url="{{ p.shareUrl }}" title="Copy link" hidden>{{ icon("link", 18) }}<span class="sr-only">Copy link</span></button>
         </div>
-      </div>
-      {{ slots.article_side | safe }}
-    </aside>
+{% endif %}
+{% endmacro %}
 
-    <div class="post-main">
+{# The full source code: a list of files that open and close, a tabbed panel, or a dark editor. #}
+{% macro sourceCode(p) %}
+        <section id="source-code" aria-labelledby="source-code-h">
+          {% if site.design.code == "files" %}
+          <div class="block-h"><h2 id="source-code-h">Source code</h2>{% if p.downloads.github %}<a class="btn btn-dark btn-sm" href="{{ p.downloads.github }}" target="_blank" rel="noopener">{{ brand("github", 16) }} View on GitHub</a>{% endif %}</div>
+          {% if p.tested_with.length %}<p class="block-sub">Tested with {{ p.tested_with | join(", ") }}</p>{% endif %}
+          <div class="src-files">
+            {% for f in p.sourceFiles %}
+            <details class="src-file"{% if loop.first %} open{% endif %}>
+              <summary>{{ icon("down", 18, "chev") }}<span class="src-name">{{ f.name }}</span><span class="src-info">{{ f.langLabel }} · {{ f.lines }} {{ f.lines | plural("line") }}</span>
+                <span class="src-acts"><button type="button" class="file-act code-copy" data-copy="src-{{ loop.index }}" hidden>{{ icon("copy", 15) }}<span>Copy</span></button><a class="file-act" href="{{ f.url }}" download>{{ icon("dl", 15) }}<span>Download</span></a></span></summary>
+              <pre id="src-{{ loop.index }}" tabindex="0"><code class="hljs">{{ f.html | safe }}</code></pre>
+            </details>
+            {% endfor %}
+          </div>
+          {% if p.sourceZip %}<div class="src-foot"><a class="btn btn-primary btn-sm" href="{{ p.sourceZip }}" download>{{ icon("dl", 16) }} Download all files (.zip)</a></div>{% endif %}
+          {% else %}
+          <div class="block-h"><h2 id="source-code-h">Source code</h2>
+            <div class="src-top">{% if p.sourceZip %}<a class="btn btn-sm" href="{{ p.sourceZip }}" download>{{ icon("dl", 15) }} Download .zip</a>{% endif %}{% if p.downloads.github %}<a class="btn btn-dark btn-sm" href="{{ p.downloads.github }}" target="_blank" rel="noopener">{{ brand("github", 16) }} View on GitHub</a>{% endif %}</div>
+          </div>
+          {% if p.tested_with.length %}<p class="block-sub">Tested with {{ p.tested_with | join(", ") }}</p>{% endif %}
+          {# Without the site script every file shows one under another; with it, the files become tabs. #}
+          <div class="src-tabs{% if site.design.code == 'dark' %} src-dark{% endif %}">
+            <div class="src-tabbar" role="tablist" aria-label="Files" hidden>{% for f in p.sourceFiles %}<button type="button" role="tab" id="srctab-{{ loop.index }}" aria-controls="srcpanel-{{ loop.index }}" aria-selected="{{ 'true' if loop.first else 'false' }}"{% if not loop.first %} tabindex="-1"{% endif %}>{{ f.name }}</button>{% endfor %}</div>
+            {% for f in p.sourceFiles %}
+            <div class="src-panel" id="srcpanel-{{ loop.index }}" role="tabpanel" aria-labelledby="srctab-{{ loop.index }}">
+              <div class="src-panel-h"><span class="src-name">{{ f.name }}</span><span class="src-info">{{ f.langLabel }} · {{ f.lines }} {{ f.lines | plural("line") }}</span>
+                <span class="src-acts"><button type="button" class="file-act code-copy" data-copy="src-{{ loop.index }}" hidden>{{ icon("copy", 15) }}<span>Copy</span></button><a class="file-act" href="{{ f.url }}" download>{{ icon("dl", 15) }}<span>Download</span></a></span></div>
+              <pre id="src-{{ loop.index }}" tabindex="0"><code class="hljs">{{ f.html | safe }}</code></pre>
+              {% if site.design.code == "dark" %}<div class="src-status"><span>{{ f.langLabel }}</span><span>{{ f.lines }} {{ f.lines | plural("line") }}</span></div>{% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </section>
+{% endmacro %}
+
+{# Downloads and the GitHub link: big buttons, a GitHub card with file cards, or a compact file table. #}
+{% macro downloadsBox(p) %}
+        <section id="downloads" aria-labelledby="downloads-h">
+          {% set gh = p.downloads.github %}
+          {% if site.design.downloads == "cards" %}
+          <div class="block-h"><h2 id="downloads-h">Downloads</h2></div>
+          {% if gh %}<a class="gh-card" href="{{ gh }}" target="_blank" rel="noopener">{{ brand("github", 30) }}<span class="gh-text"><b>{{ gh.replace("https://", "").replace("http://", "").replace("www.", "").replace("github.com/", "") | replace(r/\/+$/, "") }}</b><small>Code and wiring on GitHub</small></span><span class="gh-go">View on GitHub {{ icon("ext", 15) }}</span></a>{% endif %}
+          {% if p.downloads.files.length %}
+          <div class="dl-cards">
+            {% for f in p.downloads.files %}
+            <div class="dl-card"><span class="dl-ic">{{ icon(f.icon, 22) }}</span><span class="dl-text"><b>{{ f.label }}</b><small>{{ f.type }} · {{ f.size | kb }}</small></span><a class="btn btn-sm" href="{{ f.url }}" download>{{ icon("dl", 15) }} Download<span class="sr-only"> {{ f.label }}</span></a></div>
+            {% endfor %}
+          </div>
+          {% endif %}
+          {% elif site.design.downloads == "table" %}
+          <div class="dl-table">
+            <div class="block-h"><h2 id="downloads-h">Downloads</h2>{% if gh %}<a class="btn btn-dark btn-sm" href="{{ gh }}" target="_blank" rel="noopener">{{ brand("github", 16) }} GitHub repository</a>{% endif %}</div>
+            {% for f in p.downloads.files %}
+            <a class="dl-tr" href="{{ f.url }}" download><span class="dl-badge">{{ f.type }}</span><b>{{ f.label }}</b><span class="dl-sz">{{ f.size | kb }}</span><span class="dl-go">{{ icon("dl", 17) }}<span class="sr-only">Download</span></span></a>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="block-h"><h2 id="downloads-h">Downloads</h2></div>
+          <div class="dl-row">
+            {% if gh %}<a class="dl-btn dl-gh" href="{{ gh }}" target="_blank" rel="noopener">{{ brand("github", 24) }}<span><b>View on GitHub</b><small>Code and wiring</small></span></a>{% endif %}
+            {% for f in p.downloads.files %}
+            <a class="dl-btn {{ 'dl-main' if f.primary else 'dl-alt' }}" href="{{ f.url }}" download>{{ icon(f.icon, 24) }}<span><b>{{ f.label }}</b><small>{{ f.type }} · {{ f.size | kb }}</small></span></a>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </section>
+{% endmacro %}
+
+{# Everything from the picture caption to the comments. `contents` puts the contents list under the quick answer (Centred reading). #}
+{% macro articleBody(p, contents=false) %}
       {% if p.heroCaption %}<p class="hero-cap">{{ p.heroCaption }}</p>{% endif %}
 
       {% if p.quickAnswerHtml or p.glance.length %}
@@ -53,6 +131,8 @@
         {% endif %}
       </section>
       {% endif %}
+
+      {% if contents %}<div class="toc-in">{{ toc(p) }}</div>{% endif %}
 
       {% if slots.article_top %}<div class="kx-row kx-row-in">{{ slots.article_top | safe }}</div>{% endif %}
 
@@ -80,34 +160,9 @@
       </div>
 
       <div class="after">
-        {% if p.sourceFiles.length %}
-        <section id="source-code" aria-labelledby="source-code-h">
-          <div class="block-h"><h2 id="source-code-h">Source code</h2>{% if p.downloads.github %}<a class="btn btn-dark btn-sm" href="{{ p.downloads.github }}" target="_blank" rel="noopener">{{ brand("github", 16) }} View on GitHub</a>{% endif %}</div>
-          {% if p.tested_with.length %}<p class="block-sub">Tested with {{ p.tested_with | join(", ") }}</p>{% endif %}
-          <div class="src-files">
-            {% for f in p.sourceFiles %}
-            <details class="src-file"{% if loop.first %} open{% endif %}>
-              <summary>{{ icon("down", 18, "chev") }}<span class="src-name">{{ f.name }}</span><span class="src-info">{{ f.langLabel }} · {{ f.lines }} {{ f.lines | plural("line") }}</span>
-                <span class="src-acts"><button type="button" class="file-act code-copy" data-copy="src-{{ loop.index }}" hidden>{{ icon("copy", 15) }}<span>Copy</span></button><a class="file-act" href="{{ f.url }}" download>{{ icon("dl", 15) }}<span>Download</span></a></span></summary>
-              <pre id="src-{{ loop.index }}" tabindex="0"><code class="hljs">{{ f.html | safe }}</code></pre>
-            </details>
-            {% endfor %}
-          </div>
-          {% if p.sourceZip %}<div class="src-foot"><a class="btn btn-primary btn-sm" href="{{ p.sourceZip }}" download>{{ icon("dl", 16) }} Download all files (.zip)</a></div>{% endif %}
-        </section>
-        {% endif %}
+        {% if p.sourceFiles.length %}{{ sourceCode(p) }}{% endif %}
 
-        {% if p.downloads.files.length or (p.downloads.github and not p.sourceFiles.length) %}
-        <section id="downloads" aria-labelledby="downloads-h">
-          <div class="block-h"><h2 id="downloads-h">Downloads</h2></div>
-          <div class="dl-row">
-            {% if p.downloads.github %}<a class="dl-btn dl-gh" href="{{ p.downloads.github }}" target="_blank" rel="noopener">{{ brand("github", 24) }}<span><b>View on GitHub</b><small>Code and wiring</small></span></a>{% endif %}
-            {% for f in p.downloads.files %}
-            <a class="dl-btn {{ 'dl-main' if f.primary else 'dl-alt' }}" href="{{ f.url }}" download>{{ icon(f.icon, 24) }}<span><b>{{ f.label }}</b><small>{{ f.type }} · {{ f.size | kb }}</small></span></a>
-            {% endfor %}
-          </div>
-        </section>
-        {% endif %}
+        {% if p.downloads.files.length or (p.downloads.github and not p.sourceFiles.length) %}{{ downloadsBox(p) }}{% endif %}
 
         {% if slots.article_end %}<div class="kx-row kx-row-in">{{ slots.article_end | safe }}</div>{% endif %}
 
@@ -129,14 +184,93 @@
 
         {% if p.commentsOn %}{% include "public/partials/comments.njk" %}{% endif %}
       </div>
-    </div>
-  </div>
+{% endmacro %}
 
+{% macro relatedPosts() %}
   {% if related.length %}
   <section class="wrap related" aria-labelledby="x-related">
     <div class="sec-h"><h2 id="x-related">Related {{ site.noun.many }}</h2></div>
     <div class="grid3">{% for r in related %}{{ card(r, "(max-width: 640px) calc(100vw - 32px), 380px") }}{% endfor %}</div>
   </section>
   {% endif %}
+{% endmacro %}
+
+{% block main %}
+{% set p = post %}
+{% if site.design.article == "classic" %}
+{# Classic with sidebar: title, author and share icons at the top, the picture, then the text beside a sidebar. #}
+<article class="post post-classic" aria-labelledby="post-title">
+  <div class="wrap">
+    <header class="post-head">
+      {{ crumbs(p.crumbs) }}
+      <h1 id="post-title">{{ p.title }}</h1>
+      <div class="byline-row">
+{{ byline(p) }}
+{{ share(p) }}
+      </div>
+    </header>
+    <div class="post-cols">
+      <div class="post-main">
+        {% if p.heroHtml %}<figure class="post-figure">{{ p.heroHtml | safe }}</figure>{% endif %}
+{{ articleBody(p) }}
+      </div>
+      <div class="post-side">
+        <div class="side-toc">{{ toc(p) }}</div>
+        {{ sidebar(side or {}, site, true, slots.article_side) }}
+      </div>
+    </div>
+  </div>
+{{ relatedPosts() }}
 </article>
+{% elif site.design.article == "centred" %}
+{# Centred reading: one column with no sidebar, the contents list under the quick answer, and share icons in a rail beside the text. #}
+<article class="post post-centred" aria-labelledby="post-title">
+  <div class="wrap">
+    <header class="post-head">
+      {{ crumbs(p.crumbs) }}
+      <h1 id="post-title">{{ p.title }}</h1>
+{{ byline(p) }}
+    </header>
+    {% if p.heroHtml %}<figure class="post-figure">{{ p.heroHtml | safe }}</figure>{% endif %}
+    <div class="centred-body">
+      <aside class="share-rail" aria-label="Share">
+{{ share(p, " share-v") }}
+      </aside>
+      <div class="post-main">
+{{ articleBody(p, true) }}
+        {% if slots.article_side %}<div class="kx-row kx-row-in">{{ slots.article_side | safe }}</div>{% endif %}
+      </div>
+    </div>
+  </div>
+{{ relatedPosts() }}
+</article>
+{% else %}
+<article class="post" aria-labelledby="post-title">
+  <header class="post-hero{% if not p.heroHtml %} no-img{% endif %}">
+    {{ p.heroHtml | safe }}
+    <div class="wrap">
+      {{ crumbs(p.crumbs) }}
+      <h1 id="post-title">{{ p.title }}</h1>
+{{ byline(p) }}
+    </div>
+  </header>
+
+  <div class="wrap post-grid">
+    <aside class="rail" aria-label="On this page">
+{{ toc(p) }}
+      <div>
+        <span class="rail-label">Share</span>
+{{ share(p) }}
+      </div>
+      {{ slots.article_side | safe }}
+    </aside>
+
+    <div class="post-main">
+{{ articleBody(p) }}
+    </div>
+  </div>
+
+{{ relatedPosts() }}
+</article>
+{% endif %}
 {% endblock %}
