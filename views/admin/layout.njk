@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-d-palette="{{ site.design.palette }}" data-d-fonts="{{ site.design.fonts }}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -46,6 +46,7 @@
     <div class="adm-side-foot">
       {% if can.settings() %}
       <ul class="adm-nav">
+        {{ navlink("design", A + "/design", "Design", "palette") }}
         {{ navlink("menus", A + "/menus", "Menus", "menu") }}
         {{ navlink("users", A + "/users", "Staff", "user") }}
         {{ navlink("analytics", A + "/analytics", "Analytics & SEO", "chart") }}
@@ -69,7 +70,7 @@
       <button class="icon-btn adm-menu" type="button" aria-controls="adm-side" aria-expanded="false">{{ icon("menu", 20) }}<span class="sr-only">Menu</span></button>
       <a class="adm-brand" href="{{ A }}/">{{ brandMarkHtml(site, 15) }}<span>{{ site.title }}</span></a>
     </header>
-    <main class="adm-content" id="adm-content">
+    <main class="adm-content{% if wide %} adm-wide{% endif %}" id="adm-content">
       {% if flash %}<p class="flash" role="status">{{ icon("check", 16) }} {{ flash }}</p>{% endif %}
       {% block content %}{% endblock %}
     </main>

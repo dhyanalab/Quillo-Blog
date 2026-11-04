@@ -82,7 +82,7 @@
 .chapters .t{font-family:var(--mono);font-size:13px;color:var(--ac-text);margin-right:6px}
 
 /* Body text */
-.prose{font-size:17.5px;line-height:1.75;color:var(--ink)}
+.prose{font-size:17.5px;line-height:1.75;color:var(--ink);font-family:var(--font-text)}
 .prose>*+*{margin-top:20px}
 .prose p,.prose li{color:var(--ink)}
 .prose a{color:var(--ac-text);text-decoration:underline;text-decoration-thickness:1.5px;text-decoration-color:color-mix(in srgb,var(--ac-text) 45%,transparent)}

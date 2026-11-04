@@ -1,0 +1,66 @@
+{% extends "admin/layout.njk" %}
+{% block content %}
+<div class="adm-head">
+  <h1>Design</h1>
+  <p>Choose how your blog looks. The preview shows your real home page and newest post. Readers see nothing new until you press Save.</p>
+</div>
+
+<form class="design" method="post" action="{{ A }}/design" id="design-form">
+  <input type="hidden" name="_csrf" value="{{ csrf }}">
+  <div class="design-grid">
+    <div class="design-options">
+      {% for g in groups %}{% if g.ready %}
+      <section class="card" aria-labelledby="dg-{{ g.key }}">
+        <h2 class="box-title" id="dg-{{ g.key }}">{{ g.label }}</h2>
+        <div class="d-opts d-opts-{{ g.key }}" role="radiogroup" aria-labelledby="dg-{{ g.key }}">
+          {% for o in g.options %}
+          <label class="d-opt">
+            <input type="radio" name="{{ g.key }}" value="{{ o.id }}" data-default="{{ 'yes' if o.id == defaults[g.key] else '' }}"{% if current[g.key] == o.id %} checked{% endif %}>
+            <span class="d-card">
+              {% if o.swatches %}<span class="d-sw" aria-hidden="true">{% for s in [o.swatches.light, o.swatches.dark] %}<span style="background:{{ s[0] }}"><i style="background:{{ s[2] }}"></i><i style="background:{{ s[3] }}"></i><i style="background:{{ s[4] }}"></i></span>{% endfor %}</span>{% endif %}
+              {% if o.fonts %}<span class="d-font" aria-hidden="true"><b style="font-family:'{{ o.fonts.head }}'">Aa</b><span style="font-family:'{{ o.fonts.text or o.fonts.body }}'">Reading text</span><code style="font-family:'{{ o.fonts.mono }}'">code()</code></span>{% endif %}
+              <strong>{{ o.name }}{% if o.id == defaults[g.key] %} <em class="d-tag">Original</em>{% endif %}</strong>
+              {% if o.desc %}<small>{{ o.desc }}</small>{% endif %}
+            </span>
+          </label>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}{% endfor %}
+      <section class="card d-soon" aria-labelledby="dg-soon">
+        <h2 class="box-title" id="dg-soon">More choices on the way</h2>
+        <p class="meta">Coming in the next updates, each with its own options: {{ soon | join(", ") }}.</p>
+      </section>
+    </div>
+
+    <div class="design-preview">
+      <div class="dp-bar">
+        <div class="seg" role="group" aria-label="Page to preview">
+          <button type="button" data-page="home" aria-pressed="true">Home page</button>
+          <button type="button" data-page="post" aria-pressed="false">Article</button>
+        </div>
+        <div class="seg" role="group" aria-label="Light or dark preview">
+          <button type="button" data-look="light" aria-pressed="true">{{ icon("sun", 15) }} Light</button>
+          <button type="button" data-look="dark" aria-pressed="false">{{ icon("moon", 15) }} Dark</button>
+        </div>
+        <div class="seg" role="group" aria-label="Screen size">
+          <button type="button" data-device="desktop" aria-pressed="true">{{ icon("panel", 15) }} Computer</button>
+          <button type="button" data-device="phone" aria-pressed="false">{{ icon("mobile", 15) }} Phone</button>
+        </div>
+      </div>
+      <div class="dp-frame" id="design-box">
+        <iframe id="design-frame" title="Preview of your blog with these choices" src="{{ A }}/design/preview?page=home&amp;palette={{ current.palette }}&amp;fonts={{ current.fonts }}&amp;mode={{ current.mode }}"></iframe>
+      </div>
+      <p class="meta dp-note">Links in the preview don’t open. Use View site to browse your blog.</p>
+    </div>
+  </div>
+
+  <div class="form-actions sticky-actions">
+    <button class="btn btn-primary" type="submit">Save design</button>
+    <button class="btn btn-ghost" type="button" id="design-original">Back to the original look</button>
+    <a class="btn" href="{{ site.url.home }}" target="_blank" rel="noopener noreferrer">View site</a>
+    <span class="meta" id="design-unsaved" hidden>You have changes that aren’t saved.</span>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}<script src="{{ A }}/static/design.js?v={{ files['design.js'].hash }}" defer></script>{% endblock %}

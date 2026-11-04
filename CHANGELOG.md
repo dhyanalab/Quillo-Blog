@@ -10,9 +10,20 @@ All notable changes to Quillo are listed here. Versions follow [Semantic Version
 - The README is now a product page, with a logo, badges, screenshots and quick start. The detailed guides moved to `docs/`: admin guide, configuration, deployment and development.
 - `.gitignore` now also covers keys and certificates, packaged copies of a blog (which can hold its database and key), editor and tool folders, and test output.
 
+### Added
+
+- Admin > Design: choose how the blog looks, with a live preview of your real home page and newest article. The preview switches between light and dark, and between computer and phone sizes. Nothing changes for readers until you press Save.
+  - 6 colour themes: Copper & Slate (the original), Classic Blue, Forest Green, Ocean Teal, Signal Red, and Graphite & Yellow. Each has a light and a dark version, checked for readable text.
+  - 5 font pairs, all self-hosted: Inter (the original), IBM Plex, Plus Jakarta Sans, Manrope with a Source Serif reading text, and Outfit with Nunito.
+  - Light and dark: follow each reader's device with a switch (the original), or Light only.
+  - The admin follows the chosen colours and fonts.
+- The rest of the 1.0.0 choices are listed on the page as coming next: header, home page, article page, share buttons, source code box, code colours, downloads, tables, comments, admin look and editor.
+
+Existing blogs keep their look exactly: the defaults are the original choices. A screenshot comparison of 12 public pages at two widths, in light and dark, found no changed pixels.
+
 Planned for 1.0.0:
 
-- Designs chosen in the admin: a new Admin > Design page with live preview. It covers 6 colour themes, 5 font pairs, light and dark, and 3 headers, 3 home pages and 3 article pages. Share buttons, source code, downloads, tables and comments each get their own styles. Saved combinations become named templates.
+- The remaining Design choices: 3 headers, 3 home pages and 3 article pages. Share buttons, source code, downloads, tables and comments each get their own styles. Saved combinations become named templates.
 
 ## [0.10.0] - 2026-11-04
 

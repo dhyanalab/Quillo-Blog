@@ -180,7 +180,7 @@ export function createApp(overrides = {}) {
     const site = ctx.site();
     // Pages that must never carry the analytics tag (sign-in, account, unsubscribe...) set "noAnalytics".
     const analytics = admin || c.get("noAnalytics") ? null : site.analytics;
-    for (const [k, v] of Object.entries(securityHeaders({ scriptHashes, adminScriptHashes, styleHashes, admin, https: config.production && isHttps(c, ctx), hstsSubdomains: config.hstsSubdomains, analytics }))) {
+    for (const [k, v] of Object.entries(securityHeaders({ scriptHashes, adminScriptHashes, styleHashes, admin, https: config.production && isHttps(c, ctx), hstsSubdomains: config.hstsSubdomains, analytics, framing: c.get("framing") || "" }))) {
       if (!c.res.headers.has(k)) c.res.headers.set(k, v);
     }
     // Pages and downloads are not for other sites to embed (images and fonts stay embeddable: email and feed readers load them).

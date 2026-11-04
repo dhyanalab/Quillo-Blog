@@ -4,7 +4,8 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { ROOT } from "../config.js";
-import { fontFaces, PRELOAD } from "../render/fonts.js";
+import { fontFaces, preloadFiles } from "../render/fonts.js";
+import { FONT_PAIRS, themeCss } from "../design.js";
 import { PLAUSIBLE_INIT } from "./analytics.js";
 
 const read = (f) => fs.readFileSync(path.join(ROOT, "assets", f), "utf8");
@@ -22,7 +23,8 @@ const minifyCss = (css) =>
 const sha = (s, alg = "sha256", enc = "base64") => crypto.createHash(alg).update(s).digest(enc);
 
 // Runs in <head> before first paint so a saved theme never flashes; the "js" class lets CSS collapse the mobile menu.
-export const THEME_SCRIPT = 'document.documentElement.classList.add("js");try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}';
+// A blog set to "Light only" (Admin > Design) ignores a reader's saved choice.
+export const THEME_SCRIPT = 'var d=document.documentElement;d.classList.add("js");if(d.dataset.dMode!=="light")try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")d.dataset.theme=t}catch(e){}';
 
 // Compares the bundled editor files with the hashes recorded when they were built (assets/vendor/toastui-editor.sha256,
 // lines of "<sha256>  <file>"). Returns a plain sentence about a mismatch, or "" when they match or no hash is recorded.
@@ -45,19 +47,22 @@ export function createAssets({ basePath, production }) {
   let built = null;
 
   const build = () => {
-    const css = (files) => minifyCss([fonts.css, ...files.map((f) => read(`css/${f}`))].join("\n"));
-    const publicCss = css(["tokens.css", "base.css", "site.css", "article.css"]);
+    // The colour themes and font pairs from Admin > Design come after the default tokens, so they win where <html> asks for them.
+    const css = (files) => minifyCss([fonts.css, read("css/tokens.css"), themeCss(), ...files.map((f) => read(`css/${f}`))].join("\n"));
+    const publicCss = css(["base.css", "site.css", "article.css"]);
     const previewCss = minifyCss(read("css/preview.css"));
     const siteJs = read("js/site.js");
-    const adminCss = css(["tokens.css", "base.css", "admin.css", "editor.css"]);
+    const adminCss = css(["base.css", "admin.css", "editor.css"]);
     const adminJs = read("js/admin.js");
     const editorJs = read("js/editor.js");
     const menusJs = read("js/menus.js");
+    const designJs = read("js/design.js");
     const files = {
       "admin.css": { body: adminCss, type: "text/css; charset=utf-8" },
       "admin.js": { body: adminJs, type: "text/javascript; charset=utf-8" },
       "editor.js": { body: editorJs, type: "text/javascript; charset=utf-8" },
       "menus.js": { body: menusJs, type: "text/javascript; charset=utf-8" },
+      "design.js": { body: designJs, type: "text/javascript; charset=utf-8" },
     };
     for (const f of Object.values(files)) f.hash = sha(f.body, "sha1", "hex").slice(0, 10);
     Object.assign(files, vendorFiles());
@@ -81,6 +86,7 @@ export function createAssets({ basePath, production }) {
   return {
     get,
     fontFile: (name) => fonts.files.get(name) || null,
-    preload: PRELOAD.map((f) => `${basePath}/assets/fonts/${f}`),
+    // The font files a page asks for early: the body text and headings of the chosen font pair.
+    preloadFor: (design) => preloadFiles(FONT_PAIRS[design?.fonts] || FONT_PAIRS.inter).map((f) => `${basePath}/assets/fonts/${f}`),
   };
 }

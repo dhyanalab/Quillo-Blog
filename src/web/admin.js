@@ -18,6 +18,7 @@ import { nameKey } from "./members.js";
 import { BRAND_MARKS, LOCALES, POST_FEATURES, SETTING_DEFAULTS, SOCIAL_KEYS } from "../store/settings.js";
 import { MIN_PASSWORD } from "./password.js";
 import { THEME_SCRIPT } from "./assets.js";
+import { cleanDesign, DESIGN_DEFAULTS, DESIGN_GROUPS, FONT_PAIRS, paletteSwatches } from "../design.js";
 import { HTTPException } from "hono/http-exception";
 import { clearAppCookie, clientIp, isAdminPath, readCookie, safeEq, sameOrigin, setAppCookie, takeClient } from "./security.js";
 import { cleanText, csvCell, hasControlChars, isEmail, isSafeLocalPath, isTimeZone, passwordProblem, TIME_ZONES, zoneName } from "./validate.js";
@@ -57,7 +58,7 @@ const FLASH = {
   mustchange: "Choose your own password to continue.", othersout: "Signed out everywhere else.", resetsent: "Reset link emailed to the reader.",
   saved: "Saved.", created: "Created.", deleted: "Deleted.", uploaded: "Uploaded.", password: "Password changed.",
   loggedout: "You are signed out.", pinged: "Sent every public URL to IndexNow.", restored: "Revision restored.",
-  paused: "Banner switched off.", resumed: "Banner switched on.", menus: "Menus saved.",
+  paused: "Banner switched off.", resumed: "Banner switched on.", menus: "Menus saved.", design: "Design saved. Your blog shows it now.",
   adson: "Ads are on.", adsoff: "Ads are off. No banners or empty boxes show anywhere on the blog.",
   placeon: "Place switched on.", placeoff: "Place switched off. Nothing shows there now.",
   analytics: "Saved. Changes show on the blog straight away.",
@@ -1628,6 +1629,39 @@ export function adminRoutes(app, ctx) {
     if (errors.length) return menusPage(c, { errors }, 400);
     store.settings.set({ nav_mode: navMode, nav_items: navItems, footer_mode: footerMode, footer_cols: footerCols, nav_menu: "", footer_menu: "" });
     return c.redirect(`${A}/menus?ok=menus`);
+  });
+
+  // ---------- Design ----------
+
+  // The look of the blog, chosen from the design catalogue (src/design.js) with a live preview of the real home page and
+  // newest post. Groups that aren't ready yet are listed but can't be chosen.
+  const designFrom = (values) => cleanDesign(Object.fromEntries(DESIGN_GROUPS.map((g) => [g.key, values[g.key]])));
+  const designPage = (c) => {
+    c.set("framing", "host");
+    const current = cleanDesign(store.settings.get("design"));
+    const groups = DESIGN_GROUPS.map((g) => ({
+      ...g,
+      options: g.options.map((o) => ({ ...o, swatches: g.key === "palette" ? { light: paletteSwatches(o.id, "light"), dark: paletteSwatches(o.id, "dark") } : null, fonts: g.key === "fonts" ? FONT_PAIRS[o.id] : null })),
+    }));
+    const soon = DESIGN_GROUPS.filter((g) => !g.ready).map((g) => g.label);
+    return page(c, "design.njk", { title: "Design", nav: "design", wide: true, groups, current, defaults: DESIGN_DEFAULTS, soon });
+  };
+  app.get(`${A}/design`, (c) => (can.settings(c.get("user")) ? designPage(c) : deny(c)));
+  app.post(`${A}/design`, async (c) => {
+    if (!can.settings(c.get("user"))) return deny(c);
+    const body = await form(c);
+    const saved = cleanDesign(store.settings.get("design"));
+    // Only the groups the site can show are taken from the form; the others keep their saved (default) choice.
+    const chosen = designFrom(Object.fromEntries(DESIGN_GROUPS.map((g) => [g.key, g.ready ? body[g.key] : saved[g.key]])));
+    store.settings.set({ design: chosen });
+    return c.redirect(`${A}/design?ok=design`);
+  });
+  // The page shown inside the preview frame: the real home page or newest post, drawn with the choices in the address.
+  app.get(`${A}/design/preview`, (c) => {
+    if (!can.settings(c.get("user"))) return deny(c);
+    c.set("framing", "framed");
+    c.set("design", designFrom(c.req.query()));
+    return ctx.renderDesignPreview(c, c.req.query("page") === "post" ? "post" : "home");
   });
 
   // ---------- Sponsor banners ----------

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ site.lang }}" data-base="{{ site.base }}">
+<html lang="{{ site.lang }}" data-base="{{ site.base }}" data-d-palette="{{ site.design.palette }}" data-d-fonts="{{ site.design.fonts }}" data-d-mode="{{ site.design.mode }}"{% if site.design.mode == "light" %} data-theme="light"{% endif %}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,8 +11,10 @@
 <meta name="robots" content="{{ meta.robots }}">
 {% for v in site.verify %}<meta name="{{ v[0] }}" content="{{ v[1] }}">
 {% endfor %}
-<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#191C1F" media="(prefers-color-scheme: dark)">
+{% if site.design.mode == "light" %}<meta name="theme-color" content="{{ site.design.themeColor.light }}">
+{% else %}<meta name="theme-color" content="{{ site.design.themeColor.light }}" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="{{ site.design.themeColor.dark }}" media="(prefers-color-scheme: dark)">
+{% endif %}
 <script>{{ themeScript | safe }}</script>
 {% for href in preload %}<link rel="preload" href="{{ href }}" as="font" type="font/woff2" crossorigin>
 {% endfor %}
@@ -71,6 +73,6 @@
 {% if slots.footer %}<div class="wrap kx-row kx-row-foot">{{ slots.footer | safe }}</div>{% endif %}
 {% include "public/partials/footer.njk" %}
 <p class="sr-only" aria-live="polite" id="live"></p>
-<script>{{ siteJs | safe }}</script>
+{% if not designPreview %}<script>{{ siteJs | safe }}</script>{% endif %}
 </body>
 </html>

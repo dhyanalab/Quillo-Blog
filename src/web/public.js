@@ -14,6 +14,7 @@ import { memberRoutes } from "./members.js";
 import { createPresenter, createRenderMemo } from "./present.js";
 import { renderSlots, splitForSlot } from "./slots.js";
 import { isLegalSlug } from "./site.js";
+import { siteDesign } from "../design.js";
 import { clearAppCookie, clientIp, createRateLimiter, isAdminPath, isBot, readCookie, safeEq, sameOrigin, takeClient } from "./security.js";
 import { hasControlChars, isEmail, isSafeLocalPath, maskEmail, normalizeEmail } from "./validate.js";
 
@@ -191,13 +192,16 @@ export function publicRoutes(app, ctx) {
   function render(c, template, data) {
     const a = assets.get();
     const m = c.get("member");
+    // Admin > Design draws pages with the look being tried ("design"); every other page uses the saved one.
+    const tryDesign = c.get("design");
+    const site = tryDesign ? { ...templateSite(ctx.site()), design: siteDesign(tryDesign) } : templateSite(ctx.site());
     return views.render(template, {
-      site: templateSite(ctx.site()), cssUrl: cssHref("site"), previewCssUrl: data?.preview ? cssHref("preview") : "", siteJs: a.siteJs, themeScript: THEME_SCRIPT, preload: assets.preload,
+      site, cssUrl: cssHref("site"), previewCssUrl: data?.preview ? cssHref("preview") : "", siteJs: a.siteJs, themeScript: THEME_SCRIPT, preload: assets.preloadFor(site.design),
       // Only what a template shows: never the password hash or other account fields.
       member: m ? { id: m.member.id, name: m.member.name, email: m.member.email } : null,
       // Pages that carry a secret in their address (verify, reset) show no banners: nothing on them may load from or tell anyone else.
       memberCsrf: m?.session.csrf || "", currentUrl: c.req.path, slots: c.get("noSlots") ? {} : renderSlots(store, ctx.site()),
-      noAnalytics: Boolean(c.get("noAnalytics")), ...data,
+      noAnalytics: Boolean(c.get("noAnalytics")), designPreview: Boolean(c.get("designPreview")), ...data,
     });
   }
 
@@ -333,7 +337,7 @@ export function publicRoutes(app, ctx) {
 
   // Home: a big story with Editor's Choice beside it, the latest posts with News and Most read in a
   // sidebar, then one row per category. News posts stay in the News column.
-  app.get(`${base}/`, cached((c) => {
+  const homePage = (c) => {
     const pr = presenter();
     const site = pr.site;
     const newsIds = site.newsCat ? [site.newsCat.id] : [];
@@ -362,7 +366,8 @@ export function publicRoutes(app, ctx) {
       side: pr.sidebar(),
       sections,
     });
-  }, { tags: ["lists"] }));
+  };
+  app.get(`${base}/`, cached(homePage, { tags: ["lists"] }));
 
   // Every post, newest first.
   const latest = cached((c) => {
@@ -1010,6 +1015,24 @@ export function publicRoutes(app, ctx) {
       return html(c, template, { ...data, ...extra });
     }
     return html(c, "public/post.njk", data);
+  };
+
+  // Admin > Design: the home page or the newest post, drawn with the look being tried (c.set("design", ...)). Never cached,
+  // no analytics, no view counted, no banners.
+  ctx.renderDesignPreview = (c, page) => {
+    c.set("noAnalytics", true);
+    c.set("noSlots", true);
+    // The admin's security rules don't run the site's own script, and the frame needs none of it.
+    c.set("designPreview", true);
+    const pr = presenter();
+    // The newest full article (News items are short), or the newest post of any kind.
+    const newsIds = pr.site.newsCat ? [pr.site.newsCat.id] : [];
+    const [newest] = page === "post" ? [...store.posts.listPublic({ limit: 1, excludeCategoryIds: newsIds }), ...store.posts.listPublic({ limit: 1 })] : [];
+    const post = newest && store.posts.getPublicBySlug(newest.slug);
+    if (!post) return homePage(c);
+    const view = pr.full(post);
+    const thread = view.commentsOn ? store.comments.thread(post.id) : { comments: [], count: 0 };
+    return html(c, "public/post.njk", { meta: view.meta, post: view, related: store.posts.related(post, 3).map(pr.card), bodyParts: splitForSlot(view.html), thread, liked: new Set() });
   };
 
   // About, Contact, Advertise and legal pages have their own layouts, filled from categories, Settings and the

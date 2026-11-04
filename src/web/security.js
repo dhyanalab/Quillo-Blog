@@ -17,7 +17,9 @@ export const isAdminPath = (path, base = "") => path === `${base}/admin` || path
 // `analytics` adds the visitor-analytics tracker's own addresses on public pages.
 // Public pages allow the public inline scripts (`scriptHashes`) and their one inline stylesheet (`styleHashes`);
 // admin pages only their own scripts (`adminScriptHashes`).
-export function securityHeaders({ scriptHashes, adminScriptHashes = [], styleHashes = [], admin, https, analytics = null, hstsSubdomains = false }) {
+// `framing` loosens the admin's "no frames" rule for Admin > Design only: "host" lets that page show this site in a frame,
+// "framed" lets its preview be shown there. Neither lets another site frame the admin.
+export function securityHeaders({ scriptHashes, adminScriptHashes = [], styleHashes = [], admin, https, analytics = null, hstsSubdomains = false, framing = "" }) {
   const csp = [
     "default-src 'self'",
     ["script-src 'self'", ...(admin ? adminScriptHashes : scriptHashes), ...(analytics?.scriptSrc || [])].join(" "),
@@ -28,11 +30,11 @@ export function securityHeaders({ scriptHashes, adminScriptHashes = [], styleHas
     admin ? "img-src 'self' data: blob:" : "img-src 'self' data: https://i.ytimg.com",
     "font-src 'self'",
     ["connect-src 'self'", ...(analytics?.connectSrc || [])].join(" "),
-    admin ? "frame-src 'none'" : "frame-src https://www.youtube-nocookie.com",
+    admin ? `frame-src ${framing === "host" ? "'self'" : "'none'"}` : "frame-src https://www.youtube-nocookie.com",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
-    `frame-ancestors ${admin ? "'none'" : "'self'"}`,
+    `frame-ancestors ${admin && framing !== "framed" ? "'none'" : "'self'"}`,
   ].join("; ");
   const headers = {
     "Content-Security-Policy": csp,
@@ -42,7 +44,7 @@ export function securityHeaders({ scriptHashes, adminScriptHashes = [], styleHas
     "Cross-Origin-Opener-Policy": "same-origin",
   };
   if (admin) {
-    headers["X-Frame-Options"] = "DENY";
+    headers["X-Frame-Options"] = framing === "framed" ? "SAMEORIGIN" : "DENY";
     headers["Cross-Origin-Resource-Policy"] = "same-origin";
     // Trusted Types would stop most script injection through the editor, but the editor's own bundle writes HTML strings
     // everywhere, so enforcing it breaks the editor. Report-only shows any problems in the browser console without breaking anything.

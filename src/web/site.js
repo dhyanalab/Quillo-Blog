@@ -7,6 +7,7 @@ import { isHttpUrl } from "../render/util.js";
 import { isSafeLocalPath } from "./validate.js";
 import { isPrivateHost } from "../services/hosts.js";
 import { PRODUCT } from "../product.js";
+import { siteDesign } from "../design.js";
 
 // A menu or footer link must be a path on this site or a full http(s) address. Anything else (javascript:, //host) becomes "".
 const cleanUrl = (u) => {
@@ -229,6 +230,8 @@ export function buildSite(store, config) {
     noun: { one: s.post_noun || "post", many: s.post_noun_plural || "posts" },
     adsPitch: s.ads_pitch,
     adsWho: s.ads_who,
+    // The look chosen on Admin > Design: the attributes <html> carries, the browser bar colours and the fonts to preload.
+    design: siteDesign(s.design),
     // Read when a page is built, so the footer year changes at New Year even if the site object was cached.
     get year() {
       return new Date().getFullYear();

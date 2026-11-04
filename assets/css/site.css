@@ -3,7 +3,7 @@
 /* Header */
 .site-head{position:sticky;top:0;z-index:40;background:var(--sf);border-bottom:1px solid var(--line)}
 .head-row{display:flex;align-items:center;gap:28px;min-height:68px}
-.brand{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:-.025em;color:var(--ink);text-decoration:none;white-space:nowrap}
+.brand{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-head);font-weight:800;font-size:19px;letter-spacing:-.025em;color:var(--ink);text-decoration:none;white-space:nowrap}
 .brand:hover{color:var(--ink)}
 .brand-mark{width:34px;height:34px;border-radius:9px;background:var(--ac);color:var(--ac-ink);display:grid;place-items:center;flex:none}
 .brand-initials{font-weight:800;font-size:14px;letter-spacing:.02em;line-height:1}

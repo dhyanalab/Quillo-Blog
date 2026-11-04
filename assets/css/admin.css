@@ -4,7 +4,7 @@
 body.admin{background:var(--sf);font-size:14.5px}
 .adm{display:grid;grid-template-columns:256px minmax(0,1fr);min-height:100vh}
 .adm-side{position:sticky;top:0;height:100vh;overflow:auto;display:flex;flex-direction:column;gap:18px;padding:20px 14px;background:var(--sf);border-right:1px solid var(--line)}
-.adm-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15.5px;color:var(--ink);text-decoration:none;padding:4px 10px;letter-spacing:-.015em}
+.adm-brand{display:flex;align-items:center;gap:10px;font-family:var(--font-head);font-weight:800;font-size:15.5px;color:var(--ink);text-decoration:none;padding:4px 10px;letter-spacing:-.015em}
 .adm-brand:hover{color:var(--ink)}
 .adm-brand .brand-mark{width:30px;height:30px;border-radius:8px;background:var(--ac);color:var(--ac-ink);display:grid;place-items:center;flex:none}
 .adm-brand .brand-initials{font-weight:800;font-size:13px;letter-spacing:.02em;line-height:1}
@@ -337,3 +337,40 @@ details.more[open]>summary{margin-bottom:4px}
 .more-help summary{cursor:pointer;color:var(--ink-2);font-weight:600}
 .more-help p{margin:8px 0 0}
 @media print{.adm-side,.adm-mobile-top,.two-codes .form-actions{display:none!important}}
+
+/* Admin > Design: option cards on the left, the live preview on the right. */
+.adm-wide{max-width:none}
+.design-grid{display:grid;grid-template-columns:minmax(330px,460px) minmax(0,1fr);gap:22px;align-items:start}
+.design-options{display:grid;gap:16px;min-width:0}
+.d-opts{display:grid;gap:10px}
+.d-opts-palette{grid-template-columns:repeat(2,minmax(0,1fr))}
+.d-opt{position:relative;display:block;cursor:pointer}
+.d-opt input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+.d-card{display:grid;gap:5px;height:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--sf);transition:border-color .15s,box-shadow .15s}
+.d-opt:hover .d-card{border-color:var(--line-2)}
+.d-opt input:checked+.d-card{border-color:var(--ac);box-shadow:0 0 0 3px var(--ac-soft)}
+.d-opt input:focus-visible+.d-card{outline:2px solid var(--ac);outline-offset:2px}
+.d-card strong{font-size:14.5px;color:var(--ink)}
+.d-card small{color:var(--ink-2);font-size:13px;line-height:1.45}
+.d-sw{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:4px}
+.d-sw>span{display:flex;align-items:center;gap:5px;padding:8px 9px;border-radius:7px;box-shadow:inset 0 0 0 1px var(--line)}
+.d-sw i{width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 1px rgba(128,128,128,.3)}
+.d-sw i:first-child{width:30px;border-radius:999px}
+.d-font{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;color:var(--ink)}
+.d-font b{font-size:28px;line-height:1.1;font-weight:700}
+.d-font span{font-size:15px}
+.d-font code{font-size:13px;color:var(--ink-2)}
+.d-tag{font-style:normal;font-size:11px;font-weight:600;padding:1px 7px;border-radius:999px;background:var(--sf2);color:var(--ink-2);margin-left:4px;vertical-align:2px}
+.design-preview{position:sticky;top:16px;display:grid;gap:10px;min-width:0}
+.dp-bar{display:flex;flex-wrap:wrap;gap:8px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--sf)}
+.seg button{display:inline-flex;align-items:center;gap:6px;border:0;background:none;padding:6px 12px;border-radius:999px;font:inherit;font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ac);color:var(--ac-ink)}
+.seg button:disabled{opacity:.4;cursor:not-allowed}
+.dp-frame{position:relative;height:calc(100vh - 210px);min-height:460px;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--sf2)}
+.dp-frame iframe{display:block;border:0;transform-origin:0 0;background:var(--sf)}
+.dp-frame.phone{display:grid;justify-content:center}
+.dp-frame.phone iframe{box-shadow:0 0 0 1px var(--line)}
+.dp-note{font-size:13px}
+@media (max-width:1100px){.design-grid{grid-template-columns:minmax(0,1fr)}.design-preview{position:static;order:-1}.dp-frame{height:65vh}}
+@media (max-width:560px){.d-opts-palette{grid-template-columns:minmax(0,1fr)}}

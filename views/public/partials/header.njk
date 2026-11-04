@@ -36,7 +36,7 @@
     </nav>
     <div class="head-tools">
       <a class="icon-btn search-toggle" href="{{ site.url.search }}" aria-controls="search-bar" aria-expanded="false" title="Search">{{ icon("search", 18) }}<span class="sr-only">Search</span></a>
-      <button class="icon-btn theme-toggle" type="button" aria-pressed="false" title="Dark mode" hidden>{{ icon("moon", 18, "i-moon") }}{{ icon("sun", 18, "i-sun") }}<span class="sr-only">Dark mode</span></button>
+      {% if site.design.mode != "light" %}<button class="icon-btn theme-toggle" type="button" aria-pressed="false" title="Dark mode" hidden>{{ icon("moon", 18, "i-moon") }}{{ icon("sun", 18, "i-sun") }}<span class="sr-only">Dark mode</span></button>{% endif %}
       {% if member %}
       <a class="member-chip" href="{{ site.url.account }}" title="Your account"><span class="av">{{ member.name | initials }}</span><span class="sr-only">Your account: </span><span class="head-signin">{{ member.name.split(" ")[0] }}</span></a>
       {% elif site.comments.enabled %}
