@@ -9,6 +9,8 @@ import { createApp } from "../src/web/app.js";
 
 const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "blog-site-test-"));
 const { app, ctx } = createApp({ dataDir, siteUrl: "", outbound: false, production: true, setupToken: "test-setup", mailTransport: { jsonTransport: true }, mailDelayMs: 0 });
+// Source code, downloads and "Tested with" are switched off on a new blog (Settings > Post features); these tests use them.
+ctx.store.settings.set({ post_features: ["code", "downloads", "tested"] });
 
 function jar() {
   const cookies = new Map();

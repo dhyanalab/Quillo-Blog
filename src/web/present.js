@@ -274,10 +274,13 @@ export function createPresenter({ store, site: siteRef, memo: shared = null }) {
     if (c.category && p.type === "post") crumbs.push({ name: c.category.name, url: c.category.url });
     crumbs.push({ name: p.short_title || p.title });
 
-    const files = p.type === "post" ? sourceFiles(p) : [];
-    const dl = downloads(p);
+    // Topic features (Settings > Post features) that are switched off are left out, whatever the post holds.
+    const feature = (name) => site.postFeatures.includes(name);
+    const files = p.type === "post" && feature("code") ? sourceFiles(p) : [];
+    const dl = feature("downloads") ? downloads(p) : { github: "", files: [] };
+    const tested = feature("tested") ? p.tested_with || [] : [];
     const glance = [...(p.at_a_glance || [])];
-    if (p.tested_with?.length) glance.push(["Tested with", p.tested_with.join(", ")]);
+    if (tested.length) glance.push(["Tested with", tested.join(", ")]);
     const commentsOn = p.type === "post" && site.comments.enabled && p.comments_enabled;
     const commentCount = commentsOn && p.id ? store.comments.countFor(p.id) : 0;
 
@@ -309,7 +312,7 @@ export function createPresenter({ store, site: siteRef, memo: shared = null }) {
       heroCaption: p.feature_image_caption,
       quickAnswerHtml: p.quick_answer ? markdown().renderInline(p.quick_answer, renderEnv()) : "",
       glance,
-      tested_with: p.tested_with || [],
+      tested_with: tested,
       publishedIso: isoWithOffset(p.published_at, site.tz),
       updatedIso: isoWithOffset(p.updated_at || p.published_at, site.tz),
       word_count: p.word_count,

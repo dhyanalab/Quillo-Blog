@@ -23,7 +23,7 @@
     {% if search %}
     <form class="search-big" role="search" action="{{ site.url.search }}" method="get">
       <label class="sr-only" for="search-q">Search</label>
-      <input id="search-q" type="search" name="q" value="{{ search.q }}" placeholder="Search projects, tutorials and news" maxlength="100">
+      <input id="search-q" type="search" name="q" value="{{ search.q }}" placeholder="Search the {{ site.noun.many }}" maxlength="100">
       <button class="btn btn-primary" type="submit">Search</button>
     </form>
     {% endif %}

@@ -20,6 +20,8 @@ import { renderSlots } from "../src/web/slots.js";
 
 const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "fix2-public-"));
 const { app, ctx } = createApp({ dataDir, production: true, outbound: false, mailTransport: { jsonTransport: true }, setupToken: "test-setup", mailDelayMs: 0 });
+// Source code, downloads and "Tested with" are switched off on a new blog (Settings > Post features); these tests use them.
+ctx.store.settings.set({ post_features: ["code", "downloads", "tested"] });
 const { store } = ctx;
 
 const get = (p, { method = "GET", headers = {} } = {}) => app.request(`http://localhost${p}`, { method, headers, redirect: "manual" });

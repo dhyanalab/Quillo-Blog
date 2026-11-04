@@ -48,6 +48,17 @@
   const side = document.getElementById("adm-side");
   menu?.addEventListener("click", () => menu.setAttribute("aria-expanded", String(side.classList.toggle("open"))));
 
+  // First-run setup: start the time zone list at this computer's zone, when the list has it.
+  const zoneSelect = document.querySelector("select[data-guess-zone]");
+  if (zoneSelect && zoneSelect.value === "UTC") {
+    let here = "";
+    try {
+      here = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    } catch {}
+    if (here === "Asia/Calcutta") here = "Asia/Kolkata";
+    if ([...zoneSelect.options].some((o) => o.value === here)) zoneSelect.value = here;
+  }
+
   // Filters that apply as soon as they change.
   document.addEventListener("change", (e) => {
     if (e.target.matches("select[data-autosubmit]")) e.target.form.submit();

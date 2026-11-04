@@ -6,8 +6,34 @@ All notable changes to Quillo are listed here. Versions follow [Semantic Version
 
 Planned for 1.0.0:
 
-- White-label: no built-in brand. Every blog sets its own name, logo, colours and business details in first-run setup and Settings. Topic-specific features (source code box, downloads, GitHub button) become switches.
 - Designs chosen in the admin: a new Admin > Design page with live preview. It covers 6 colour themes, 5 font pairs, light and dark, and 3 headers, 3 home pages and 3 article pages. Share buttons, source code, downloads, tables and comments each get their own styles. Saved combinations become named templates.
+
+## [0.10.0] - 2026-11-04
+
+### Added
+
+- White-label: Quillo no longer carries a built-in brand.
+  - First-run setup asks for the blog's name, description and time zone (pre-set to the computer's own), and offers a "Powered by Quillo" footer line.
+  - New blogs start as "My Blog", with neutral wording and no electronics examples. Empty sponsor boxes stay hidden until the owner asks for them.
+  - Settings > Post features: the Source code box, download buttons with a GitHub button, and "Tested with" are switches. They are off on a new blog.
+  - Settings: the mark shown when there's no logo (initials or an icon), the region for search engines and social cards, and what the blog calls a post ("Related recipes", "Search the projects").
+  - The browser-tab icon follows the mark.
+  - Admin > Ads: the Advertise page's three reasons and "Who advertises here" list are editable.
+  - `PRODUCT_NAME` lets resellers with a commercial licence show their own product name.
+
+### Fixed
+
+- Time zones: the lists now offer "UTC" and current names such as Asia/Kolkata, which Node's own list lacked. A saved old name shows as its current one.
+- The footer year no longer stays on the old year after New Year on a quiet site.
+
+### Changed
+
+Existing blogs keep their look: database update 008 saves their current mark, features, wording, region and Advertise text as settings. Four small phrases are now neutral on every blog:
+
+- "More from …" on the About page;
+- "Search the projects" in the search box;
+- the search page hint;
+- "share your thoughts" under posts without comments.
 
 ## [0.9.0] - 2026-11-04
 
@@ -45,4 +71,5 @@ Three security audits, with fixes after each:
 - Every dependency pinned exactly, with DOMPurify 3.4.17, and `npm audit` clean.
 
 [Unreleased]: #
+[0.10.0]: #
 [0.9.0]: #

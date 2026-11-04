@@ -332,7 +332,7 @@ describe("settings", () => {
     db.prepare("INSERT OR REPLACE INTO settings (key, value) VALUES ('site_title', '{not json')").run();
     store.settings.set({ org_name: "Acme" });
     assert.equal(store.settings.get("org_name"), "Acme");
-    assert.equal(store.settings.get("site_title"), "IoT Studio Blog");
+    assert.equal(store.settings.get("site_title"), "My Blog");
   });
 });
 

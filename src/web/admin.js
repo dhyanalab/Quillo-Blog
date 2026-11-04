@@ -15,12 +15,12 @@ import { ROLE_LABELS, ROLES } from "../store/users.js";
 import { RANK, mayGrant, mayManage as outranksTarget } from "../store/roles.js";
 import { renderSimpleEmail } from "../render/email.js";
 import { nameKey } from "./members.js";
-import { SETTING_DEFAULTS, SOCIAL_KEYS } from "../store/settings.js";
+import { BRAND_MARKS, LOCALES, POST_FEATURES, SETTING_DEFAULTS, SOCIAL_KEYS } from "../store/settings.js";
 import { MIN_PASSWORD } from "./password.js";
 import { THEME_SCRIPT } from "./assets.js";
 import { HTTPException } from "hono/http-exception";
 import { clearAppCookie, clientIp, isAdminPath, readCookie, safeEq, sameOrigin, setAppCookie, takeClient } from "./security.js";
-import { cleanText, csvCell, hasControlChars, isEmail, isSafeLocalPath, passwordProblem } from "./validate.js";
+import { cleanText, csvCell, hasControlChars, isEmail, isSafeLocalPath, isTimeZone, passwordProblem, TIME_ZONES, zoneName } from "./validate.js";
 import { createRateLimiter } from "./security.js";
 import { isPrivateHost } from "../services/hosts.js";
 import { linkFrom, linkRows } from "./networks.js";
@@ -331,15 +331,23 @@ export function adminRoutes(app, ctx) {
 
   app.get(`${A}/setup`, (c) => {
     if (store.users.hasOwner()) return c.redirect(`${A}/login`);
-    return page(c, "setup.njk", { token: loginToken(c), values: { site_url: new URL(c.req.url).origin, site_title: SETTING_DEFAULTS.site_title } });
+    return page(c, "setup.njk", { token: loginToken(c), zones: TIME_ZONES, values: { site_url: new URL(c.req.url).origin, site_title: "", site_description: "", timezone: "UTC", powered_by: true } });
   });
   // Every setup try also counts against the whole site (40 an hour), so a short token can't be ground down from many addresses.
   const setupAll = createRateLimiter({ limit: 40, windowMs: 3_600_000 });
   app.post(`${A}/setup`, async (c) => {
     if (store.users.hasOwner()) return c.redirect(`${A}/login`);
     const body = await c.req.parseBody();
-    const values = { name: clip(body.name, 100).trim(), email: clip(body.email, 200).trim(), site_title: clip(body.site_title, 100).trim(), site_url: clip(body.site_url, 300).trim() };
-    const fail = (error, status = 400) => page(c, "setup.njk", { token: loginToken(c), error, values }, status);
+    const values = {
+      name: clip(body.name, 100).trim(),
+      email: clip(body.email, 200).trim(),
+      site_title: plainLine(body.site_title, 100),
+      site_url: clip(body.site_url, 300).trim(),
+      site_description: plainLine(body.site_description, 300),
+      timezone: isTimeZone(body.timezone) ? body.timezone : "UTC",
+      powered_by: body.show_powered_by === "1",
+    };
+    const fail = (error, status = 400) => page(c, "setup.njk", { token: loginToken(c), zones: TIME_ZONES, error, values }, status);
     // Setup always needs the token (SETUP_TOKEN, or the one printed when the server started), and tries are limited.
     if (!takeClient(limiters.setup, c, ctx) || !setupAll.take("all")) return fail("Too many attempts. Wait a while and try again.", 429);
     if (!checkLoginToken(c, body)) return fail("Security token expired. Try again.");
@@ -350,6 +358,8 @@ export function adminRoutes(app, ctx) {
     const problem = passwordProblem(password, { email: values.email, name: values.name }, "password");
     if (problem) return fail(problem);
     if (!isHttpUrl(values.site_url)) return fail("Site URL must start with http:// or https://");
+    if (!values.site_title) return fail("Give your blog a name. You can change it later in Settings.");
+    if (values.site_description.length > 155) return fail(`The description is ${values.site_description.length} characters; keep it to 155 (search engines show it under your blog's name).`);
     // Atomic: only one request can create the owner, however many arrive together.
     let user;
     try {
@@ -359,7 +369,14 @@ export function adminRoutes(app, ctx) {
       throw err;
     }
     if (!user) return c.redirect(`${A}/login`);
-    store.settings.set({ site_title: values.site_title || SETTING_DEFAULTS.site_title, site_url: new URL(values.site_url).origin });
+    store.settings.set({
+      site_title: values.site_title,
+      org_name: values.site_title,
+      site_description: values.site_description,
+      site_url: new URL(values.site_url).origin,
+      timezone: values.timezone,
+      show_powered_by: values.powered_by,
+    });
     await startSession(c, user);
     return c.redirect(`${A}/?ok=created`);
   });
@@ -1748,7 +1765,17 @@ export function adminRoutes(app, ctx) {
     if (contact && !siteLink(contact) && !(contact.startsWith("mailto:") && isEmail(contact.slice(7)))) {
       return c.redirect(`${A}/ads?error=contact`);
     }
-    store.settings.set({ ads_empty: body.ads_empty === "show" ? "show" : "hide", ads_contact_url: contact });
+    const values = { ads_empty: body.ads_empty === "show" ? "show" : "hide", ads_contact_url: contact };
+    // The Advertise page text, when the form carries it: three reasons (each keeps its icon) and who advertises.
+    if (body.pitch_title !== undefined) {
+      const titles = [].concat(body.pitch_title).slice(0, 3);
+      const texts = [].concat(body.pitch_text ?? []).slice(0, 3);
+      const icons = (store.settings.get("ads_pitch") || []).map((r) => r.icon);
+      const DEFAULT_ICONS = ["users", "eye", "chart"];
+      values.ads_pitch = titles.map((t, i) => ({ icon: icons[i] || DEFAULT_ICONS[i], title: plainLine(t, 60), text: plainLine(texts[i], 200) })).filter((r) => r.title || r.text);
+      values.ads_who = String(body.ads_who ?? "").split(/\r?\n/).map((w) => plainLine(w, 80)).filter(Boolean).slice(0, 10);
+    }
+    store.settings.set(values);
     return c.redirect(`${A}/ads?ok=saved`);
   });
 
@@ -2683,6 +2710,15 @@ export function adminRoutes(app, ctx) {
 
   // ---------- Settings ----------
 
+  // White-label choices on the Settings page, in plain words.
+  const MARK_LABELS = { initials: "The blog’s initials", pen: "Pen", book: "Book", chip: "Microchip", code: "Code brackets", globe: "Globe", heart: "Heart", home: "House", image: "Picture", chart: "Chart", mobile: "Phone" };
+  const BRAND_MARK_CHOICES = BRAND_MARKS.map((value) => ({ value, label: MARK_LABELS[value] || value }));
+  const FEATURE_TEXT = {
+    code: ["Source code", "a box of code files under the article, with copy and download buttons"],
+    downloads: ["Downloads", "big download buttons for files such as PDF, STL or ZIP, and a GitHub button"],
+    tested: ["Tested with", "a line listing the versions or devices the post was tested with"],
+  };
+  const POST_FEATURE_CHOICES = POST_FEATURES.map((value) => ({ value, label: FEATURE_TEXT[value][0], help: FEATURE_TEXT[value][1] }));
   const settingsPage = (c, extra = {}, status = 200) => {
     const site = ctx.site();
     const m = (id) => {
@@ -2690,7 +2726,7 @@ export function adminRoutes(app, ctx) {
       return x ? { id: x.id, url: site.url.media(x.path) } : null;
     };
     const st = safeSettings();
-    return page(c, "settings.njk", { nav: "settings", s: st, categories: store.categories.list(), socialRows: linkRows(st.social_links?.length ? st.social_links : SOCIAL_KEYS.map((k) => st[`social_${k}`])), logo: m(store.settings.get("logo_id")), defaultOg: m(store.settings.get("default_og_image_id")), socialKeys: SOCIAL_KEYS, zones: Intl.supportedValuesOf("timeZone"), keyUrl: `${site.blogUrl}/${store.settings.get("indexnow_key")}.txt`, sitemapUrl: `${site.blogUrl}/sitemap.xml`, envSiteUrl: config.siteUrl, canSiteUrl: can.owner(c.get("user")), ...extra }, status);
+    return page(c, "settings.njk", { nav: "settings", s: st, categories: store.categories.list(), socialRows: linkRows(st.social_links?.length ? st.social_links : SOCIAL_KEYS.map((k) => st[`social_${k}`])), logo: m(store.settings.get("logo_id")), defaultOg: m(store.settings.get("default_og_image_id")), socialKeys: SOCIAL_KEYS, zones: TIME_ZONES, tz: zoneName(st.timezone), brandMarks: BRAND_MARK_CHOICES, postFeatures: POST_FEATURE_CHOICES, locales: LOCALES, keyUrl: `${site.blogUrl}/${store.settings.get("indexnow_key")}.txt`, sitemapUrl: `${site.blogUrl}/sitemap.xml`, envSiteUrl: config.siteUrl, canSiteUrl: can.owner(c.get("user")), ...extra }, status);
   };
   // An image from the media library, by id. 0 = none, null = the id isn't an image.
   const imageId = (v) => {
@@ -2733,6 +2769,12 @@ export function adminRoutes(app, ctx) {
       comments_enabled: Boolean(body.comments_enabled),
       comments_moderation: ["none", "first", "all"].includes(body.comments_moderation) ? body.comments_moderation : "first",
       members_signup: Boolean(body.members_signup),
+      brand_mark: BRAND_MARKS.includes(body.brand_mark) ? body.brand_mark : SETTING_DEFAULTS.brand_mark,
+      post_features: POST_FEATURES.filter((f) => [].concat(body.post_features ?? []).includes(f)),
+      show_powered_by: body.show_powered_by === "1",
+      og_locale: Object.hasOwn(LOCALES, body.og_locale) ? body.og_locale : SETTING_DEFAULTS.og_locale,
+      post_noun: str("post_noun", 30).toLowerCase() || SETTING_DEFAULTS.post_noun,
+      post_noun_plural: str("post_noun_plural", 30).toLowerCase() || SETTING_DEFAULTS.post_noun_plural,
     };
     // The logo and the default social image must be pictures from the media library.
     for (const [key, label] of [["logo_id", "logo"], ["default_og_image_id", "default social image"]]) {
@@ -2740,7 +2782,7 @@ export function adminRoutes(app, ctx) {
       if (id === null) errors.push(`The ${label} must be a picture from the media library, not a download.`);
       else values[key] = id || null;
     }
-    if (Intl.supportedValuesOf("timeZone").includes(str("timezone"))) values.timezone = str("timezone");
+    if (isTimeZone(str("timezone"))) values.timezone = str("timezone");
     // The Site URL (every canonical link, the sitemap and the mail links) is the owner's to change.
     let siteUrlRisky = false;
     if (can.owner(user)) {
@@ -2753,7 +2795,7 @@ export function adminRoutes(app, ctx) {
           siteUrlRisky = true;
           errors.push("That Site URL isn’t a public https address. Links in emails and the sign-in cookies follow it, so check it. If it is right, tick “Use this address anyway” and save again.");
         }
-      } else errors.push("Site URL must be a full URL such as https://iotstudio.in");
+      } else errors.push("Site URL must be a full URL such as https://blog.example.com");
     }
     // At most 40 link rows are looked at, however many arrive.
     const social = readLinks({ link_network: [].concat(body.link_network ?? []).slice(0, 40), link_url: [].concat(body.link_url ?? []).slice(0, 40) }, 12);

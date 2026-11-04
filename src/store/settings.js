@@ -4,12 +4,25 @@ import { isSealed, secretsOrPlain } from "./sql.js";
 
 // Every site setting with its default. Admin > Settings edits these; values are stored as JSON.
 export const SETTING_DEFAULTS = {
-  site_title: "IoT Studio Blog",
-  site_description: "Step-by-step ESP32, Arduino and IoT projects, tutorials and news, tested on real hardware.",
+  // A new blog starts neutral; first-run setup asks for its name, description and time zone.
+  site_title: "My Blog",
+  site_description: "",
   site_url: "http://localhost:4100",
-  org_name: "IoT Studio Blog",
-  timezone: "Asia/Kolkata",
+  org_name: "My Blog",
+  timezone: "UTC",
+  // The region search engines and social cards are told the blog is written for (og:locale).
+  og_locale: "en_US",
   logo_id: null,
+  // What stands in for the logo when there is none: the title's initials, or one of the icons in BRAND_MARKS.
+  brand_mark: "initials",
+  // Topic features an editor can add to posts, switched on in Settings > Post features:
+  // "code" (Source code box), "downloads" (download buttons and the GitHub button), "tested" (Tested with).
+  post_features: [],
+  // A small "Powered by" line in the footer. First-run setup turns it on unless the owner unticks it.
+  show_powered_by: false,
+  // What the blog calls a post, in phrases such as "Related posts" ("project" and "projects" on a projects blog).
+  post_noun: "post",
+  post_noun_plural: "posts",
   default_og_image_id: null,
   home_url: "",
   // The business behind the blog: shown in the footer and on legal pages, and given to search engines.
@@ -24,7 +37,7 @@ export const SETTING_DEFAULTS = {
   contact_phone: "",
   contact_email: "",
   contact_email_alt: "",
-  about_text: "IoT Studio makes it easy to build connected devices with ESP32: wiring, code and a phone dashboard for every project.",
+  about_text: "",
   // The site's social profiles (footer and Organization "sameAs"), from the links editor in Settings.
   social_links: [],
   // Older one-field-per-network settings, still read until social_links is saved.
@@ -35,9 +48,9 @@ export const SETTING_DEFAULTS = {
   social_facebook: "",
   social_github: "",
   cta_download_url: "",
-  cta_download_label: "Download IoT Studio (free)",
+  cta_download_label: "Download",
   cta_kit_url: "",
-  cta_kit_label: "Get the Starter Kit",
+  cta_kit_label: "Visit the shop",
   // Menus: "auto" builds them from categories and pages; "custom" uses the items chosen in Admin > Menus.
   nav_mode: "auto",
   nav_items: [], // [{label, url, children: [{label, url}]}]
@@ -50,8 +63,15 @@ export const SETTING_DEFAULTS = {
   // and where "Advertise with us" leads.
   ads_enabled: true,
   ads_places_off: [],
-  ads_empty: "show",
+  ads_empty: "hide", // a new blog shows no empty sponsor boxes until the owner asks for them
   ads_contact_url: "",
+  // The Advertise page's sales text, edited in Admin > Ads: three reasons (icon, title, text) and who advertises here.
+  ads_pitch: [
+    { icon: "users", title: "Readers who come back", text: "People who follow this blog and act on what they read." },
+    { icon: "eye", title: "Seen beside the posts", text: "Your banner sits next to the articles readers came for, not in a pile of other ads." },
+    { icon: "chart", title: "Clear numbers", text: "You get the views and clicks of your banner for every day it runs." },
+  ],
+  ads_who: ["Shops and online stores", "Brands whose products our readers use", "Apps, tools and services", "Courses, events and training", "Local businesses"],
   posts_per_page: 12,
   // The category whose posts fill the News column on the home page and in sidebars.
   news_category_slug: "news",
@@ -76,8 +96,8 @@ export const SETTING_DEFAULTS = {
   // Two-step sign-in for staff: "off", "admins" (owner and administrators) or "staff" (everyone).
   require_two_step: "off",
   newsletter_enabled: true,
-  newsletter_heading: "Get new projects in your inbox",
-  newsletter_text: "Leave your email and we'll write when a new project goes live.",
+  newsletter_heading: "Get new posts in your inbox",
+  newsletter_text: "Leave your email and we'll write when something new goes live.",
   // Sending newsletters: who they come from, and the email service (SMTP) that delivers them.
   mail_from_name: "",
   mail_from_email: "",
@@ -95,13 +115,19 @@ export const SOCIAL_KEYS = ["youtube", "instagram", "x", "linkedin", "facebook",
 // Values that must never be handed out with the other settings. They are stored sealed (encrypted).
 const SECRET_KEYS = new Set(["smtp_pass"]);
 const MAX_VALUE_JSON = 200_000;
-const ENUMS = { require_two_step: ["off", "admins", "staff"] };
+export const BRAND_MARKS = ["initials", "pen", "book", "chip", "code", "globe", "heart", "home", "image", "chart", "mobile"];
+export const POST_FEATURES = ["code", "downloads", "tested"];
+export const LOCALES = { en_US: "English, United States", en_GB: "English, United Kingdom", en_IN: "English, India", en_AU: "English, Australia", en_CA: "English, Canada", en_IE: "English, Ireland", en_NZ: "English, New Zealand", en_SG: "English, Singapore", en_ZA: "English, South Africa" };
+const ENUMS = { require_two_step: ["off", "admins", "staff"], brand_mark: BRAND_MARKS, og_locale: Object.keys(LOCALES) };
 
 // Does a value have the shape the setting's default has? (A string stays a string, a list a list, a picture id a whole number or empty.)
 function fits(key, value) {
   const def = SETTING_DEFAULTS[key];
   if (key in ENUMS) return ENUMS[key].includes(value);
   if (def === null) return value === null || (Number.isInteger(value) && value > 0);
+  if (key === "post_features") return Array.isArray(value) && value.every((f) => POST_FEATURES.includes(f));
+  if (key === "ads_pitch") return Array.isArray(value) && value.length <= 3 && value.every((p) => p && typeof p.title === "string" && typeof p.text === "string" && typeof p.icon === "string");
+  if (key === "ads_who") return Array.isArray(value) && value.length <= 10 && value.every((w) => typeof w === "string");
   if (Array.isArray(def)) return Array.isArray(value);
   if (typeof def === "number") return typeof value === "number" && Number.isFinite(value);
   return typeof value === typeof def;

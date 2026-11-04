@@ -1,4 +1,4 @@
-{% macro brandMark(size=34) %}{% if site.logo %}<img src="{{ site.url.media(site.logo.path) }}" alt="{{ site.title }}" height="{{ size }}" width="{{ (site.logo.width / site.logo.height * size) | round if site.logo.height else size * 4 }}">{% else %}<span class="brand-mark" aria-hidden="true">{{ icon("chip", 20) }}</span><span class="brand-word">{% if site.title.endsWith(" Blog") %}{{ site.title.slice(0, -5) }} <b>Blog</b>{% else %}{{ site.title }}{% endif %}</span>{% endif %}{% endmacro %}
+{% macro brandMark(size=34) %}{% if site.logo %}<img src="{{ site.url.media(site.logo.path) }}" alt="{{ site.title }}" height="{{ size }}" width="{{ (site.logo.width / site.logo.height * size) | round if site.logo.height else size * 4 }}">{% else %}{{ brandMarkHtml(site, 20) }}<span class="brand-word">{% if site.title.endsWith(" Blog") %}{{ site.title.slice(0, -5) }} <b>Blog</b>{% else %}{{ site.title }}{% endif %}</span>{% endif %}{% endmacro %}
 <header class="site-head">
   <div class="wrap head-row">
     <a class="brand" href="{{ site.homeUrl }}">{{ brandMark() }}</a>
@@ -50,7 +50,7 @@
     <div class="wrap">
       <form class="search-form" role="search" action="{{ site.url.search }}" method="get">
         <label class="sr-only" for="head-q">Search the blog</label>
-        <input id="head-q" name="q" type="search" placeholder="Search projects, tutorials and news" autocomplete="off" maxlength="100">
+        <input id="head-q" name="q" type="search" placeholder="Search the {{ site.noun.many }}" autocomplete="off" maxlength="100">
         <button class="btn btn-primary" type="submit">Search</button>
       </form>
     </div>

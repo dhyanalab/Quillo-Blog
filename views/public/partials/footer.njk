@@ -3,7 +3,7 @@
 <footer class="site-foot">
   <div class="wrap foot-grid">
     <div class="foot-about">
-      <a class="brand" href="{{ site.homeUrl }}">{% if site.logo %}<img src="{{ site.url.media(site.logo.path) }}" alt="{{ site.title }}" height="30" width="{{ (site.logo.width / site.logo.height * 30) | round if site.logo.height else 120 }}" loading="lazy">{% else %}<span class="brand-mark" aria-hidden="true">{{ icon("chip", 18) }}</span><span class="brand-word">{% if site.title.endsWith(" Blog") %}{{ site.title.slice(0, -5) }} <b>Blog</b>{% else %}{{ site.title }}{% endif %}</span>{% endif %}</a>
+      <a class="brand" href="{{ site.homeUrl }}">{% if site.logo %}<img src="{{ site.url.media(site.logo.path) }}" alt="{{ site.title }}" height="30" width="{{ (site.logo.width / site.logo.height * 30) | round if site.logo.height else 120 }}" loading="lazy">{% else %}{{ brandMarkHtml(site, 18) }}<span class="brand-word">{% if site.title.endsWith(" Blog") %}{{ site.title.slice(0, -5) }} <b>Blog</b>{% else %}{{ site.title }}{% endif %}</span>{% endif %}</a>
       {% if site.about %}<p>{{ site.about }}</p>{% endif %}
       {% if site.cta.length %}
       <div class="foot-cta">{% for cta in site.cta %}<a class="btn" href="{{ cta.url }}">{% if cta.primary %}{{ icon("dl", 16) }}{% endif %}{{ cta.label }}</a>{% endfor %}</div>
@@ -43,6 +43,7 @@
       {% for l in site.legal %}<li><a href="{{ l.url }}">{{ l.label }}</a></li>{% endfor %}
       <li><a href="{{ site.url.rss }}">RSS</a></li>
       <li><a href="{{ site.url.sitemap }}">Sitemap</a></li>
+      {% if site.poweredBy %}<li class="foot-powered">Powered by {{ site.poweredBy.name }}</li>{% endif %}
     </ul>
   </div>
 </footer>

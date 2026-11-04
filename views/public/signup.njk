@@ -20,7 +20,7 @@
       <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="field"><label for="su-name">Name</label><input id="su-name" name="name" value="{{ name }}" required autocomplete="name" maxlength="60"><span class="hint">Shown next to your comments.</span></div>
       <div class="field"><label for="su-email">Email</label><input id="su-email" type="email" name="email" value="{{ email }}" required autocomplete="email" maxlength="200"><span class="hint">Never shown to anyone. We’ll email you a link to confirm it and choose your password.</span></div>
-      {% if site.newsletter %}<label class="check"><input type="checkbox" name="newsletter" value="1"{% if newsletter %} checked{% endif %}> Email me when new projects go live</label>{% endif %}
+      {% if site.newsletter %}<label class="check"><input type="checkbox" name="newsletter" value="1"{% if newsletter %} checked{% endif %}> Email me when new {{ site.noun.many }} go live</label>{% endif %}
       <button class="btn btn-primary" type="submit">Create account</button>
     </form>
     {% endif %}

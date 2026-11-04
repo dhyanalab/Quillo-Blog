@@ -1,6 +1,6 @@
 {
   "name": "quillo",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "private": true,
   "description": "Quillo: a self-hosted blog platform (admin + public site) on Node, Hono and SQLite. One install per blog, no database server, no build step.",
   "license": "AGPL-3.0-or-later",

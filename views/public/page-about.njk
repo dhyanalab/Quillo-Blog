@@ -46,7 +46,7 @@
     {% if site.cta.length or brandHost %}
     <section class="lp-app" aria-labelledby="app-h">
       <div class="lp-app-text">
-        <h2 id="app-h">Build with {{ b.brand or site.title }}</h2>
+        <h2 id="app-h">More from {{ b.brand or site.title }}</h2>
         {% if site.about %}<p>{{ site.about }}</p>{% endif %}
         <div class="lp-actions">
           {% for cta in site.cta %}<a class="btn{% if loop.first %} btn-primary{% endif %}" href="{{ cta.url }}">{% if cta.primary %}{{ icon("dl", 16) }}{% endif %}{{ cta.label }}</a>{% endfor %}

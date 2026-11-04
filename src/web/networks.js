@@ -1,5 +1,5 @@
 // Social networks for author profiles and the site's social links: name, logo, the web addresses that
-// belong to it, and how to turn a username into a full link ("iotstudio" -> https://www.instagram.com/iotstudio/).
+// belong to it, and how to turn a username into a full link ("yourbrand" -> https://www.instagram.com/yourbrand/).
 import { BRAND_PATHS } from "./brand-paths.js";
 
 export const NETWORKS = [

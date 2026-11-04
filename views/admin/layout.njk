@@ -8,7 +8,7 @@
 <script>{{ themeScript | safe }}</script>
 <link rel="stylesheet" href="{{ A }}/static/admin.css?v={{ files['admin.css'].hash }}">
 {% block head %}{% endblock %}
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23C2410C'/%3E%3Crect x='10' y='10' width='12' height='12' rx='2' fill='none' stroke='white' stroke-width='2.2'/%3E%3Cpath d='M13 6v4M19 6v4M13 22v4M19 22v4M6 13h4M6 19h4M22 13h4M22 19h4' stroke='white' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="icon" href="{{ site.url.media(site.logo.path) if site.logo else faviconHref(site) }}">
 </head>
 <body class="admin{% if fullscreen %} fullscreen{% endif %}" data-admin="{{ A }}" data-csrf="{{ csrf }}" data-media="{{ site.url.media('') }}">
 <a class="skip" href="#adm-content">Skip to content</a>
@@ -19,7 +19,7 @@
 {% elif user %}
 <div class="adm">
   <aside class="adm-side" id="adm-side">
-    <a class="adm-brand" href="{{ A }}/"><span class="brand-mark" aria-hidden="true">{{ icon("chip", 17) }}</span><span>{{ site.title }}</span></a>
+    <a class="adm-brand" href="{{ A }}/">{{ brandMarkHtml(site, 17) }}<span>{{ site.title }}</span></a>
     <nav aria-label="Admin">
       <ul class="adm-nav">
         {{ navlink("dashboard", A + "/", "Dashboard", "home") }}
@@ -67,7 +67,7 @@
   <div class="adm-main">
     <header class="adm-mobile-top">
       <button class="icon-btn adm-menu" type="button" aria-controls="adm-side" aria-expanded="false">{{ icon("menu", 20) }}<span class="sr-only">Menu</span></button>
-      <a class="adm-brand" href="{{ A }}/"><span class="brand-mark" aria-hidden="true">{{ icon("chip", 15) }}</span><span>{{ site.title }}</span></a>
+      <a class="adm-brand" href="{{ A }}/">{{ brandMarkHtml(site, 15) }}<span>{{ site.title }}</span></a>
     </header>
     <main class="adm-content" id="adm-content">
       {% if flash %}<p class="flash" role="status">{{ icon("check", 16) }} {{ flash }}</p>{% endif %}
@@ -78,7 +78,7 @@
 {% include "admin/partials/media-dialog.njk" %}
 {% else %}
 <main class="auth" id="adm-content">
-  <a class="adm-brand" href="{{ site.url.home }}"><span class="brand-mark" aria-hidden="true">{{ icon("chip", 18) }}</span><span>{{ site.title }}</span></a>
+  <a class="adm-brand" href="{{ site.url.home }}">{{ brandMarkHtml(site, 18) }}<span>{{ site.title }}</span></a>
   {% if flash %}<p class="flash" role="status">{{ flash }}</p>{% endif %}
   {% block auth %}{% endblock %}
 </main>

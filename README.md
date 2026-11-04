@@ -228,9 +228,13 @@ Every email has the subscriber's own unsubscribe link and `List-Unsubscribe` / `
 
 ## Configuration
 
+First-run setup asks for the blog's name, a one-line description, the time zone and whether to show a small "Powered by Quillo" line in the footer. A new blog starts neutral: no topic features, and the blog's initials stand in for a logo.
+
 **Settings** in the admin holds the site's content settings:
 
-- title, domain, logo, and links to the Menus page
+- title, domain, logo (or, until there is one, the mark shown instead: the initials or an icon), region and time zone, and links to the Menus page
+- what the blog calls a post ("post", "recipe", "project"...), used in phrases such as "Related posts"
+- **Post features**, switched on for blogs about making things: a Source code box, download buttons with a GitHub button, and a "Tested with" line. Switched off, they vanish from the editor and from every post; saved content is kept.
 - business details (the town, phone and emails show in the footer contact column; the business name in the copyright line; the full address goes to search engines as the Organization's legal name and address, and into newsletter footers)
 - social links and calls to action
 - comments and accounts, and the News category
@@ -273,6 +277,7 @@ Runtime options are environment variables:
 | `ALLOW_BACKUP_FAILURE` | (off) | Before a database update the blog saves a copy of the database. In production it refuses to update if that copy can't be saved. `1` lets it update without a copy; use it only once, knowingly. |
 | `MAX_CONNECTIONS_PER_IP` | `100` | How many connections one address may hold at once (5 to 1024). Only applied when no proxy is in front; then the proxy should limit. |
 | `BLOG_OUTBOUND` | | `0` disables outbound IndexNow pings. |
+| `PRODUCT_NAME` | `Quillo` | The software's name in the admin and the optional "Powered by" footer line. For resellers with a commercial licence (see LICENSING.md). |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_SECURE` | | Pin the mail server (`SMTP_SECURE` is `ssl` or `starttls`). They win over the saved settings, and the admin shows those fields as locked. |
 | `SMTP_PASSWORD` | | The mail password. Used only together with `SMTP_HOST`, so it is never sent to a server chosen in the admin. |
 | `ALLOW_PRIVATE_SMTP` | | `1` allows a mail server on a private or loopback address (refused by default). |

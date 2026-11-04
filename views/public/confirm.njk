@@ -5,7 +5,7 @@
   <section class="auth-card">
     {% if done %}
     <h1>You’re on the list</h1>
-    <p class="sub">Thanks for confirming. We’ll email you when a new project goes live. Every email has a one-click unsubscribe link.</p>
+    <p class="sub">Thanks for confirming. We’ll email you when a new {{ site.noun.one }} goes live. Every email has a one-click unsubscribe link.</p>
     <a class="btn" href="{{ site.url.home }}">Back to the blog</a>
     {% elif bad %}
     <h1>This link has expired</h1>

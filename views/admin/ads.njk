@@ -3,7 +3,7 @@
 <div class="adm-head">
   <h1>Ads</h1>
   <div class="adm-head-actions"><a class="btn btn-primary" href="{{ A }}/ads/new">{{ icon("plus", 16) }} New banner</a></div>
-  <p>Sponsor banners you sell and place yourself, like the DigiKey and Mouser banners on CircuitDigest. They’re served from your own site and labelled “Sponsored”.</p>
+  <p>Sponsor banners you sell and place yourself. They’re served from your own site and labelled “Sponsored”.</p>
 </div>
 <form class="card master{% if not s.ads_enabled %} is-off{% endif %}" method="post" action="{{ A }}/ads/switch">
   <input type="hidden" name="_csrf" value="{{ csrf }}">
@@ -110,6 +110,15 @@
   <label class="check"><input type="radio" name="ads_empty" value="hide"{% if s.ads_empty != "show" %} checked{% endif %}><span>Hide them<br><small class="meta">Readers see nothing there.</small></span></label>
   <label class="check"><input type="radio" name="ads_empty" value="show"{% if s.ads_empty == "show" %} checked{% endif %}><span>Show a “Your brand here” box<br><small class="meta">Shows sponsors where they could appear and links to your “Advertise with us” page. Useful while you look for sponsors, or to see every place on the site.</small></span></label>
   <label class="field"><span>“Advertise with us” link <small>optional</small></span><input name="ads_contact_url" value="{{ s.ads_contact_url }}" placeholder="/advertise/ or mailto:ads@yourdomain.com"><small>A page on your blog (create an “Advertise” page under Pages), a web address, or an email address as mailto:you@example.com.</small></label>
+  <h2 class="box-title" id="pitch-h">Advertise page text</h2>
+  <p class="meta">Shown on your Advertise page: three reasons to advertise, and the kinds of businesses that advertise with you.</p>
+  {% for i in [0, 1, 2] %}{% set r = s.ads_pitch[i] %}
+  <div class="field-row">
+    <label class="field"><span>Reason {{ i + 1 }}</span><input name="pitch_title" value="{{ r.title if r else '' }}" maxlength="60"></label>
+    <label class="field"><span>In one sentence</span><input name="pitch_text" value="{{ r.text if r else '' }}" maxlength="200"></label>
+  </div>
+  {% endfor %}
+  <label class="field"><span>Who advertises here <small>one per line, up to 10</small></span><textarea name="ads_who" rows="5" maxlength="1200">{{ s.ads_who | join("\n") }}</textarea></label>
   <div class="form-actions"><button class="btn btn-primary" type="submit">Save</button></div>
 </form>
 {% endblock %}

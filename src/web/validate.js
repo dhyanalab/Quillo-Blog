@@ -75,3 +75,24 @@ export function passwordProblem(password, { email = "", name = "" } = {}, what =
   }
   return "";
 }
+
+// Time zones for the settings lists: Node's own list with "UTC" added, and the old names it still uses (Asia/Calcutta)
+// shown by their current ones (Asia/Kolkata). Any name in the list works with Intl, so dates come out right.
+const RENAMED_ZONES = {
+  "Asia/Calcutta": "Asia/Kolkata",
+  "Asia/Saigon": "Asia/Ho_Chi_Minh",
+  "Asia/Katmandu": "Asia/Kathmandu",
+  "Asia/Rangoon": "Asia/Yangon",
+  "Europe/Kiev": "Europe/Kyiv",
+  "Atlantic/Faeroe": "Atlantic/Faroe",
+  "America/Godthab": "America/Nuuk",
+  "Pacific/Truk": "Pacific/Chuuk",
+  "Pacific/Ponape": "Pacific/Pohnpei",
+  "America/Buenos_Aires": "America/Argentina/Buenos_Aires",
+  "Pacific/Enderbury": "Pacific/Kanton",
+};
+export const TIME_ZONES = ["UTC", ...Intl.supportedValuesOf("timeZone").map((z) => RENAMED_ZONES[z] || z).sort()];
+const ZONE_SET = new Set(TIME_ZONES);
+export const isTimeZone = (z) => typeof z === "string" && ZONE_SET.has(z);
+// A saved zone as the lists show it (a blog that saved "Asia/Calcutta" sees "Asia/Kolkata" selected).
+export const zoneName = (z) => RENAMED_ZONES[z] || z;

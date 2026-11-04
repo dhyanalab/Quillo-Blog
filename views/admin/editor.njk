@@ -59,9 +59,10 @@
         <p class="ed-count meta" id="ed-count"></p>
 
         {% if post.type == "post" %}
-        <section class="ed-section" id="ed-source" aria-labelledby="ed-source-h">
+        {# Topic features switched off in Settings > Post features are hidden (the scripts still find them; saved data is kept). #}
+        <section class="ed-section" id="ed-source" aria-labelledby="ed-source-h"{% if not ("code" in site.postFeatures) %} hidden{% endif %}>
           <div class="ed-section-h"><h2 id="ed-source-h">{{ icon("file", 18) }} Source code</h2><button type="button" class="btn btn-small" data-add-file>{{ icon("plus", 15) }} Add file</button></div>
-          <p class="meta">The full sketch goes here, not in the article. Readers get a box after the FAQ with copy and download buttons, plus a ZIP when there’s more than one file. Use placeholders for Wi-Fi names and passwords; real ones block publishing.</p>
+          <p class="meta">The full code goes here, not in the article. Readers get a box after the article with copy and download buttons, plus a ZIP when there’s more than one file. Use placeholders for passwords and keys; real ones block publishing.</p>
           <div class="src-list" id="src-list"></div>
           <template id="src-tpl">
             <div class="src-item">
@@ -76,7 +77,7 @@
           </template>
         </section>
 
-        <section class="ed-section" id="ed-downloads" aria-labelledby="ed-downloads-h">
+        <section class="ed-section" id="ed-downloads" aria-labelledby="ed-downloads-h"{% if not ("downloads" in site.postFeatures) %} hidden{% endif %}>
           <div class="ed-section-h"><h2 id="ed-downloads-h">{{ icon("dl", 18) }} Downloads</h2><button type="button" class="btn btn-small" data-add-download>{{ icon("plus", 15) }} Add PDF, STL or ZIP</button></div>
           <label class="field"><span>GitHub repository</span><input type="url" name="download_github" value="{{ post.downloads.github }}" placeholder="https://github.com/…"></label>
           <div class="dl-list" id="dl-list"></div>
@@ -93,7 +94,7 @@
         <label class="field"><span>Publish date</span><input type="datetime-local" name="published_at" value="{{ form.published_at }}"><small>A future date schedules the {{ noun }}.{% if not can.allPosts() %} Dates in the past are for editors.{% endif %} Time zone: {{ tz }}.</small></label>
         {% if post.type == "post" %}
         <label class="field"><span>Category</span><select name="category_id"><option value="">No category</option>{% for k in categories %}<option value="{{ k.id }}"{% if post.category_id == k.id %} selected{% endif %}>{% if k.parent_id %}— {% endif %}{{ k.name }}</option>{% endfor %}</select></label>
-        <label class="field"><span>Tags <small>comma-separated</small></span><input name="tags" value="{{ form.tags }}" placeholder="ESP32, Sensors"></label>
+        <label class="field"><span>Tags <small>comma-separated</small></span><input name="tags" value="{{ form.tags }}" placeholder="e.g. Travel, Tips"></label>
         {% endif %}
         {% if authors.length %}
         <label class="field"><span>Author</span><select name="author_id">{% for a in authors %}<option value="{{ a.id }}"{% if post.author_id == a.id %} selected{% endif %}>{{ a.name }}</option>{% endfor %}</select></label>
@@ -111,7 +112,7 @@
           <div class="kv" id="glance"></div>
           <button type="button" class="btn btn-small" data-add-glance>{{ icon("plus", 14) }} Add row</button>
         </div>
-        <label class="field"><span>Tested with <small>one per line</small></span><textarea name="tested_with" rows="2">{{ form.tested_with }}</textarea></label>
+        <label class="field"{% if not ("tested" in site.postFeatures) %} hidden{% endif %}><span>Tested with <small>one per line</small></span><textarea name="tested_with" rows="2">{{ form.tested_with }}</textarea></label>
         <label class="field"><span>Difficulty</span><select name="level"><option value="">Not set</option>{% for k, v in levels %}<option value="{{ k }}"{% if post.level == k | int %} selected{% endif %}>{{ v }}</option>{% endfor %}</select></label>
       </details>
 

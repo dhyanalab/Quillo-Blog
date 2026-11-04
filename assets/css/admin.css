@@ -7,6 +7,7 @@ body.admin{background:var(--sf);font-size:14.5px}
 .adm-brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15.5px;color:var(--ink);text-decoration:none;padding:4px 10px;letter-spacing:-.015em}
 .adm-brand:hover{color:var(--ink)}
 .adm-brand .brand-mark{width:30px;height:30px;border-radius:8px;background:var(--ac);color:var(--ac-ink);display:grid;place-items:center;flex:none}
+.adm-brand .brand-initials{font-weight:800;font-size:13px;letter-spacing:.02em;line-height:1}
 .adm-nav{list-style:none;margin:0;padding:0;display:grid;gap:2px}
 .adm-nav a{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:8px;color:var(--ink-2);font-weight:500;text-decoration:none}
 .adm-nav a:hover{background:var(--sf2);color:var(--ink)}

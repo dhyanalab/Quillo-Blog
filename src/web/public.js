@@ -155,6 +155,8 @@ export function publicRoutes(app, ctx) {
     let t = templateSites.get(site);
     if (!t) {
       t = { ...site, s: {}, business: cleanBusiness(site.business) };
+      // The spread copied the year once; read it at render time again, so the footer changes at New Year on a quiet site.
+      Object.defineProperty(t, "year", { get: () => new Date().getFullYear(), enumerable: true });
       templateSites.set(site, t);
     }
     return t;
@@ -430,7 +432,7 @@ export function publicRoutes(app, ctx) {
       load: (limit, offset) => store.posts.listPublic({ tagId: t.id, limit, offset }).map(pr.card),
       view: (items, pg) => {
         const crumbs = [{ name: "Home", url: site.url.home }, { name: t.name }];
-        return { meta: pr.listMeta({ title: `${t.name} projects and tutorials`, description: t.description || `Posts tagged ${t.name} on ${site.title}.`, url: baseUrl, page: pg.page, crumbs, items, ogKind: "tag", ogId: t.id, label: "Tag" }), crumbs, heading: { kicker: "Tag", title: t.name, description: t.description }, items };
+        return { meta: pr.listMeta({ title: `${t.name} ${site.noun.many}`, description: t.description || `Posts tagged ${t.name} on ${site.title}.`, url: baseUrl, page: pg.page, crumbs, items, ogKind: "tag", ogId: t.id, label: "Tag" }), crumbs, heading: { kicker: "Tag", title: t.name, description: t.description }, items };
       },
     });
   }, { tags: ["lists"] });
@@ -476,7 +478,7 @@ export function publicRoutes(app, ctx) {
     let rows = [];
     let total = 0;
     let note = "";
-    if (q && !searchable) note = "Use a word of at least two letters, such as “ESP32”.";
+    if (q && !searchable) note = "Use a word of at least two letters.";
     else if (q) {
       const key = `${gen}|${page}|${perPage()}|${q.toLowerCase()}`;
       let found = searchMemo.get(key);
@@ -512,7 +514,7 @@ export function publicRoutes(app, ctx) {
       search: { q },
       items: rows.map(pr.card),
       side: pr.sidebar(),
-      empty: note || (q ? "Nothing matched. Try fewer or different words." : "Type a word or two, such as “ESP32 LED”."),
+      empty: note || (q ? "Nothing matched. Try fewer or different words." : "Type a word or two to search."),
       pagination: pages > 1 ? { page, pages, prev: page > 1 ? link(page - 1) : null, next: page < pages ? link(page + 1) : null, items: Array.from({ length: pages }, (_, i) => ({ n: i + 1, url: link(i + 1), current: i + 1 === page })) } : null,
     });
   });
@@ -856,7 +858,7 @@ export function publicRoutes(app, ctx) {
       if (cat && store.posts.countPublic({ categoryIds: categoryIds(site, cat) })) found = { label: "Category", title: cat.seo_title || cat.name };
     } else if (kind === "tag") {
       const t = store.tags.get(id);
-      if (t && store.posts.countPublic({ tagId: t.id })) found = { label: "Tag", title: `${t.name} projects and tutorials` };
+      if (t && store.posts.countPublic({ tagId: t.id })) found = { label: "Tag", title: `${t.name} ${site.noun.many}` };
     } else if (kind === "author") {
       const u = store.users.get(id);
       if (u && store.posts.countPublic({ authorId: u.id })) found = { label: "Author", title: u.name };
@@ -895,6 +897,8 @@ export function publicRoutes(app, ctx) {
   // A published post's source files are remembered (until the next content change, which includes withdrawing the post), with
   // their ETags and their ZIP, so a repeat download does no query, no JSON parsing and no hashing. The ZIPs are bounded in bytes.
   function sourceOf(slug) {
+    // The Source code feature switched off in Settings hides the files, and their downloads too.
+    if (!ctx.site().postFeatures.includes("code")) return null;
     let e = sourceMemo.get(slug);
     if (e) return e;
     // The narrow query (id, slug and source files only), not the whole post row.

@@ -78,7 +78,7 @@ before(async () => {
   assert.equal(res.headers.get("location"), "/blog/admin/setup");
   res = await req(owner, "/blog/admin/setup");
   const token = field(await res.text(), "_csrf");
-  res = await req(owner, "/blog/admin/setup", { method: "POST", form: { _csrf: token, setup_token: "test-setup", site_title: "Test Blog", site_url: "https://example.com", name: "Olive Owner", email: "owner@example.com", password: "correct horse battery" } });
+  res = await req(owner, "/blog/admin/setup", { method: "POST", form: { _csrf: token, setup_token: "test-setup", site_title: "Test Blog", site_url: "https://example.com", timezone: "Asia/Kolkata", name: "Olive Owner", email: "owner@example.com", password: "correct horse battery" } });
   assert.equal(res.status, 302, await res.text());
   res = await req(owner, "/blog/admin/");
   assert.equal(res.status, 200);
@@ -160,7 +160,7 @@ describe("editor and publishing", () => {
     const res = await req(jar(), "/blog/esp32-led-phone/");
     assert.equal(res.status, 200);
     const html = await res.text();
-    assert.match(html, /<title>Control an LED From Your Phone With ESP32 \| IoT Studio Blog<\/title>|<title>Control an LED From Your Phone With ESP32<\/title>/);
+    assert.match(html, /<title>Control an LED From Your Phone With ESP32 \| Test Blog<\/title>/);
     assert.match(html, /<link rel="canonical" href="https:\/\/example\.com\/blog\/esp32-led-phone\/">/);
     assert.match(html, /<meta name="robots" content="index, follow, max-image-preview:large/);
     assert.match(html, /<meta property="og:type" content="article">/);

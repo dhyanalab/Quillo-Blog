@@ -12,12 +12,18 @@
     <h2 class="box-title">General</h2>
     <label class="field"><span>Blog title</span><input name="site_title" value="{{ s.site_title }}" maxlength="100" required></label>
     <label class="field"><span>Description <small class="count" data-for="st-desc" data-max="155"></small></span><textarea id="st-desc" name="site_description" rows="2" maxlength="300">{{ s.site_description }}</textarea><small>The home page meta description.</small></label>
-    <label class="field"><span>Site URL</span><input name="site_url" type="url" value="{{ s.site_url }}" required{% if not canSiteUrl %} readonly{% endif %}><small>Domain only, e.g. https://iotstudio.in.{% if not canSiteUrl %} Only the owner can change this.{% endif %} The blog lives under <code>{{ site.base or "/" }}</code>.{% if envSiteUrl %} The SITE_URL environment variable ({{ envSiteUrl }}) currently overrides this.{% endif %}</small></label>
+    <label class="field"><span>Site URL</span><input name="site_url" type="url" value="{{ s.site_url }}" required{% if not canSiteUrl %} readonly{% endif %}><small>Domain only, e.g. https://blog.example.com.{% if not canSiteUrl %} Only the owner can change this.{% endif %} The blog lives under <code>{{ site.base or "/" }}</code>.{% if envSiteUrl %} The SITE_URL environment variable ({{ envSiteUrl }}) currently overrides this.{% endif %}</small></label>
     {% if siteUrlRisky %}<label class="check"><input type="checkbox" name="confirm_site_url" value="1"> Use this address anyway (it isn’t a public https address)</label>{% endif %}
     <div class="field-row">
-      <label class="field"><span>Time zone</span><select name="timezone">{% for z in zones %}<option{% if z == s.timezone %} selected{% endif %}>{{ z }}</option>{% endfor %}</select></label>
+      <label class="field"><span>Time zone</span><select name="timezone">{% for z in zones %}<option{% if z == tz %} selected{% endif %}>{{ z }}</option>{% endfor %}</select></label>
       <label class="field"><span>Posts per page</span><input type="number" name="posts_per_page" value="{{ s.posts_per_page }}" min="4" max="48"></label>
     </div>
+    <label class="field"><span>Region</span><select name="og_locale">{% for code, label in locales %}<option value="{{ code }}"{% if code == s.og_locale %} selected{% endif %}>{{ label }}</option>{% endfor %}</select><small>Tells search engines and social networks who the blog is written for.</small></label>
+    <div class="field-row">
+      <label class="field"><span>A post is called</span><input name="post_noun" value="{{ s.post_noun }}" maxlength="30" placeholder="post"></label>
+      <label class="field"><span>Several are called</span><input name="post_noun_plural" value="{{ s.post_noun_plural }}" maxlength="30" placeholder="posts"></label>
+    </div>
+    <p class="meta">Used in phrases such as “Related posts” and “Search the posts”. For example recipe and recipes, or project and projects.</p>
   </section>
 
   <section class="card">
@@ -39,18 +45,26 @@
         </div>
       </div>
     </div>
-    <label class="field"><span>Logo link</span><input name="home_url" value="{{ s.home_url }}" placeholder="Empty = blog home, or https://iotstudio.in/"></label>
+    <label class="field"><span>Mark when there’s no logo</span><select name="brand_mark">{% for m in brandMarks %}<option value="{{ m.value }}"{% if m.value == s.brand_mark %} selected{% endif %}>{{ m.label }}</option>{% endfor %}</select><small>Shown before the blog’s name in the header, footer and admin until you choose a logo.</small></label>
+    <label class="field"><span>Logo link</span><input name="home_url" value="{{ s.home_url }}" placeholder="Empty = blog home, or https://www.example.com/"></label>
     <label class="field"><span>About text <small>footer</small></span><textarea name="about_text" rows="3" maxlength="600">{{ s.about_text }}</textarea></label>
+    <label class="check"><input type="checkbox" name="show_powered_by" value="1"{% if s.show_powered_by %} checked{% endif %}> Show “Powered by {{ product.name }}” in the footer</label>
+  </section>
+
+  <section class="card" id="features">
+    <h2 class="box-title">Post features</h2>
+    <p class="meta">Extra boxes for posts, for blogs about making and building things. Switched-off features disappear from the editor and from every post; anything already written is kept and comes back if you switch them on again.</p>
+    {% for f in postFeatures %}<label class="check"><input type="checkbox" name="post_features" value="{{ f.value }}"{% if f.value in s.post_features %} checked{% endif %}><span><b>{{ f.label }}</b>: {{ f.help }}</span></label>{% endfor %}
   </section>
 
   <section class="card" id="business">
     <h2 class="box-title">Business details</h2>
     <p class="meta">Shown in the footer, used on your legal pages, and given to search engines so they know who runs the blog.</p>
     <div class="field-row">
-      <label class="field"><span>Business name <small>the registered name</small></span><input name="business_name" value="{{ s.business_name }}" maxlength="120" placeholder="Dhyana Engineering Solutions"></label>
-      <label class="field"><span>Brand</span><input name="brand_name" value="{{ s.brand_name }}" maxlength="80" placeholder="IoT Studio"></label>
+      <label class="field"><span>Business name <small>the registered name</small></span><input name="business_name" value="{{ s.business_name }}" maxlength="120" placeholder="e.g. Example Media Private Limited"></label>
+      <label class="field"><span>Brand</span><input name="brand_name" value="{{ s.brand_name }}" maxlength="80" placeholder="e.g. Example"></label>
     </div>
-    <label class="field"><span>Brand website</span><input type="url" name="brand_url" value="{{ s.brand_url }}" placeholder="https://www.iotstudio.in"></label>
+    <label class="field"><span>Brand website</span><input type="url" name="brand_url" value="{{ s.brand_url }}" placeholder="https://www.example.com"></label>
     <label class="field"><span>Street address</span><input name="address_street" value="{{ s.address_street }}" maxlength="200" placeholder="Door number, floor, street, area"></label>
     <div class="field-row">
       <label class="field"><span>City</span><input name="address_city" value="{{ s.address_city }}" maxlength="80"></label>

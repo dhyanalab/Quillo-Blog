@@ -11,21 +11,14 @@
 
   <div class="wrap">
     <ul class="lp-cards" role="list">
+      {# The three reasons are edited in Admin > Ads. #}
+      {% for r in site.adsPitch %}
       <li class="lp-card">
-        <span class="lp-ic">{{ icon("users", 22) }}</span>
-        <h2>Readers who build</h2>
-        <p class="lp-note">Makers, students and engineers who follow the projects and buy the parts to build them.</p>
+        <span class="lp-ic">{{ icon(r.icon or "check", 22) }}</span>
+        <h2>{{ r.title }}</h2>
+        <p class="lp-note">{{ r.text }}</p>
       </li>
-      <li class="lp-card">
-        <span class="lp-ic">{{ icon("chip", 22) }}</span>
-        <h2>Right beside the projects</h2>
-        <p class="lp-note">Your banner sits next to step-by-step builds, where readers choose their boards, sensors and tools.</p>
-      </li>
-      <li class="lp-card">
-        <span class="lp-ic">{{ icon("chart", 22) }}</span>
-        <h2>Clear numbers</h2>
-        <p class="lp-note">You get the views and clicks of your banner for every day it runs.</p>
-      </li>
+      {% endfor %}
     </ul>
 
     {% if places.length %}
@@ -86,11 +79,7 @@
       <section class="lp-panel" aria-labelledby="fit-h">
         <h2 id="fit-h">Who advertises here</h2>
         <ul class="lp-checks">
-          <li>{{ icon("check", 16) }}<span>Electronics shops and distributors</span></li>
-          <li>{{ icon("check", 16) }}<span>Board, module and sensor makers</span></li>
-          <li>{{ icon("check", 16) }}<span>PCB and 3D-printing services</span></li>
-          <li>{{ icon("check", 16) }}<span>Tool and test-equipment brands</span></li>
-          <li>{{ icon("check", 16) }}<span>Courses and training for makers</span></li>
+          {% for w in site.adsWho %}<li>{{ icon("check", 16) }}<span>{{ w }}</span></li>{% endfor %}
         </ul>
       </section>
       <section class="lp-panel" aria-labelledby="rules-h">

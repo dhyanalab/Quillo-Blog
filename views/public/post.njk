@@ -134,7 +134,7 @@
 
   {% if related.length %}
   <section class="wrap related" aria-labelledby="x-related">
-    <div class="sec-h"><h2 id="x-related">Related projects</h2></div>
+    <div class="sec-h"><h2 id="x-related">Related {{ site.noun.many }}</h2></div>
     <div class="grid3">{% for r in related %}{{ card(r, "(max-width: 640px) calc(100vw - 32px), 380px") }}{% endfor %}</div>
   </section>
   {% endif %}

@@ -6,6 +6,7 @@ import { SOCIAL_KEYS } from "../store/settings.js";
 import { isHttpUrl } from "../render/util.js";
 import { isSafeLocalPath } from "./validate.js";
 import { isPrivateHost } from "../services/hosts.js";
+import { PRODUCT } from "../product.js";
 
 // A menu or footer link must be a path on this site or a full http(s) address. Anything else (javascript:, //host) becomes "".
 const cleanUrl = (u) => {
@@ -128,7 +129,7 @@ export function buildSite(store, config) {
     const handle = perNetwork.get(n.id) > 1 && n.id !== "website" ? handleOf(u) : "";
     return { key: n.id, label: handle ? `${n.name} (@${handle})` : n.name, url: u };
   });
-  // Pages A to Z, by their short title ("About", not "About IoT Studio Blog") for menus.
+  // Pages A to Z, by their short title ("About", not "About My Blog") for menus.
   const pages = store.posts.listPublic({ type: "page", limit: 20 })
     .map((p) => ({ ...p, title: p.short_title || p.title }))
     .sort((a, b) => a.title.localeCompare(b.title));
@@ -167,6 +168,7 @@ export function buildSite(store, config) {
     description: s.site_description,
     name: s.org_name,
     tz: s.timezone,
+    locale: s.og_locale,
     lang: "en",
     homeUrl: cleanUrl(s.home_url) || url.home,
     logo,
@@ -219,6 +221,14 @@ export function buildSite(store, config) {
       ["facebook-domain-verification", s.facebook_verification],
     ].filter(([, v]) => v),
     about: s.about_text,
+    // White-label: the mark shown when there is no logo ("initials" or an icon name), the topic features switched on in
+    // Settings > Post features, and the optional "Powered by" credit in the footer.
+    brandMark: s.brand_mark,
+    postFeatures: Array.isArray(s.post_features) ? s.post_features : [],
+    poweredBy: s.show_powered_by ? PRODUCT : null,
+    noun: { one: s.post_noun || "post", many: s.post_noun_plural || "posts" },
+    adsPitch: s.ads_pitch,
+    adsWho: s.ads_who,
     // Read when a page is built, so the footer year changes at New Year even if the site object was cached.
     get year() {
       return new Date().getFullYear();
