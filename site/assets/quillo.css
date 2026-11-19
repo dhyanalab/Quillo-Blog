@@ -524,6 +524,19 @@ code,kbd,pre{font-family:var(--mono)}
 .w-pic .below .rail i{height:6px}
 .w-pic .below .txt{display:grid;gap:5px;align-content:start}
 .w-pic .below .txt i{height:5px}
+/* Cover pictures: the whole cover with the words under it, or the words printed over a cropped cover. */
+.w-whole{grid-template-rows:1fr 44px;gap:0}
+.w-whole .img{display:flex!important;flex-direction:column;justify-content:center;gap:5px;padding:0 14px;border-radius:6px 6px 0 0}
+.w-whole .img b{display:block;width:46%;height:7px;border-radius:3px;background:rgba(255,255,255,.85)}
+.w-whole .img b.s{width:30%}
+.w-whole .pan{display:grid;gap:5px;align-content:center;padding:0 12px;background:#1F2328;border-radius:0 0 6px 6px}
+.w-whole .pan i{height:5px;width:70%;background:rgba(255,255,255,.35)}
+.w-whole .pan i.t{height:8px;width:88%;background:#fff}
+.w-over .img{position:relative;display:block!important;overflow:hidden}
+.w-over .img b{position:absolute;left:-16px;top:24px;width:54%;height:7px;border-radius:3px;background:rgba(255,255,255,.5)}
+.w-over .img b.s{top:36px;width:40%}
+.w-over .img em{position:absolute;left:12px;bottom:28px;width:74%;height:9px;border-radius:3px;background:#fff}
+.w-over .img em.s{bottom:14px;width:50%;height:5px;background:rgba(255,255,255,.8)}
 .w-classic{grid-template-columns:1fr .45fr;grid-template-rows:10px 1fr}
 .w-classic .ttl{grid-column:1/-1;width:60%}
 .w-classic .main{display:grid;grid-template-rows:56px auto;gap:6px;align-content:start}
