@@ -4,6 +4,23 @@ All notable changes to Quillo are listed here. Versions follow [Semantic Version
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-19
+
+These fixes were already running on the IoT Studio blog. This release brings them into Quillo.
+
+### Changed
+
+- **Newsletter emails have a new layout:**
+  - a header with your blog's name;
+  - the first post large, with a "Read the post" button;
+  - the other posts two to a row on computers and one per row on phones;
+  - a footer with your social links, business address and unsubscribe link.
+
+### Fixed
+
+- The editor's **Preview** button works again. The preview opens in a new tab, and the browser sent it with no origin, so the blog's same-site check refused it.
+- In the Picture first article header, an author photo stays a small round photo in the byline. Before, it could stretch across the whole header.
+
 ## [1.1.0] - 2026-11-19
 
 Cover pictures with words on them now look right. The title is no longer printed over a picture that has its own title, and the picture's edges are no longer cut off.
@@ -122,7 +139,8 @@ Three security audits, with fixes after each:
 - Request body limits that depend on sign-in.
 - Every dependency pinned exactly, with DOMPurify 3.4.17, and `npm audit` clean.
 
-[Unreleased]: https://github.com/dhyanalab/Quillo-Blog/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/dhyanalab/Quillo-Blog/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/dhyanalab/Quillo-Blog/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/dhyanalab/Quillo-Blog/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/dhyanalab/Quillo-Blog/compare/v0.10.0...v1.0.0
 [0.10.0]: https://github.com/dhyanalab/Quillo-Blog/compare/v0.9.0...v0.10.0

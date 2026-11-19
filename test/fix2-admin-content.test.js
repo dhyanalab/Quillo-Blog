@@ -771,12 +771,16 @@ describe("the editor's client code, the page script and the build script", () =>
     assert.match(editorJs, /putImage\(item\.url/);
   });
 
-  test("external links and the preview form carry noopener noreferrer (N-115)", () => {
+  test("external links carry noopener noreferrer; the preview form only noopener (N-115)", () => {
+    const previewForm = /<form id="preview-form"[^>]*>/;
     for (const f of ["media.njk", "editor.njk", "comments.njk", "analytics.njk", "posts.njk", "taxonomy.njk", "menus.njk", "newsletter-edit.njk"]) {
-      const src = fs.readFileSync(path.join(ROOT, "views/admin", f), "utf8");
+      const src = fs.readFileSync(path.join(ROOT, "views/admin", f), "utf8").replace(previewForm, "");
       assert.doesNotMatch(src, /rel="noopener"/, f);
     }
-    assert.match(fs.readFileSync(path.join(ROOT, "views/admin/editor.njk"), "utf8"), /target="_blank" rel="noopener noreferrer" hidden/);
+    // The preview posts to the admin itself in a new tab. With noreferrer the browser sends "Origin: null" and no Referer,
+    // so the same-site check refuses the preview. noopener alone still keeps the new tab from reaching back to the editor.
+    const form = fs.readFileSync(path.join(ROOT, "views/admin/editor.njk"), "utf8").match(previewForm)?.[0] ?? "";
+    assert.match(form, /target="_blank" rel="noopener" hidden/);
   });
 
   test("the page script guards the reply and compose parts (R-035)", () => {

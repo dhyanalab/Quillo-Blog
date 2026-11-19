@@ -179,7 +179,7 @@
     </aside>
   </div>
 
-  <form id="preview-form" method="post" action="{{ A }}/preview" target="_blank" rel="noopener noreferrer" hidden><input type="hidden" name="_csrf" value="{{ csrf }}"><input type="hidden" name="payload"></form>
+  <form id="preview-form" method="post" action="{{ A }}/preview" target="_blank" rel="noopener" hidden><input type="hidden" name="_csrf" value="{{ csrf }}"><input type="hidden" name="payload"></form>
   <script type="application/json" id="ed-data">{{ edData | jsonld }}</script>
 </div>
 {% endblock %}

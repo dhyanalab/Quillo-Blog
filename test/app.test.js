@@ -360,7 +360,8 @@ describe("newsletter and analytics", () => {
     const post = ctx.store.posts.listPublic({ limit: 1 })[0];
     const draft = { _csrf: csrf, subject: "New projects this month", preheader: "Two builds", body_md: "Hi! See [the blog](https://example.com/).", post_ids: String(post.id) };
     res = await req(owner, "/blog/admin/newsletter/new", { method: "POST", form: { ...draft, action: "preview" } });
-    assert.match(await res.text(), /New projects this month[\s\S]*Read more/);
+    // One post: it is the large featured card, with a "Read the post" button ("Read more" is on the smaller grid cards).
+    assert.match(await res.text(), /New projects this month[\s\S]*Read the post/);
     assert.equal(ctx.store.newsletters.list().length, 0, "preview doesn't save");
 
     res = await req(owner, "/blog/admin/newsletter/new", { method: "POST", form: { ...draft, action: "test", test_to: "owner@example.com" } });

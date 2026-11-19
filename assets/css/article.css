@@ -1,7 +1,7 @@
 /* Article page: picture-first hero, contents and share rail, body, source code, downloads, comments. */
 
 .post-hero{position:relative;isolation:isolate;min-height:500px;display:flex;align-items:flex-end;background:linear-gradient(135deg,#16181B,#3A2216 55%,#C2410C);color:var(--hero-ink)}
-.post-hero .hero-img,.post-hero picture>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.post-hero .hero-img,.post-hero>picture>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
 .post-hero::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(10,12,14,.15) 0%,rgba(10,12,14,0) 30%,var(--hero-shade) 86%)}
 .post-hero .wrap{width:100%;padding-top:96px;padding-bottom:40px}
 .post-hero h1{color:#fff;font-size:46px;line-height:1.12;letter-spacing:-.025em;max-width:920px;margin:14px 0 18px}
