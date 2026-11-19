@@ -101,9 +101,20 @@ export const DESIGN_GROUPS = [
   {
     key: "article", label: "Article page", section: "layout", markup: true, page: "post", ready: true,
     options: [
-      { id: "picture", name: "Picture first", desc: "A full-width picture with the title on it. Then the contents list and share buttons beside the text." },
+      { id: "picture", name: "Picture first", desc: "A large cover picture and the title at the top. Then the contents list and share buttons beside the text." },
       { id: "classic", name: "Classic with sidebar", desc: "Title, author and share buttons at the top, then the picture. A sidebar holds the contents list, News and the newsletter." },
       { id: "centred", name: "Centred reading", desc: "One centred column with no sidebar. The contents list sits under the quick answer, and the share buttons in a rail beside the text." },
+    ],
+  },
+  // How the big story on the home page and the Picture first article header show the cover. Many covers carry their own
+  // title or labels, so the default shows the whole picture with the words beside or under it. The original look, words
+  // printed on a cropped picture, is the second option. Unlike the other groups, the default here is not the original
+  // look, so its card says "Recommended" (defaultTag).
+  {
+    key: "cover", label: "Cover pictures", section: "layout", page: "home", ready: true, defaultTag: "Recommended",
+    options: [
+      { id: "whole", name: "Whole picture", desc: "The cover is shown in full, never cropped, and the title sits beside or under it. Right for any picture, and the best choice when your covers have words or drawings on them." },
+      { id: "behind", name: "Words on the picture", desc: "The title is printed over the cover, which fills the space, so its edges get cropped. Only for photos with no words on them." },
     ],
   },
   {
@@ -174,7 +185,7 @@ export const DESIGN_GROUPS = [
 // The groups a template sets: everything readers see (not the admin's own look and editor).
 export const TEMPLATE_KEYS = DESIGN_GROUPS.filter((g) => g.section !== "admin").map((g) => g.key);
 
-// The look every blog had before the Design page: the first option of each group.
+// The look every blog had before the Design page: the first option of each group (except Cover pictures, see above).
 export const DESIGN_DEFAULTS = Object.freeze(Object.fromEntries(DESIGN_GROUPS.map((g) => [g.key, g.options[0].id])));
 
 // Keeps only known groups and options; anything else falls back to the default.

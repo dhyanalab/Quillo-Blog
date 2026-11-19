@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="CHANGELOG.md"><img alt="Version" src="https://img.shields.io/badge/version-1.0.0-C2410C"></a>
+  <a href="CHANGELOG.md"><img alt="Version" src="https://img.shields.io/badge/version-1.1.0-C2410C"></a>
   <a href="LICENSING.md"><img alt="Licence: AGPL-3.0" src="https://img.shields.io/badge/licence-AGPL--3.0-0F766E"></a>
   <a href="docs/development.md"><img alt="Node 22.13 or newer" src="https://img.shields.io/badge/node-%E2%89%A5%2022.13-339933"></a>
   <a href="SECURITY.md"><img alt="Security policy" src="https://img.shields.io/badge/security-policy-475569"></a>
@@ -49,7 +49,7 @@ Quillo gives you a magazine-quality blog that you own outright. Run it on a Rasp
 | --- | --- |
 | **Writing** | A visual editor with a Markdown switch. Autosave, revisions, scheduling, a media library, tables, callouts, FAQ sections, and publishing checks that catch broken links and missing alt text. |
 | **Your brand** | First-run setup names your blog. Then choose your logo (or initials), region, time zone, menus, footer, and what you call a post: recipe, project, story. |
-| **Design** | Choose your look in the admin with a live preview: 6 colour themes, 5 font pairs, light and dark, 3 headers, 3 home pages, 3 article pages, and styles for share buttons, source code, downloads, tables and comments. Start from 5 ready-made templates or save your own. |
+| **Design** | Choose your look in the admin with a live preview: 6 colour themes, 5 font pairs, light and dark, 3 headers, 3 home pages, 3 article pages, cover pictures shown whole or with the title on them, and styles for share buttons, source code, downloads, tables and comments. Start from 5 ready-made templates or save your own. |
 | **Readers** | Free reader accounts with email verification, moderated comments with replies and likes, and a reader account page. |
 | **Newsletter** | Double opt-in subscriptions, newsletters sent through your own email service, one-click unsubscribe, and a suppression list that survives restores. |
 | **Earning** | First-party sponsor banners in nine places, labelled and counted without cookies. An Advertise page fills itself in from your settings. |

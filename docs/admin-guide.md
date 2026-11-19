@@ -67,12 +67,13 @@ Nothing is sent to any outside service. The QR code is drawn on the server ([uqr
 The admin's **Design** screen sets how the blog looks. Administrators and the owner can use it.
 
 - **The preview** on the right shows your real home page and an article, the one with the most parts (code, downloads, a table). Switch it between **Home page** and **Article**, **Light** and **Dark**, and **Computer** and **Phone** sizes. Links in the preview don't open.
-- **Nothing changes for readers until you press Save design.** **Back to the original look** sets every choice back to the first one (marked "Original").
+- **Nothing changes for readers until you press Save design.** **Back to the original look** sets every choice back to the first one, marked "Original" (or "Recommended" for Cover pictures).
 - **Colours and type:** 6 colour themes (each with a light and a dark version), 5 font pairs, and Light and dark or Light only.
 - **Page layouts:**
   - **Header:** clean bar, two rows in news style, or dark bar.
   - **Home page:** big story and sidebar, Magazine, or Newsroom.
   - **Article page:** picture first, classic with sidebar, or centred reading.
+  - **Cover pictures:** **Whole picture** (recommended) shows each cover in full, with the title beside or under it. **Words on the picture** prints the title over the cover and crops its edges, so use it only for photos with no words on them.
 - **Article parts:** share buttons, the source code box, code colours, downloads, tables and comments, each with its own styles.
 - **Admin:** the admin's own look and the post editor. These change the admin for everyone on your team.
 - **Templates:**

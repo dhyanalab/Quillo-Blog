@@ -56,7 +56,7 @@
             <span class="d-card">
               {% if o.swatches %}<span class="d-sw" aria-hidden="true">{% for sw in [o.swatches.light, o.swatches.dark] %}<span style="background:{{ sw[0] }}"><i style="background:{{ sw[2] }}"></i><i style="background:{{ sw[3] }}"></i><i style="background:{{ sw[4] }}"></i></span>{% endfor %}</span>{% endif %}
               {% if o.fonts %}<span class="d-font" aria-hidden="true"><b style="font-family:'{{ o.fonts.head }}'">Aa</b><span style="font-family:'{{ o.fonts.text or o.fonts.body }}'">Reading text</span><code style="font-family:'{{ o.fonts.mono }}'">code()</code></span>{% endif %}
-              <strong>{{ o.name }}{% if o.id == defaults[g.key] %} <em class="d-tag">Original</em>{% endif %}</strong>
+              <strong>{{ o.name }}{% if o.id == defaults[g.key] %} <em class="d-tag">{{ g.defaultTag or "Original" }}</em>{% endif %}</strong>
               {% if o.desc %}<small>{{ o.desc }}</small>{% endif %}
             </span>
           </label>

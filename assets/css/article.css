@@ -27,6 +27,25 @@
   .post-hero .wrap{padding-top:72px;padding-bottom:24px}
   .post-hero h1{font-size:29px;margin:10px 0 14px}
 }
+/* Cover pictures, "Whole picture" (Admin > Design, the default): the cover in full beside the title on wide screens and
+   above it on narrow ones, on a dark band, so a cover with its own title or labels is never cropped or written over.
+   The four columns line the title up with the page below: side margin, title, picture, side margin. */
+:root[data-d-cover="whole"] .post-hero:not(.plain):not(.no-img){display:grid;grid-template-columns:minmax(var(--gut),1fr) minmax(0,calc(var(--wrap)*.52)) minmax(0,calc(var(--wrap)*.48)) minmax(var(--gut),1fr);align-items:center;min-height:0;background:var(--hd-bg)}
+:root[data-d-cover="whole"] .post-hero:not(.plain):not(.no-img)::before{display:none}
+:root[data-d-cover="whole"] .post-hero:not(.plain):not(.no-img)>picture,:root[data-d-cover="whole"] .post-hero:not(.plain):not(.no-img)>img{grid-column:3;grid-row:1;display:block;margin:44px 0}
+:root[data-d-cover="whole"] .post-hero:not(.plain):not(.no-img)>picture>img,:root[data-d-cover="whole"] .post-hero:not(.plain):not(.no-img)>img{position:static;display:block;width:100%;height:auto;max-height:460px;object-fit:contain;border-radius:var(--r)}
+:root[data-d-cover="whole"] .post-hero:not(.plain):not(.no-img)>.wrap{grid-column:2;grid-row:1;max-width:none;margin:0;padding:44px 48px 44px 0}
+:root[data-d-cover="whole"] .post-hero:not(.plain):not(.no-img) h1{font-size:40px}
+@media (max-width:900px){
+  :root[data-d-cover="whole"] .post-hero:not(.plain):not(.no-img){display:block}
+  :root[data-d-cover="whole"] .post-hero:not(.plain):not(.no-img)>picture,:root[data-d-cover="whole"] .post-hero:not(.plain):not(.no-img)>img{margin:0}
+  :root[data-d-cover="whole"] .post-hero:not(.plain):not(.no-img)>picture>img,:root[data-d-cover="whole"] .post-hero:not(.plain):not(.no-img)>img{max-height:none;border-radius:0}
+  :root[data-d-cover="whole"] .post-hero:not(.plain):not(.no-img)>.wrap{max-width:calc(var(--wrap) + 2*var(--gut));margin:0 auto;padding:20px var(--gut) 28px}
+  :root[data-d-cover="whole"] .post-hero:not(.plain):not(.no-img) h1{font-size:34px}
+}
+@media (max-width:760px){
+  :root[data-d-cover="whole"] .post-hero:not(.plain):not(.no-img) h1{font-size:28px;margin:8px 0 14px}
+}
 
 .post-grid{display:grid;grid-template-columns:250px minmax(0,1fr);gap:56px;padding-top:40px;padding-bottom:24px}
 .post-main{min-width:0;max-width:760px}

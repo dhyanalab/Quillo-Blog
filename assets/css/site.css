@@ -220,6 +220,22 @@ a:hover .thumb img,.thumb:hover img{transform:scale(1.03)}
   .box{padding:18px}
 }
 
+/* Cover pictures, "Whole picture" (Admin > Design, the default): the big story shows its cover in full with the words in a
+   dark panel under it, so a cover with its own title or labels is never cropped or written over. Small thumbnails keep the
+   cover's 16:9 shape instead of cutting it square. "Words on the picture" is the look above. A story without a cover keeps it. */
+:root[data-d-cover="whole"] .story{display:block;min-height:0;background:var(--hd-bg)}
+:root[data-d-cover="whole"] .story::before{display:none}
+:root[data-d-cover="whole"] .story>picture{display:block}
+:root[data-d-cover="whole"] .story>picture>img,:root[data-d-cover="whole"] .story>img{position:static;display:block;width:100%;height:auto;max-height:620px;object-fit:contain}
+:root[data-d-cover="whole"] .story-body{padding:22px 32px 30px}
+:root[data-d-cover="whole"] .story:not(:has(>picture,>img)){display:flex;min-height:360px;background:linear-gradient(135deg,#1A1D21,#3A2216 60%,#C2410C)}
+:root[data-d-cover="whole"] .hcard{grid-template-columns:136px minmax(0,1fr)}
+:root[data-d-cover="whole"] .hcard .thumb,:root[data-d-cover="whole"] .rowc .thumb{aspect-ratio:16/9}
+@media (max-width:640px){
+  :root[data-d-cover="whole"] .story-body{padding:16px 20px 22px}
+  :root[data-d-cover="whole"] .rowc{grid-template-columns:128px minmax(0,1fr)}
+}
+
 /* Home: Magazine and Newsroom (Admin > Design). */
 .lead{display:flex;flex-direction:column;gap:8px;min-width:0}
 .lead .thumb{margin-bottom:6px}

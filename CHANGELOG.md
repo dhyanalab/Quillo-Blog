@@ -4,6 +4,23 @@ All notable changes to Quillo are listed here. Versions follow [Semantic Version
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-19
+
+Cover pictures with words on them now look right. The title is no longer printed over a picture that has its own title, and the picture's edges are no longer cut off.
+
+### Added
+
+- **Admin > Design > Cover pictures**, under Page layouts:
+  - **Whole picture**, the new default, marked "Recommended". The cover is shown in full and nothing is printed over it.
+    - The big story on the home page shows the picture, with the title, summary and byline in a dark panel under it.
+    - The Picture first article page puts the title beside the picture on computers and under it on phones.
+    - The small pictures in Editor's Choice and the post lists keep the cover's 16:9 shape. They are no longer cut to 4:3 or a square.
+  - **Words on the picture**: the earlier look, with the title printed over a cropped cover. It suits photos with no words on them.
+
+### Changed
+
+- Every blog switches to Whole picture with this update, including blogs with a saved design. To keep the earlier look, choose Words on the picture in Admin > Design > Cover pictures.
+
 ### Project
 
 - The Quillo website is live at [quillo.dhyanalab.in](https://quillo.dhyanalab.in). It has 5 pages: Home, Features, Designs, Pricing and Get started.
@@ -105,7 +122,8 @@ Three security audits, with fixes after each:
 - Request body limits that depend on sign-in.
 - Every dependency pinned exactly, with DOMPurify 3.4.17, and `npm audit` clean.
 
-[Unreleased]: https://github.com/dhyanalab/Quillo-Blog/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/dhyanalab/Quillo-Blog/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/dhyanalab/Quillo-Blog/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/dhyanalab/Quillo-Blog/compare/v0.10.0...v1.0.0
 [0.10.0]: https://github.com/dhyanalab/Quillo-Blog/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/dhyanalab/Quillo-Blog/releases/tag/v0.9.0

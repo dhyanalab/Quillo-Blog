@@ -74,8 +74,9 @@ const contrast = (a, b) => {
 };
 
 describe("the design catalogue", () => {
-  test("every group starts on its first option, which is the original look", () => {
+  test("every group starts on its first option, which is the original look (Cover pictures starts on the recommended one)", () => {
     for (const g of DESIGN_GROUPS) assert.equal(DESIGN_DEFAULTS[g.key], g.options[0].id, g.key);
+    assert.equal(DESIGN_DEFAULTS.cover, "whole");
     assert.deepEqual({ palette: DESIGN_DEFAULTS.palette, fonts: DESIGN_DEFAULTS.fonts, mode: DESIGN_DEFAULTS.mode }, { palette: "copper", fonts: "inter", mode: "both" });
     assert.ok(DESIGN_GROUPS.length >= 14, "all the picker's groups are listed");
   });
@@ -144,7 +145,7 @@ describe("Admin > Design", () => {
   test("a new blog shows the original look: Copper & Slate, Inter, light and dark", async () => {
     const b = await newBlog();
     const html = await b.home();
-    assert.match(html, /<html lang="[^"]+" data-base="" data-d-palette="copper" data-d-fonts="inter" data-d-mode="both" data-d-header="clean" data-d-home="bigstory" data-d-article="picture" data-d-share="brand" data-d-code="files" data-d-syntax="colour" data-d-downloads="buttons" data-d-tables="striped" data-d-comments="thread">/);
+    assert.match(html, /<html lang="[^"]+" data-base="" data-d-palette="copper" data-d-fonts="inter" data-d-mode="both" data-d-header="clean" data-d-home="bigstory" data-d-article="picture" data-d-cover="whole" data-d-share="brand" data-d-code="files" data-d-syntax="colour" data-d-downloads="buttons" data-d-tables="striped" data-d-comments="thread">/);
     assert.match(html, /<meta name="theme-color" content="#FFFFFF" media="\(prefers-color-scheme: light\)">/);
     assert.match(html, /<meta name="theme-color" content="#191C1F" media="\(prefers-color-scheme: dark\)">/);
     assert.match(html, /class="icon-btn theme-toggle"/);
@@ -159,6 +160,8 @@ describe("Admin > Design", () => {
     for (const id of Object.keys(PALETTES)) assert.match(html, new RegExp(`name="palette" value="${id}"`));
     for (const id of Object.keys(FONT_PAIRS)) assert.match(html, new RegExp(`name="fonts" value="${id}"`));
     assert.match(html, /name="palette" value="copper" data-default="yes" checked>/);
+    assert.match(html, /Copper &amp; Slate <em class="d-tag">Original<\/em>/);
+    assert.match(html, /name="cover" value="whole" data-default="yes" checked>[\s\S]*?<strong>Whole picture <em class="d-tag">Recommended<\/em><\/strong>/);
     assert.match(html, /<iframe id="design-frame"[^>]+src="\/admin\/design\/preview\?page=home&amp;palette=copper&amp;fonts=inter&amp;mode=both&amp;header=clean/);
     assert.doesNotMatch(html, /More choices on the way/, "every group can be chosen");
     for (const g of DESIGN_GROUPS) for (const o of g.options) assert.match(html, new RegExp(`name="${g.key}" value="${o.id}"`), `${g.key} ${o.id}`);
@@ -291,6 +294,18 @@ describe("Admin > Design: layouts and article parts", () => {
     const nr = await b.page("/", { home: "newsroom" });
     assert.match(nr, /class="wrap home home-nr"/);
     assert.match(nr, /class="lead-title"/);
+  });
+
+  test("cover pictures: shown whole with the words beside or under them, or the words on the picture when chosen", async () => {
+    const b = await richBlog();
+    const whole = await b.page("/");
+    assert.match(whole, /data-d-cover="whole"/);
+    assert.match(await b.page("/tank-monitor/"), /data-d-cover="whole"/);
+    assert.match(await b.page("/", { cover: "behind" }), /data-d-cover="behind"/);
+    const site = await (await b.req(jar(), whole.match(/href="(\/assets\/css\/site-[0-9a-f]+\.css)"/)[1])).text();
+    for (const rule of [':root[data-d-cover="whole"] .story{', ':root[data-d-cover="whole"] .post-hero:not(.plain):not(.no-img){', ':root[data-d-cover="whole"] .hcard .thumb']) assert.ok(site.includes(rule), rule);
+    // "Words on the picture" is the stylesheet's own look, so it needs no rules of its own.
+    assert.ok(!site.includes('[data-d-cover="behind"]'));
   });
 
   test("article pages: picture first, classic with a sidebar, and centred reading", async () => {
